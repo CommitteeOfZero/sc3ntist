@@ -142,9 +142,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="CCDisassembler.h" />
     <ClInclude Include="DisassemblerMacros.h" />
     <ClInclude Include="SC3Argument.h" />
