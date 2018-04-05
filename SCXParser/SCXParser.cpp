@@ -43,7 +43,7 @@ std::string SC3ArgumentToString(SC3Argument *arg) {
     }
     case Expression: {
       const auto &expr = static_cast<SC3ArgExpression *>(arg)->expr();
-      return expr.toString();
+      return expr.toString(true);
       break;
     }
     case LocalLabel: {
@@ -54,7 +54,7 @@ std::string SC3ArgumentToString(SC3Argument *arg) {
     case FarLabel: {
       const auto &expr = static_cast<SC3ArgFarLabel *>(arg)->scriptBufferId();
       auto id = static_cast<SC3ArgFarLabel *>(arg)->labelId();
-      return "FarLabelRef(" + expr.toString() + ", " + std::to_string(id) + ")";
+      return "FarLabelRef(" + expr.toString(true) + ", " + std::to_string(id) + ")";
     }
     case ReturnAddress: {
       auto id = static_cast<SC3ArgReturnAddress *>(arg)->id();
@@ -68,17 +68,17 @@ std::string SC3ArgumentToString(SC3Argument *arg) {
     }
     case ExprFlagRef: {
       const auto &expr = static_cast<SC3ArgExprFlagRef *>(arg)->expr();
-      return "FlagRef(" + expr.toString() + ")";
+      return "FlagRef(" + expr.toString(true) + ")";
       break;
     }
 	case ExprGlobalVarRef: {
 		const auto &expr = static_cast<SC3ArgExprGlobalVarRef *>(arg)->expr();
-		return "GlobalVarRef(" + expr.toString() + ")";
+		return "GlobalVarRef(" + expr.toString(true) + ")";
 		break;
 	}
 	case ExprThreadVarRef: {
 		const auto &expr = static_cast<SC3ArgExprThreadVarRef *>(arg)->expr();
-		return "ThreadVarRef(" + expr.toString() + ")";
+		return "ThreadVarRef(" + expr.toString(true) + ")";
 		break;
 	}
   }
@@ -88,7 +88,7 @@ std::string SC3ArgumentToString(SC3Argument *arg) {
 int main() {
   std::vector<std::pair<uint8_t *, std::streamsize>> files;
 
-  std::string path = "G:\\Games\\SGTL\\cc_work\\orig_script";
+  std::string path = "G:\\Games\\SGTL\\CCEnVitaPatch101\\script_dis";
   for (auto &p : std::experimental::filesystem::directory_iterator(path)) {
 	  if (p.path().extension().string() != ".scx") continue;
 
@@ -105,8 +105,10 @@ int main() {
     dis.DisassembleFile();
 
     std::ofstream outFile(outPath, std::ios::out | std::ios::trunc);
+	int i = 0;
     for (const auto &label : dis.code()) {
-      outFile << "\n#label_" << label->address() << ":\n";
+      outFile << "\n#label" << i << "_" << label->address() << ":\n";
+	  i++;
       for (const auto &inst : label->instructions()) {
         if (inst->name() == "Assign") {
           outFile << "\t" << SC3ArgumentToString(inst->args().at(0)) << "\n";

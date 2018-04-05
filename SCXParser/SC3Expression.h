@@ -72,20 +72,35 @@ class SC3ExpressionToken {
 
 class SC3Expression {
  public:
-  SC3Expression(uint8_t *rawExpression);
+  SC3Expression(uint8_t* rawExpression);
   bool containsAssignment() const { return _containsAssignment; }
   bool isConstexpr() const { return _isConstexpr; }
   int rawLength() const { return _rawLength; }
-  std::string toString() const;
+  std::string toString(bool evalConst) const;
 
  private:
+  struct SubExpr {
+    bool isConst;
+    std::string str;
+    int constValue;
+  };
+
   // in postfix
   std::vector<SC3ExpressionToken> _tokens;
   bool _containsAssignment;
   bool _isConstexpr;
   int _rawLength;
-  uint8_t *_parseCur;
+  uint8_t* _parseCur;
   void parseTerm(int minPrecedence);
   bool checkContainsAssignment() const;
   bool checkIsConstexpr() const;
+  // binary
+  SubExpr evalSubExpr(const std::pair<SubExpr, int>& lhs,
+                      SC3ExpressionTokenType type,
+                      const std::pair<SubExpr, int>& rhs,
+                      bool shouldEval) const;
+  // unary
+  SubExpr evalSubExpr(SC3ExpressionTokenType type,
+                      const std::pair<SubExpr, int>& rhs,
+                      bool shouldEval) const;
 };
