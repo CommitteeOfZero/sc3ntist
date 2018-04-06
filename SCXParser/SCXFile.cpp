@@ -38,18 +38,18 @@ void SCXFile::parseHeader()
 	_returnAddressTable = (SCXOffset*)(_data + returnAddressTableOffset);
 	_labelTable = (SCXOffset*)(_data + SCXLabelTableOffset);
 
-	_stringCount = (returnAddressTableOffset - stringTableOffset) / sizeof(SCXOffset);
+	_stringCount = (SCXTableIndex)((returnAddressTableOffset - stringTableOffset) / sizeof(SCXOffset));
 	if (_stringCount > 0)
 	{
 		SCXOffset firstStringOffset = _stringTable[0];
-		_returnAddressCount = (firstStringOffset - returnAddressTableOffset) / sizeof(SCXOffset);
+		_returnAddressCount = (SCXTableIndex)((firstStringOffset - returnAddressTableOffset) / sizeof(SCXOffset));
 	}
 	else
 	{
 		SCXOffset firstReturnAddressOffset = _returnAddressTable[0];
-		_returnAddressCount = (firstReturnAddressOffset - returnAddressTableOffset) / sizeof(SCXOffset);
+		_returnAddressCount = (SCXTableIndex)((firstReturnAddressOffset - returnAddressTableOffset) / sizeof(SCXOffset));
 	}
-	_labelCount = (_labelTable[0] - SCXLabelTableOffset) / sizeof(SCXOffset);
+	_labelCount = (SCXTableIndex)((_labelTable[0] - SCXLabelTableOffset) / sizeof(SCXOffset));
 }
 
 void * SCXFile::getPString(const SCXTableIndex stringId) const

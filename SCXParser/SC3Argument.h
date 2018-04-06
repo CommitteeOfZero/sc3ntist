@@ -35,7 +35,7 @@ class SC3ArgByteArray : public SC3Argument {
   SC3ArgByteArray(const std::string& name, const std::vector<uint8_t>& data)
       : SC3Argument(name), _data(data){};
   SC3ArgumentType type() const override { return ByteArray; }
-  const std::vector<uint8_t>& const data() { return _data; }
+  const std::vector<uint8_t>& data() const { return _data; }
 
  private:
   const std::vector<uint8_t> _data;
@@ -47,7 +47,7 @@ class SC3ArgByte : public SC3Argument {
   SC3ArgByte(const std::string& name, const uint8_t value)
       : SC3Argument(name), _value(value){};
   SC3ArgumentType type() const override { return Byte; }
-  uint8_t const value() { return _value; }
+  uint8_t value() const { return _value; }
 
  private:
   const uint8_t _value;
@@ -59,7 +59,7 @@ class SC3ArgUInt16 : public SC3Argument {
   SC3ArgUInt16(const std::string& name, const uint16_t value)
       : SC3Argument(name), _value(value){};
   SC3ArgumentType type() const override { return UInt16; }
-  uint16_t const value() { return _value; }
+  uint16_t value() const { return _value; }
 
  private:
   const uint16_t _value;
@@ -73,7 +73,7 @@ class SC3ArgExpression : public SC3Argument {
   SC3ArgExpression(const std::string& name, const SC3Expression& expr)
       : SC3Argument(name), _expr(expr){};
   SC3ArgumentType type() const override { return Expression; }
-  const SC3Expression& const expr() { return _expr; }
+  const SC3Expression& expr() const { return _expr; }
 
  private:
   const SC3Expression _expr;
@@ -85,7 +85,7 @@ class SC3ArgLocalLabel : public SC3Argument {
   SC3ArgLocalLabel(const std::string& name, const SCXTableIndex id)
       : SC3Argument(name), _id(id){};
   SC3ArgumentType type() const override { return LocalLabel; }
-  SCXTableIndex const id() { return _id; }
+  SCXTableIndex id() const { return _id; }
 
  private:
   const SCXTableIndex _id;
@@ -106,8 +106,8 @@ class SC3ArgFarLabel : public SC3Argument {
         _scriptBufferId(scriptBufferIdExpr),
         _labelId(labelId){};
   SC3ArgumentType type() const override { return FarLabel; }
-  const SC3Expression& const scriptBufferId() { return _scriptBufferId; }
-  SCXTableIndex const labelId() { return _labelId; }
+  const SC3Expression& scriptBufferId() const { return _scriptBufferId; }
+  SCXTableIndex labelId() const { return _labelId; }
 
  private:
   const SC3Expression _scriptBufferId;
@@ -120,7 +120,7 @@ class SC3ArgReturnAddress : public SC3Argument {
   SC3ArgReturnAddress(const std::string& name, const SCXTableIndex id)
       : SC3Argument(name), _id(id){};
   SC3ArgumentType type() const override { return ReturnAddress; }
-  SCXTableIndex const id() { return _id; }
+  SCXTableIndex id() const { return _id; }
 
  private:
   const SCXTableIndex _id;
@@ -132,7 +132,7 @@ class SC3ArgStringRef : public SC3Argument {
   SC3ArgStringRef(const std::string& name, const SCXTableIndex id)
       : SC3Argument(name), _id(id){};
   SC3ArgumentType type() const override { return StringRef; }
-  SCXTableIndex const id() { return _id; }
+  SCXTableIndex id() const { return _id; }
 
  private:
   const SCXTableIndex _id;
@@ -146,7 +146,7 @@ class SC3ArgExprFlagRef : public SC3Argument {
   SC3ArgExprFlagRef(const std::string& name, const SC3Expression& expr)
       : SC3Argument(name), _expr(expr){};
   SC3ArgumentType type() const override { return ExprFlagRef; }
-  const SC3Expression& const expr() { return _expr; }
+  const SC3Expression& expr() const { return _expr; }
 
  private:
   const SC3Expression _expr;
@@ -160,7 +160,7 @@ class SC3ArgExprGlobalVarRef : public SC3Argument {
   SC3ArgExprGlobalVarRef(const std::string& name, const SC3Expression& expr)
       : SC3Argument(name), _expr(expr){};
   SC3ArgumentType type() const override { return ExprGlobalVarRef; }
-  const SC3Expression& const expr() { return _expr; }
+  const SC3Expression& expr() const { return _expr; }
 
  private:
   const SC3Expression _expr;
@@ -174,7 +174,7 @@ public:
 	SC3ArgExprThreadVarRef(const std::string& name, const SC3Expression& expr)
 		: SC3Argument(name), _expr(expr) {};
 	SC3ArgumentType type() const override { return ExprThreadVarRef; }
-	const SC3Expression& const expr() { return _expr; }
+	const SC3Expression& expr() const { return _expr; }
 
 private:
 	const SC3Expression _expr;

@@ -20,17 +20,16 @@ SC3Expression::SC3Expression(uint8_t *rawExpression) {
       throw std::runtime_error("End of expression expected");
     }
     _root = term.node;
-    _rawLength = term.end - rawExpression + 1;
+    _rawLength = (int)(term.end - rawExpression + 1);
   }
   _simplified = _root->simplify();
   _eaten.clear();
 }
 
-SC3Expression::~SC3Expression()
-{
-  //lol memory leak, I appear to be holding references to this crap elsewhere
-  //if (_root != nullptr) delete _root;
-  //if (_simplified != nullptr) delete _simplified;
+SC3Expression::~SC3Expression() {
+  // lol memory leak, I appear to be holding references to this crap elsewhere
+  // if (_root != nullptr) delete _root;
+  // if (_simplified != nullptr) delete _simplified;
 }
 
 std::string SC3Expression::toString(bool evalConst) const {
@@ -279,8 +278,8 @@ SC3Expression::Term SC3Expression::parseTerm(uint8_t *start, uint8_t *end) {
 }
 
 SC3ExpressionNode::~SC3ExpressionNode() {
-  //if (lhs != nullptr) delete lhs;
-  //if (rhs != nullptr) delete rhs;
+  // if (lhs != nullptr) delete lhs;
+  // if (rhs != nullptr) delete rhs;
 }
 
 SC3ExpressionNode *SC3ExpressionNode::simplify() const {
@@ -430,9 +429,6 @@ int SC3ExpressionNode::evaluateOp(SC3ExpressionTokenType op, int rhs) {
 std::string SC3ExpressionNode::toString() const {
   const OpInfo &thisOp = OperatorInfos.at(type);
   switch (type) {
-    case EndOfExpression: {
-      return "";
-    }
     case ImmediateValue: {
       return std::to_string(value);
     }
@@ -517,5 +513,6 @@ std::string SC3ExpressionNode::toString() const {
     case FuncDMA: {
       return thisOp.str + "(" + lhs->toString() + ", " + rhs->toString() + ")";
     }
+    default: { return ""; }
   }
 }
