@@ -1,10 +1,6 @@
 #include "SC3BaseDisassembler.h"
 
-SC3BaseDisassembler::~SC3BaseDisassembler() { clearCode(); }
-
 void SC3BaseDisassembler::DisassembleFile() {
-  clearCode();
-
   if (_file.getLabelCount() < 1) return;
   SCXOffset pos = _file.getLabelOffset(0);
 
@@ -22,13 +18,6 @@ void SC3BaseDisassembler::DisassembleFile() {
       pos += inst->length();
     }
 
-    _code.push_back(label);
+    _code.push_back(std::unique_ptr<SC3CodeBlock>(label));
   }
-}
-
-void SC3BaseDisassembler::clearCode() {
-  for (auto& it = _code.begin(); it != _code.end(); ++it) {
-    delete *it;
-  }
-  _code.clear();
 }

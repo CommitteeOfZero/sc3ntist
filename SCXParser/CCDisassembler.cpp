@@ -2604,8 +2604,6 @@ static DecoderProc DecoderTableUser1[256] = {
 
 #pragma endregion
 
-CCDisassembler::~CCDisassembler() {}
-
 SC3Instruction* CCDisassembler::DisassembleAt(SCXOffset address,
                                               SCXOffset maxLength) {
   uint8_t* inst = _file.getPData() + address;

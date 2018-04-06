@@ -1,15 +1,14 @@
 #pragma once
-#include <map>
 #include <vector>
+#include <memory>
 #include "SC3CodeBlock.h"
 #include "SCXFile.h"
 
 class SC3BaseDisassembler {
  public:
   SC3BaseDisassembler() = delete;
-  virtual ~SC3BaseDisassembler();
 
-  const std::vector<SC3CodeBlock*>& code() const { return _code; }
+  const std::vector<std::unique_ptr<SC3CodeBlock>>& code() const { return _code; }
 
   void DisassembleFile();
   virtual SC3Instruction* DisassembleAt(SCXOffset address,
@@ -19,6 +18,5 @@ class SC3BaseDisassembler {
   SC3BaseDisassembler(SCXFile& file) : _file(file) {}
 
   SCXFile& _file;
-  std::vector<SC3CodeBlock*> _code;
-  void clearCode();
+  std::vector<std::unique_ptr<SC3CodeBlock>> _code;
 };

@@ -5,14 +5,7 @@ SC3CodeBlock::SC3CodeBlock(SCXTableIndex labelId, SCXOffset address) : _labelId(
 {
 }
 
-SC3CodeBlock::~SC3CodeBlock()
-{
-	for (auto& it = _instructions.begin(); it != _instructions.end(); ++it) {
-		delete *it;
-	}
-}
-
 void SC3CodeBlock::Append(SC3Instruction* instr)
 {
-	_instructions.push_back(instr);
+	_instructions.push_back(std::unique_ptr<SC3Instruction>(instr));
 }

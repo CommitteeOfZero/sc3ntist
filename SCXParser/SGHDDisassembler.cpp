@@ -2209,8 +2209,6 @@ static DecoderProc DecoderTable10[256] = {
 
 #pragma endregion
 
-SGHDDisassembler::~SGHDDisassembler() {}
-
 SC3Instruction* SGHDDisassembler::DisassembleAt(SCXOffset address,
                                                 SCXOffset maxLength) {
   uint8_t* inst = _file.getPData() + address;
