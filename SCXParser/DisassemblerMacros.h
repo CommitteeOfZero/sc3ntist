@@ -22,10 +22,11 @@ DECODER_PROC(__Unrecognized__);
     return Inst__Unrecognized__(dataStart, address, maxLength); \
   }
 
-#define RETURN_INSTRUCTION(name)                                      \
-  {                                                                   \
-    if ((data - dataStart) > maxLength) RETURN_UNRECOGNIZED();        \
-    return new SC3Instruction(address, data - dataStart, name, args); \
+#define RETURN_INSTRUCTION(name)                                            \
+  {                                                                         \
+    if ((data - dataStart) > maxLength) RETURN_UNRECOGNIZED();              \
+    return new SC3Instruction(address, (SCXOffset)(data - dataStart), name, \
+                              args);                                        \
   }
 
 #define ADD_BYTE_ARG(name)                                          \
@@ -119,10 +120,11 @@ DECODER_PROC(__Unrecognized__);
     args.push_back((SC3Argument*)arg);                        \
   }
 
-#define NO_ARGS_DECODER_PROC(name)                                     \
-  DECODER_PROC(name) {                                                 \
-    DECODER_PROC_INIT();                                               \
-    return new SC3Instruction(address, data - dataStart, #name, args); \
+#define NO_ARGS_DECODER_PROC(name)                                           \
+  DECODER_PROC(name) {                                                       \
+    DECODER_PROC_INIT();                                                     \
+    return new SC3Instruction(address, (SCXOffset)(data - dataStart), #name, \
+                              args);                                         \
   }
 
 DECODER_PROC(__Unrecognized__) {

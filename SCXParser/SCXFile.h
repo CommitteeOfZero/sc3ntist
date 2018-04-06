@@ -1,9 +1,7 @@
 #pragma once
 #include <cstdint>
 
-//typedef int32_t SCXOffset;
-// TODO handle this properly, I cba to deal with the warnings right now
-typedef int64_t SCXOffset;
+typedef int32_t SCXOffset;
 typedef uint16_t SCXTableIndex;
 
 class SCXFile {
