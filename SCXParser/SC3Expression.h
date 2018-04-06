@@ -1,4 +1,5 @@
 #pragma once
+#include <unordered_map>
 #include <vector>
 
 enum SC3ExpressionTokenType {
@@ -70,37 +71,41 @@ class SC3ExpressionToken {
   const int _value;
 };
 
+class SC3ExpressionNode {
+ public:
+  ~SC3ExpressionNode();
+  SC3ExpressionTokenType type;
+  int value;
+  SC3ExpressionNode *lhs;
+  SC3ExpressionNode *rhs;
+
+  SC3ExpressionNode *simplify() const;
+
+  std::string toString() const;
+
+ private:
+  // binary
+  static int evaluateOp(SC3ExpressionTokenType op, int lhs, int rhs);
+  // unary
+  static int evaluateOp(SC3ExpressionTokenType op, int rhs);
+};
+
 class SC3Expression {
  public:
-  SC3Expression(uint8_t* rawExpression);
-  bool containsAssignment() const { return _containsAssignment; }
-  bool isConstexpr() const { return _isConstexpr; }
+  SC3Expression(uint8_t *rawExpression);
+  ~SC3Expression();
   int rawLength() const { return _rawLength; }
   std::string toString(bool evalConst) const;
 
  private:
-  struct SubExpr {
-    bool isConst;
-    std::string str;
-    int constValue;
+  struct Term {
+    SC3ExpressionNode *node;
+    uint8_t *end;
   };
 
-  // in postfix
-  std::vector<SC3ExpressionToken> _tokens;
-  bool _containsAssignment;
-  bool _isConstexpr;
+  SC3ExpressionNode *_root;
+  SC3ExpressionNode *_simplified;
   int _rawLength;
-  uint8_t* _parseCur;
-  void parseTerm(int minPrecedence);
-  bool checkContainsAssignment() const;
-  bool checkIsConstexpr() const;
-  // binary
-  SubExpr evalSubExpr(const std::pair<SubExpr, int>& lhs,
-                      SC3ExpressionTokenType type,
-                      const std::pair<SubExpr, int>& rhs,
-                      bool shouldEval) const;
-  // unary
-  SubExpr evalSubExpr(SC3ExpressionTokenType type,
-                      const std::pair<SubExpr, int>& rhs,
-                      bool shouldEval) const;
+  Term parseTerm(uint8_t *start, uint8_t *end);
+  std::vector<uint8_t *> _eaten;
 };
