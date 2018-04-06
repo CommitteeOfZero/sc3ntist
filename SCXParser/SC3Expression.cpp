@@ -12,24 +12,18 @@ SC3Expression::SC3Expression(uint8_t *rawExpression) {
   auto term = parseTerm(rawExpression, nullptr);
 
   if (term.node == nullptr) {
-    _root = new SC3ExpressionNode();
+    _root = std::make_unique<SC3ExpressionNode>();
     _root->type = EndOfExpression;
     _rawLength = 1;
   } else {
     if (*term.end != SC3ExpressionTokenType::EndOfExpression) {
       throw std::runtime_error("End of expression expected");
     }
-    _root = term.node;
+    _root = std::unique_ptr<SC3ExpressionNode>(term.node);
     _rawLength = (int)(term.end - rawExpression + 1);
   }
-  _simplified = _root->simplify();
+  _simplified = std::unique_ptr<SC3ExpressionNode>(_root->simplify());
   _eaten.clear();
-}
-
-SC3Expression::~SC3Expression() {
-  // lol memory leak, I appear to be holding references to this crap elsewhere
-  // if (_root != nullptr) delete _root;
-  // if (_simplified != nullptr) delete _simplified;
 }
 
 std::string SC3Expression::toString(bool evalConst) const {
@@ -216,9 +210,9 @@ SC3Expression::Term SC3Expression::parseTerm(uint8_t *start, uint8_t *end) {
       case BitwiseXorAssign: {
         result->type = type;
         auto lhs = parseTerm(start, cursor);
-        result->lhs = lhs.node;
+        result->lhs = std::unique_ptr<SC3ExpressionNode>(lhs.node);
         auto rhs = parseTerm(cursor, end);
-        result->rhs = rhs.node;
+        result->rhs = std::unique_ptr<SC3ExpressionNode>(rhs.node);
         if (result->lhs == nullptr || result->rhs == nullptr)
           throw std::runtime_error("invalid expression");
         cursor = rhs.end;
@@ -228,7 +222,7 @@ SC3Expression::Term SC3Expression::parseTerm(uint8_t *start, uint8_t *end) {
       case Increment:
       case Decrement: {
         result->type = type;
-        result->lhs = parseTerm(start, cursor).node;
+        result->lhs = std::unique_ptr<SC3ExpressionNode>(parseTerm(start, cursor).node);
         if (result->lhs == nullptr)
           throw std::runtime_error("invalid expression");
         break;
@@ -250,7 +244,7 @@ SC3Expression::Term SC3Expression::parseTerm(uint8_t *start, uint8_t *end) {
       case FuncRandom: {
         result->type = type;
         auto rhs = parseTerm(cursor, end);
-        result->rhs = rhs.node;
+        result->rhs = std::unique_ptr<SC3ExpressionNode>(rhs.node);
         if (result->rhs == nullptr)
           throw std::runtime_error("invalid expression");
         cursor = std::max(end, rhs.end);
@@ -263,9 +257,9 @@ SC3Expression::Term SC3Expression::parseTerm(uint8_t *start, uint8_t *end) {
         result->type = type;
         // not happy about this, these are technically two right-hand sides
         auto firstArg = parseTerm(cursor, end);
-        result->lhs = firstArg.node;
+        result->lhs = std::unique_ptr<SC3ExpressionNode>(firstArg.node);
         auto secondArg = parseTerm(cursor, end);
-        result->rhs = secondArg.node;
+        result->rhs = std::unique_ptr<SC3ExpressionNode>(secondArg.node);
         if (result->lhs == nullptr || result->rhs == nullptr)
           throw std::runtime_error("invalid expression");
         cursor = std::max(std::max(end, firstArg.end), secondArg.end);
@@ -275,11 +269,6 @@ SC3Expression::Term SC3Expression::parseTerm(uint8_t *start, uint8_t *end) {
   }
 
   return t;
-}
-
-SC3ExpressionNode::~SC3ExpressionNode() {
-  // if (lhs != nullptr) delete lhs;
-  // if (rhs != nullptr) delete rhs;
 }
 
 SC3ExpressionNode *SC3ExpressionNode::simplify() const {
@@ -332,15 +321,15 @@ SC3ExpressionNode *SC3ExpressionNode::simplify() const {
         delete simpleRhs;
       } else {
         result->type = type;
-        result->lhs = simpleLhs;
-        result->rhs = simpleRhs;
+        result->lhs = std::unique_ptr<SC3ExpressionNode>(simpleLhs);
+        result->rhs = std::unique_ptr<SC3ExpressionNode>(simpleRhs);
       }
       break;
     }
     case Increment:
     case Decrement: {
       result->type = type;
-      result->lhs = lhs->simplify();
+      result->lhs = std::unique_ptr<SC3ExpressionNode>(lhs->simplify());
       break;
     }
     case FuncUnk2F:
@@ -364,7 +353,7 @@ SC3ExpressionNode *SC3ExpressionNode::simplify() const {
         delete simpleRhs;
       } else {
         result->type = type;
-        result->rhs = simpleRhs;
+        result->rhs = std::unique_ptr<SC3ExpressionNode>(simpleRhs);
       }
       break;
     }
@@ -372,8 +361,8 @@ SC3ExpressionNode *SC3ExpressionNode::simplify() const {
     case FuncFarLabelTable:
     case FuncDMA: {
       result->type = type;
-      result->lhs = lhs->simplify();
-      result->rhs = rhs->simplify();
+      result->lhs = std::unique_ptr<SC3ExpressionNode>(lhs->simplify());
+      result->rhs = std::unique_ptr<SC3ExpressionNode>(rhs->simplify());
       break;
     }
   }

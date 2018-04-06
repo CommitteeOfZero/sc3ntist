@@ -1,6 +1,7 @@
 #pragma once
-#include <unordered_map>
+#include <string>
 #include <vector>
+#include <memory>
 
 enum SC3ExpressionTokenType {
   EndOfExpression = 0x00,
@@ -73,11 +74,10 @@ class SC3ExpressionToken {
 
 class SC3ExpressionNode {
  public:
-  ~SC3ExpressionNode();
   SC3ExpressionTokenType type;
   int value;
-  SC3ExpressionNode *lhs;
-  SC3ExpressionNode *rhs;
+  std::unique_ptr<SC3ExpressionNode> lhs;
+  std::unique_ptr<SC3ExpressionNode> rhs;
 
   SC3ExpressionNode *simplify() const;
 
@@ -93,7 +93,6 @@ class SC3ExpressionNode {
 class SC3Expression {
  public:
   SC3Expression(uint8_t *rawExpression);
-  ~SC3Expression();
   int rawLength() const { return _rawLength; }
   std::string toString(bool evalConst) const;
 
@@ -103,8 +102,8 @@ class SC3Expression {
     uint8_t *end;
   };
 
-  SC3ExpressionNode *_root;
-  SC3ExpressionNode *_simplified;
+  std::unique_ptr<SC3ExpressionNode> _root;
+  std::unique_ptr<SC3ExpressionNode> _simplified;
   int _rawLength;
   Term parseTerm(uint8_t *start, uint8_t *end);
   std::vector<uint8_t *> _eaten;

@@ -70,8 +70,6 @@ class SC3ArgExpression : public SC3Argument {
   ~SC3ArgExpression(){};
   SC3ArgExpression(const std::string& name, uint8_t* rawExpression)
       : SC3Argument(name), _expr(rawExpression){};
-  SC3ArgExpression(const std::string& name, const SC3Expression& expr)
-      : SC3Argument(name), _expr(expr){};
   SC3ArgumentType type() const override { return Expression; }
   const SC3Expression& expr() const { return _expr; }
 
@@ -99,12 +97,11 @@ class SC3ArgFarLabel : public SC3Argument {
       : SC3Argument(name),
         _scriptBufferId(scriptBufferIdExpr),
         _labelId(labelId){};
-  SC3ArgFarLabel(const std::string& name,
-                 const SC3Expression& scriptBufferIdExpr,
-                 const SCXTableIndex labelId)
-      : SC3Argument(name),
-        _scriptBufferId(scriptBufferIdExpr),
-        _labelId(labelId){};
+  SC3ArgFarLabel(const std::string& name, SC3Expression& scriptBufferIdExpr,
+    const SCXTableIndex labelId)
+    : SC3Argument(name),
+    _scriptBufferId(std::move(scriptBufferIdExpr)),
+    _labelId(labelId) {};
   SC3ArgumentType type() const override { return FarLabel; }
   const SC3Expression& scriptBufferId() const { return _scriptBufferId; }
   SCXTableIndex labelId() const { return _labelId; }
@@ -143,8 +140,6 @@ class SC3ArgExprFlagRef : public SC3Argument {
   ~SC3ArgExprFlagRef(){};
   SC3ArgExprFlagRef(const std::string& name, uint8_t* rawExpression)
       : SC3Argument(name), _expr(rawExpression){};
-  SC3ArgExprFlagRef(const std::string& name, const SC3Expression& expr)
-      : SC3Argument(name), _expr(expr){};
   SC3ArgumentType type() const override { return ExprFlagRef; }
   const SC3Expression& expr() const { return _expr; }
 
@@ -157,8 +152,6 @@ class SC3ArgExprGlobalVarRef : public SC3Argument {
   ~SC3ArgExprGlobalVarRef(){};
   SC3ArgExprGlobalVarRef(const std::string& name, uint8_t* rawExpression)
       : SC3Argument(name), _expr(rawExpression){};
-  SC3ArgExprGlobalVarRef(const std::string& name, const SC3Expression& expr)
-      : SC3Argument(name), _expr(expr){};
   SC3ArgumentType type() const override { return ExprGlobalVarRef; }
   const SC3Expression& expr() const { return _expr; }
 
@@ -171,8 +164,6 @@ public:
 	~SC3ArgExprThreadVarRef() {};
 	SC3ArgExprThreadVarRef(const std::string& name, uint8_t* rawExpression)
 		: SC3Argument(name), _expr(rawExpression) {};
-	SC3ArgExprThreadVarRef(const std::string& name, const SC3Expression& expr)
-		: SC3Argument(name), _expr(expr) {};
 	SC3ArgumentType type() const override { return ExprThreadVarRef; }
 	const SC3Expression& expr() const { return _expr; }
 
