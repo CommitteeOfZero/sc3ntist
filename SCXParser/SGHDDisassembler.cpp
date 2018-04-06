@@ -6,7 +6,7 @@
 DECODER_PROC(Assign) {
   uint8_t* dataStart = data;
   data++;
-  std::vector<SC3Argument*> args;
+  std::vector<std::unique_ptr<SC3Argument>> args;
   ADD_EXPRESSION_ARG("expr");
   RETURN_INSTRUCTION("Assign");
 }
@@ -137,8 +137,7 @@ DECODER_PROC(PlayBgm) {
   DECODER_PROC_INIT();
   uint8_t loop = *data++;
   {
-    SC3Argument* arg = (SC3Argument*)new SC3ArgByte("loop", loop);
-    args.push_back(arg);
+    args.push_back(std::unique_ptr<SC3Argument>(new SC3ArgByte("loop", loop)));
   }
   ADD_EXPRESSION_ARG("track");
   if (loop == 2) {
@@ -158,8 +157,7 @@ DECODER_PROC(PlaySoundEffect) {
   ADD_BYTE_ARG("channel");
   uint8_t type = *data++;
   {
-    SC3Argument* arg = (SC3Argument*)new SC3ArgByte("type", type);
-    args.push_back(arg);
+    args.push_back(std::unique_ptr<SC3Argument>(new SC3ArgByte("type", type)));
   }
   if (type != 2) {
     ADD_EXPRESSION_ARG("effect");
@@ -276,8 +274,7 @@ DECODER_PROC(Unk002F) {
   DECODER_PROC_INIT();
   uint8_t type = *data++;
   {
-    SC3Argument* arg = (SC3Argument*)new SC3ArgByte("type", type);
-    args.push_back(arg);
+    args.push_back(std::unique_ptr<SC3Argument>(new SC3ArgByte("type", type)));
   }
   if (type == 1) {
     ADD_EXPRESSION_ARG("arg1");
@@ -388,8 +385,7 @@ DECODER_PROC(Unk0043) {
   DECODER_PROC_INIT();
   uint8_t type = *data++;
   {
-    SC3Argument* arg = (SC3Argument*)new SC3ArgByte("type", type);
-    args.push_back(arg);
+    args.push_back(std::unique_ptr<SC3Argument>(new SC3ArgByte("type", type)));
   }
   switch (type) {
     case 0xA:
@@ -455,8 +451,7 @@ DECODER_PROC(Unk004C) {
   DECODER_PROC_INIT();
   uint8_t type = *data++;
   {
-    SC3Argument* arg = (SC3Argument*)new SC3ArgByte("type", type);
-    args.push_back(arg);
+    args.push_back(std::unique_ptr<SC3Argument>(new SC3ArgByte("type", type)));
   }
   if (type == 0) {
     ADD_EXPRESSION_ARG("arg2");
@@ -468,8 +463,8 @@ DECODER_PROC(UselessJump) {
   DECODER_PROC_INIT();
   uint8_t cond = *data++;
   {
-    SC3Argument* arg = (SC3Argument*)new SC3ArgByte("condition", cond);
-    args.push_back(arg);
+    args.push_back(
+        std::unique_ptr<SC3Argument>(new SC3ArgByte("condition", cond)));
   }
   if (cond == 0 || cond == 2 || cond == 3) {
     ADD_LOCAL_LABEL_ARG("target");
@@ -539,8 +534,7 @@ DECODER_PROC(Unk0058) {
   DECODER_PROC_INIT();
   uint8_t type = *data++;
   {
-    SC3Argument* arg = (SC3Argument*)new SC3ArgByte("type", type);
-    args.push_back(arg);
+    args.push_back(std::unique_ptr<SC3Argument>(new SC3ArgByte("type", type)));
   }
   if (type == 2 || type == 3) {
     ADD_EXPRESSION_ARG("arg1");
@@ -819,8 +813,7 @@ DECODER_PROC(Unk0113) {
   DECODER_PROC_INIT();
   uint8_t type = *data++;
   {
-    SC3Argument* arg = (SC3Argument*)new SC3ArgByte("type", type);
-    args.push_back(arg);
+    args.push_back(std::unique_ptr<SC3Argument>(new SC3ArgByte("type", type)));
   }
   if (type == 2) {
     ADD_EXPRESSION_ARG("arg1");
@@ -832,8 +825,7 @@ DECODER_PROC(Unk0112) {
   DECODER_PROC_INIT();
   uint8_t type = *data++;
   {
-    SC3Argument* arg = (SC3Argument*)new SC3ArgByte("type", type);
-    args.push_back(arg);
+    args.push_back(std::unique_ptr<SC3Argument>(new SC3ArgByte("type", type)));
   }
   ADD_STRING_REF_ARG("arg1");
   if (type == 0 || type == 2) {
@@ -846,8 +838,7 @@ DECODER_PROC(Unk0114) {
   DECODER_PROC_INIT();
   uint8_t type = *data++;
   {
-    SC3Argument* arg = (SC3Argument*)new SC3ArgByte("type", type);
-    args.push_back(arg);
+    args.push_back(std::unique_ptr<SC3Argument>(new SC3ArgByte("type", type)));
   }
   if (type >= 2) {
     ADD_STRING_REF_ARG("arg1");
@@ -872,8 +863,7 @@ DECODER_PROC(ActualLoadCutscene) {
   DECODER_PROC_INIT();
   uint8_t type = *data++;
   {
-    SC3Argument* arg = (SC3Argument*)new SC3ArgByte("type", type);
-    args.push_back(arg);
+    args.push_back(std::unique_ptr<SC3Argument>(new SC3ArgByte("type", type)));
   }
   if (type == 99) {
     ADD_EXPRESSION_ARG("arg1");
@@ -897,8 +887,8 @@ DECODER_PROC(GroupCutscene) {
       RETURN_INSTRUCTION("StopCutscene_WaitForSomething");
       break;
     default: {
-      SC3Argument* arg = (SC3Argument*)new SC3ArgByte("type", type);
-      args.push_back(arg);
+      args.push_back(
+          std::unique_ptr<SC3Argument>(new SC3ArgByte("type", type)));
     }
       RETURN_INSTRUCTION("CutsceneUnk");
       break;
@@ -937,8 +927,8 @@ DECODER_PROC(Group0125) {
       RETURN_INSTRUCTION("Unk012503");
       break;
     default: {
-      SC3Argument* arg = (SC3Argument*)new SC3ArgByte("type", type);
-      args.push_back(arg);
+      args.push_back(
+          std::unique_ptr<SC3Argument>(new SC3ArgByte("type", type)));
     }
       RETURN_INSTRUCTION("Unk0125");
       break;
@@ -949,8 +939,7 @@ DECODER_PROC(PlayCutscene) {
   DECODER_PROC_INIT();
   uint8_t type = *data++;
   {
-    SC3Argument* arg = (SC3Argument*)new SC3ArgByte("type", type);
-    args.push_back(arg);
+    args.push_back(std::unique_ptr<SC3Argument>(new SC3ArgByte("type", type)));
   }
   if (type == 99) {
     ADD_EXPRESSION_ARG("playmode");
@@ -991,10 +980,7 @@ DECODER_PROC(SwapBackgrounds) {
 DECODER_PROC(UnkBglink1004) {
   DECODER_PROC_INIT();
   uint8_t id = *data++;
-  {
-    SC3Argument* arg = (SC3Argument*)new SC3ArgByte("id", id);
-    args.push_back(arg);
-  }
+  { args.push_back(std::unique_ptr<SC3Argument>(new SC3ArgByte("id", id))); }
   ADD_EXPRESSION_ARG("arg1");
   ADD_EXPRESSION_ARG("arg2");
   if (id >= 4) {
@@ -1008,8 +994,7 @@ DECODER_PROC(LoadCharacter) {
   DECODER_PROC_INIT();
   uint8_t type = *data++;
   {
-    SC3Argument* arg = (SC3Argument*)new SC3ArgByte("type", type);
-    args.push_back(arg);
+    args.push_back(std::unique_ptr<SC3Argument>(new SC3ArgByte("type", type)));
   }
   ADD_EXPRESSION_ARG("bufferId");
   ADD_EXPRESSION_ARG("spriteId");
@@ -1129,8 +1114,7 @@ DECODER_PROC(Unk1023) {
   DECODER_PROC_INIT();
   uint8_t type = *data++;
   {
-    SC3Argument* arg = (SC3Argument*)new SC3ArgByte("type", type);
-    args.push_back(arg);
+    args.push_back(std::unique_ptr<SC3Argument>(new SC3ArgByte("type", type)));
   }
   if (type == 0 || type == 0xA) {
     ADD_BYTE_ARG("unk");
@@ -1142,8 +1126,7 @@ DECODER_PROC(Unk1024) {
   DECODER_PROC_INIT();
   uint8_t type = *data++;
   {
-    SC3Argument* arg = (SC3Argument*)new SC3ArgByte("type", type);
-    args.push_back(arg);
+    args.push_back(std::unique_ptr<SC3Argument>(new SC3ArgByte("type", type)));
   }
   if (type == 0) {
     ADD_EXPRESSION_ARG("arg1");
@@ -1156,8 +1139,7 @@ DECODER_PROC(Unk1027) {
   DECODER_PROC_INIT();
   uint8_t type = *data++;
   {
-    SC3Argument* arg = (SC3Argument*)new SC3ArgByte("type", type);
-    args.push_back(arg);
+    args.push_back(std::unique_ptr<SC3Argument>(new SC3ArgByte("type", type)));
   }
   ADD_EXPRESSION_ARG("tip");
   if (type == 1) {
@@ -1408,8 +1390,7 @@ DECODER_PROC(Group1038) {
   DECODER_PROC_INIT();
   uint8_t type = *data++;
   {
-    SC3Argument* arg = (SC3Argument*)new SC3ArgByte("type", type);
-    args.push_back(arg);
+    args.push_back(std::unique_ptr<SC3Argument>(new SC3ArgByte("type", type)));
   }
   if (type == 0) {
     ADD_LOCAL_LABEL_ARG("arg1");

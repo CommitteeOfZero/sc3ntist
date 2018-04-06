@@ -25,60 +25,60 @@ std::string uint8_vector_to_hex_string(const std::vector<uint8_t> &v) {
   return ss.str();
 }
 
-std::string SC3ArgumentToString(SC3Argument *arg) {
+std::string SC3ArgumentToString(const SC3Argument *arg) {
   switch (arg->type()) {
     case ByteArray: {
-      auto data = static_cast<SC3ArgByteArray *>(arg)->data();
+      auto data = static_cast<const SC3ArgByteArray *>(arg)->data();
       return uint8_vector_to_hex_string(data);
       break;
     }
     case Byte: {
-      auto value = static_cast<SC3ArgByte *>(arg)->value();
+      auto value = static_cast<const SC3ArgByte *>(arg)->value();
       return std::to_string((unsigned)value);
       break;
     }
     case UInt16: {
-      auto value = static_cast<SC3ArgUInt16 *>(arg)->value();
+      auto value = static_cast<const SC3ArgUInt16 *>(arg)->value();
       return std::to_string((unsigned)value);
       break;
     }
     case Expression: {
-      const auto &expr = static_cast<SC3ArgExpression *>(arg)->expr();
+      const auto &expr = static_cast<const SC3ArgExpression *>(arg)->expr();
       return expr.toString(true);
       break;
     }
     case LocalLabel: {
-      auto id = static_cast<SC3ArgLocalLabel *>(arg)->id();
+      auto id = static_cast<const SC3ArgLocalLabel *>(arg)->id();
       return "LocalLabelRef(" + std::to_string(id) + ")";
       break;
     }
     case FarLabel: {
-      const auto &expr = static_cast<SC3ArgFarLabel *>(arg)->scriptBufferId();
-      auto id = static_cast<SC3ArgFarLabel *>(arg)->labelId();
+      const auto &expr = static_cast<const SC3ArgFarLabel *>(arg)->scriptBufferId();
+      auto id = static_cast<const SC3ArgFarLabel *>(arg)->labelId();
       return "FarLabelRef(" + expr.toString(true) + ", " + std::to_string(id) + ")";
     }
     case ReturnAddress: {
-      auto id = static_cast<SC3ArgReturnAddress *>(arg)->id();
+      auto id = static_cast<const SC3ArgReturnAddress *>(arg)->id();
       return "ReturnAddressRef(" + std::to_string(id) + ")";
       break;
     }
     case StringRef: {
-      auto id = static_cast<SC3ArgStringRef *>(arg)->id();
+      auto id = static_cast<const SC3ArgStringRef *>(arg)->id();
       return "StringRef(" + std::to_string(id) + ")";
       break;
     }
     case ExprFlagRef: {
-      const auto &expr = static_cast<SC3ArgExprFlagRef *>(arg)->expr();
+      const auto &expr = static_cast<const SC3ArgExprFlagRef *>(arg)->expr();
       return "FlagRef(" + expr.toString(true) + ")";
       break;
     }
 	case ExprGlobalVarRef: {
-		const auto &expr = static_cast<SC3ArgExprGlobalVarRef *>(arg)->expr();
+		const auto &expr = static_cast<const SC3ArgExprGlobalVarRef *>(arg)->expr();
 		return "GlobalVarRef(" + expr.toString(true) + ")";
 		break;
 	}
 	case ExprThreadVarRef: {
-		const auto &expr = static_cast<SC3ArgExprThreadVarRef *>(arg)->expr();
+		const auto &expr = static_cast<const SC3ArgExprThreadVarRef *>(arg)->expr();
 		return "ThreadVarRef(" + expr.toString(true) + ")";
 		break;
 	}
@@ -112,7 +112,7 @@ int main() {
 	  i++;
       for (const auto &inst : label->instructions()) {
         if (inst->name() == "Assign") {
-          outFile << "\t" << SC3ArgumentToString(inst->args().at(0)) << "\n";
+          outFile << "\t" << SC3ArgumentToString(inst->args().at(0).get()) << "\n";
           continue;
         }
 		outFile << "\t" << inst->name();
@@ -124,7 +124,7 @@ int main() {
 			for (const auto &arg : inst->args()) {
 				i++;
 				outFile << arg->name() << ": ";
-				outFile << SC3ArgumentToString(arg);
+				outFile << SC3ArgumentToString(arg.get());
 				if (i < argCount) outFile << ", ";
 			}
 			outFile << ")";
