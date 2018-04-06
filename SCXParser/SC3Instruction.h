@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
+#include "SCXTypes.h"
 #include "SC3Argument.h"
-#include "SCXFile.h"
 
 class SC3Instruction {
  public:

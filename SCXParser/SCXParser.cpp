@@ -10,6 +10,7 @@
 #include "SC3Argument.h"
 #include "CCDisassembler.h"
 #include "SCXFile.h"
+#include "SC3CodeBlock.h"
 
 std::string uint8_vector_to_hex_string(const std::vector<uint8_t> &v) {
   std::stringstream ss;
@@ -106,7 +107,7 @@ int main() {
 
     std::ofstream outFile(outPath, std::ios::out | std::ios::trunc);
 	int i = 0;
-    for (const auto &label : dis.code()) {
+    for (const auto &label : scx.disassembly()) {
       outFile << "\n#label" << i << "_" << label->address() << ":\n";
 	  i++;
       for (const auto &inst : label->instructions()) {

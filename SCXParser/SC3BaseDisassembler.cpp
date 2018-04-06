@@ -18,6 +18,6 @@ void SC3BaseDisassembler::DisassembleFile() {
       pos += inst->length();
     }
 
-    _code.push_back(std::unique_ptr<SC3CodeBlock>(label));
+    _file.appendLabel(label);
   }
 }

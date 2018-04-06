@@ -1,7 +1,7 @@
 #pragma once
-#include "SCXFile.h"
 #include <vector>
 #include <memory>
+#include "SCXTypes.h"
 #include "SC3Instruction.h"
 
 class SC3CodeBlock

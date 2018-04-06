@@ -28,6 +28,11 @@ SCXFile::~SCXFile()
 	free(_data);
 }
 
+void SCXFile::appendLabel(SC3CodeBlock * label)
+{
+  _disassembly.push_back(std::unique_ptr<SC3CodeBlock>(label));
+}
+
 void SCXFile::parseHeader()
 {
 	// TODO exception on wrong magic

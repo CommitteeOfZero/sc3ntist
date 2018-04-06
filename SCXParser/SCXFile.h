@@ -1,8 +1,9 @@
 #pragma once
 #include <cstdint>
-
-typedef int32_t SCXOffset;
-typedef uint16_t SCXTableIndex;
+#include <vector>
+#include <memory>
+#include "SCXTypes.h"
+#include "SC3CodeBlock.h"
 
 class SCXFile {
  public:
@@ -20,6 +21,9 @@ class SCXFile {
   SCXTableIndex getReturnAddressCount() const { return _returnAddressCount; }
   SCXTableIndex getLabelCount() const { return _labelCount; }
   ~SCXFile();
+
+  void appendLabel(SC3CodeBlock* label);
+  const std::vector<std::unique_ptr<SC3CodeBlock>>& disassembly() const { return _disassembly; }
 
  private:
   uint8_t* _data;
@@ -39,4 +43,6 @@ class SCXFile {
       SCXStringTableOffsetOffset + sizeof(SCXOffset);
   static const SCXOffset SCXLabelTableOffset =
       SCXReturnAddressTableOffsetOffset + sizeof(SCXOffset);
+
+  std::vector<std::unique_ptr<SC3CodeBlock>> _disassembly;
 };

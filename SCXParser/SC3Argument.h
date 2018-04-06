@@ -1,8 +1,8 @@
 #pragma once
 #include <string>
 #include <vector>
+#include "SCXTypes.h"
 #include "SC3Expression.h"
-#include "SCXFile.h"
 
 enum SC3ArgumentType {
   ByteArray,
