@@ -24,10 +24,13 @@ class DisassemblyModel : public QAbstractItemModel {
   int rowCount(const QModelIndex& parent = QModelIndex()) const override;
   int columnCount(const QModelIndex& parent = QModelIndex()) const override;
 
+  QModelIndex firstIndexForAddress(SCXOffset address) const;
+
  private:
   const SCXFile* _script;
 
   bool indexIsLabel(const QModelIndex& index) const;
   const SC3CodeBlock* labelForIndex(const QModelIndex& index) const;
+  QModelIndex indexForLabel(SCXOffset labelId) const;
   SCXOffset addressForIndex(const QModelIndex& index) const;
 };

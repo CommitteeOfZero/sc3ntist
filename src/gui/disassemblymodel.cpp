@@ -5,6 +5,8 @@
 #include "textdump.h"
 #include <algorithm>
 
+// TODO: Per-instruction model (so instructions can have children for comments)
+
 enum class ColumnType { Address, Code, NumColumns };
 
 DisassemblyModel::DisassemblyModel(const SCXFile *script, QObject *parent)
@@ -39,6 +41,11 @@ const SC3CodeBlock *DisassemblyModel::labelForIndex(
   return _script->disassembly()[index.parent().row()].get();
 }
 
+QModelIndex DisassemblyModel::indexForLabel(SCXOffset labelId) const {
+  if (labelId > _script->disassembly().size()) return QModelIndex();
+  return createIndex(labelId, 0, -1);
+}
+
 SCXOffset DisassemblyModel::addressForIndex(const QModelIndex &index) const {
   const SC3CodeBlock *label = labelForIndex(index);
   if (indexIsLabel(index)) {
@@ -49,6 +56,40 @@ SCXOffset DisassemblyModel::addressForIndex(const QModelIndex &index) const {
     return label->instructions()[std::min(index.row(), instCount - 1)]
         ->position();
   }
+}
+
+QModelIndex DisassemblyModel::firstIndexForAddress(SCXOffset address) const {
+  const auto &disasm = _script->disassembly();
+  const auto labelCount = disasm.size();
+  if (labelCount == 0) return QModelIndex();
+  int labelId = 0;
+  for (int i = 0; i < labelCount; i++) {
+    if (disasm[i]->address() == address) {
+      return indexForLabel(i);
+    }
+    if (disasm[i]->address() < address) {
+      labelId = i;
+    }
+    if (disasm[i]->address() > address) {
+      break;
+    }
+  }
+  const auto &insts = disasm[labelId]->instructions();
+  const auto instCount = insts.size();
+  int instId = 0;
+  for (int i = 0; i < instCount; i++) {
+    if (insts[i]->position() == address) {
+      instId = i;
+      break;
+    }
+    if (insts[i]->position() < address) {
+      instId = i;
+    }
+    if (insts[i]->position() > address) {
+      break;
+    }
+  }
+  return createIndex(instId, 0, labelId);
 }
 
 QModelIndex DisassemblyModel::index(int row, int column,

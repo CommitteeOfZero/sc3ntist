@@ -7,6 +7,7 @@
 #include <vector>
 #include "disassemblymodel.h"
 #include <QDockWidget>
+#include <QInputDialog>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow) {
@@ -104,3 +105,21 @@ void MainWindow::on_actionOpen_triggered() {
 }
 
 void MainWindow::on_actionClose_triggered() { dApp->closeProject(); }
+
+void MainWindow::on_actionGo_to_address_triggered() {
+  // TODO: disable item when no script loaded
+  DisassemblyModel *model =
+      qobject_cast<DisassemblyModel *>(_treeView->model());
+  if (model == nullptr) return;
+
+  bool ok;
+  QString input = QInputDialog::getText(
+      this, "Go to address", "Address:", QLineEdit::Normal, QString(), &ok);
+  if (!ok) return;
+  int address = input.toInt(&ok, 0);
+  if (!ok) return;
+  QModelIndex index = model->firstIndexForAddress(address);
+  _treeView->setCurrentIndex(index);
+  // in case the line was already selected, still scroll there
+  _treeView->scrollTo(index);
+}

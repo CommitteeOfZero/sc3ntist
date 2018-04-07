@@ -29,7 +29,14 @@
     <addaction name="actionOpen"/>
     <addaction name="actionClose"/>
    </widget>
+   <widget class="QMenu" name="menuScript">
+    <property name="title">
+     <string>Script</string>
+    </property>
+    <addaction name="actionGo_to_address"/>
+   </widget>
    <addaction name="menuProject"/>
+   <addaction name="menuScript"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionOpen">
@@ -40,6 +47,11 @@
   <action name="actionClose">
    <property name="text">
     <string>Close</string>
+   </property>
+  </action>
+  <action name="actionGo_to_address">
+   <property name="text">
+    <string>Go to address...</string>
    </property>
   </action>
  </widget>
