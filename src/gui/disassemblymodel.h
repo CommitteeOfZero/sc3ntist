@@ -12,7 +12,7 @@ class DisassemblyModel : public QAbstractItemModel {
   Q_OBJECT
 
  public:
-  enum class ColumnType { Address, Code, NumColumns };
+  enum class ColumnType { Breakpoint, Address, Code, NumColumns };
   enum class RowType { Label, Instruction, Comment, Blank };
 
   explicit DisassemblyModel(const SCXFile* script, QObject* parent = 0);

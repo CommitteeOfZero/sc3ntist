@@ -1,5 +1,6 @@
 #include "disassemblymodel.h"
 #include "disassemblyview.h"
+#include "disassemblyitemdelegate.h"
 
 DisassemblyView::DisassemblyView(QWidget* parent) : QTreeView(parent) {
   connect(header(), &QHeaderView::sectionCountChanged, this,
@@ -13,6 +14,8 @@ DisassemblyView::DisassemblyView(QWidget* parent) : QTreeView(parent) {
   setWordWrap(false);
   setIndentation(0);
   setRootIsDecorated(false);
+
+  setItemDelegate(new DisassemblyItemDelegate(this));
 }
 
 void DisassemblyView::setModel(QAbstractItemModel* model) {
@@ -20,13 +23,6 @@ void DisassemblyView::setModel(QAbstractItemModel* model) {
 
   expandAll();
   scrollToTop();
-}
-
-void DisassemblyView::drawRow(QPainter* painter,
-                              const QStyleOptionViewItem& option,
-                              const QModelIndex& index) const {
-  // TODO custom drawing
-  QTreeView::drawRow(painter, option, index);
 }
 
 void DisassemblyView::goToAddress(SCXOffset address) {
@@ -41,6 +37,10 @@ void DisassemblyView::goToAddress(SCXOffset address) {
 
 void DisassemblyView::adjustHeader(int oldCount, int newCount) {
   if (newCount != (int)DisassemblyModel::ColumnType::NumColumns) return;
+  header()->setSectionResizeMode((int)DisassemblyModel::ColumnType::Breakpoint,
+                                 QHeaderView::Fixed);
+  // TODO: make breakpoint bounding rectangle square
+  header()->resizeSection((int)DisassemblyModel::ColumnType::Breakpoint, 24);
   header()->setSectionResizeMode((int)DisassemblyModel::ColumnType::Address,
                                  QHeaderView::ResizeToContents);
 }
