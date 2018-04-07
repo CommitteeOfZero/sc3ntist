@@ -12,6 +12,9 @@ class DisassemblyModel : public QAbstractItemModel {
   Q_OBJECT
 
  public:
+  enum class ColumnType { Address, Code, NumColumns };
+  enum class RowType { Label, Instruction, Comment, Blank };
+
   explicit DisassemblyModel(const SCXFile* script, QObject* parent = 0);
   ~DisassemblyModel() {}
 
@@ -28,8 +31,6 @@ class DisassemblyModel : public QAbstractItemModel {
   QModelIndex firstIndexForAddress(SCXOffset address) const;
 
  private:
-  enum class ColumnType { Address, Code, NumColumns };
-  enum class RowType { Label, Instruction, Comment, Blank };
   struct DisassemblyRow {
     RowType type;
     int id;

@@ -6,6 +6,7 @@
 #include "parser/SCXFile.h"
 #include <vector>
 #include "disassemblymodel.h"
+#include "disassemblyview.h"
 #include <QDockWidget>
 #include <QInputDialog>
 
@@ -22,13 +23,8 @@ MainWindow::MainWindow(QWidget *parent)
   disassemblyDock->setFeatures(disassemblyDock->features() &
                                ~QDockWidget::DockWidgetClosable);
   disassemblyDock->setAllowedAreas(Qt::AllDockWidgetAreas);
-  _treeView = new QTreeView(disassemblyDock);
-  _treeView->setUniformRowHeights(true);
-  _treeView->setItemsExpandable(false);
-  _treeView->setWordWrap(false);
-  _treeView->setIndentation(0);
-  _treeView->setRootIsDecorated(false);
-  disassemblyDock->setWidget(_treeView);
+  _disasmView = new DisassemblyView(disassemblyDock);
+  disassemblyDock->setWidget(_disasmView);
   addDockWidget(Qt::RightDockWidgetArea, disassemblyDock);
 
   QDockWidget *fileListDock = new QDockWidget("File list", this);
@@ -68,8 +64,8 @@ void MainWindow::onProjectOpened() {
 
 void MainWindow::onProjectClosed() {
   {
-    QAbstractItemModel *oldModel = _treeView->model();
-    _treeView->setModel(nullptr);
+    QAbstractItemModel *oldModel = _disasmView->model();
+    _disasmView->setModel(nullptr);
     if (oldModel != nullptr) delete oldModel;
   }
 
@@ -78,11 +74,9 @@ void MainWindow::onProjectClosed() {
 
 void MainWindow::onFileSwitched(int previousId) {
   {
-    QAbstractItemModel *oldModel = _treeView->model();
-    _treeView->setModel(new DisassemblyModel(dApp->project()->currentFile()));
+    QAbstractItemModel *oldModel = _disasmView->model();
+    _disasmView->setModel(new DisassemblyModel(dApp->project()->currentFile()));
     if (oldModel != nullptr) delete oldModel;
-    _treeView->expandAll();
-    _treeView->scrollToTop();
   }
 
   {
@@ -112,18 +106,11 @@ void MainWindow::on_actionClose_triggered() { dApp->closeProject(); }
 
 void MainWindow::on_actionGo_to_address_triggered() {
   // TODO: disable item when no script loaded
-  DisassemblyModel *model =
-      qobject_cast<DisassemblyModel *>(_treeView->model());
-  if (model == nullptr) return;
-
   bool ok;
   QString input = QInputDialog::getText(
       this, "Go to address", "Address:", QLineEdit::Normal, QString(), &ok);
   if (!ok) return;
   int address = input.toInt(&ok, 0);
   if (!ok) return;
-  QModelIndex index = model->firstIndexForAddress(address);
-  _treeView->setCurrentIndex(index);
-  // in case the line was already selected, still scroll there
-  _treeView->scrollTo(index);
+  _disasmView->goToAddress(address);
 }

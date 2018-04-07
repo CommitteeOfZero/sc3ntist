@@ -1,12 +1,13 @@
 #pragma once
 
 #include <QMainWindow>
-#include <QTreeView>
 #include <QListWidget>
 
 namespace Ui {
 class MainWindow;
 }
+
+class DisassemblyView;
 
 class MainWindow : public QMainWindow {
   Q_OBJECT
@@ -16,7 +17,7 @@ class MainWindow : public QMainWindow {
 
  private:
   Ui::MainWindow *ui;
-  QTreeView *_treeView;
+  DisassemblyView *_disasmView;
   QListWidget *_fileList;
 
  private slots:
