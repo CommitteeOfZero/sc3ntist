@@ -7,7 +7,8 @@
 
 class SCXFile {
  public:
-  SCXFile(uint8_t* data, SCXOffset length);
+  SCXFile(uint8_t* data, SCXOffset length, const std::string& name);
+  const std::string& getName() const { return _name; }
   SCXOffset getStringOffset(const SCXTableIndex stringId) const;
   SCXOffset getReturnAddressOffset(const SCXTableIndex returnAddressId) const;
   SCXOffset getLabelOffset(const SCXTableIndex labelId) const;
@@ -23,9 +24,12 @@ class SCXFile {
   ~SCXFile();
 
   void appendLabel(SC3CodeBlock* label);
-  const std::vector<std::unique_ptr<SC3CodeBlock>>& disassembly() const { return _disassembly; }
+  const std::vector<std::unique_ptr<SC3CodeBlock>>& disassembly() const {
+    return _disassembly;
+  }
 
  private:
+  const std::string _name;
   uint8_t* _data;
   SCXOffset _length;
   SCXOffset _codeEndOffset;

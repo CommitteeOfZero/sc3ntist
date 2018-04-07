@@ -13,7 +13,6 @@
   <property name="windowTitle">
    <string>sc3ntist</string>
   </property>
-  <widget class="QWidget" name="centralwidget"/>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>

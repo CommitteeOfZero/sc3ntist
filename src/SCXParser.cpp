@@ -105,7 +105,7 @@ int main() {
     file.close();
 
     std::string outPath = p.path().string() + ".txt";
-    SCXFile scx(buf, size);
+    SCXFile scx(buf, size, p.path().filename().string());
     CCDisassembler dis(scx);
     dis.DisassembleFile();
 
