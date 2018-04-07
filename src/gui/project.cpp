@@ -32,7 +32,7 @@ const SCXFile* Project::currentFile() const {
 }
 
 void Project::switchFile(int id) {
-  if (id >= 0 && id < _files.size()) {
+  if (id >= 0 && id < _files.size() && _currentFileId != id) {
     int previousId = _currentFileId;
     _currentFileId = id;
     emit fileSwitched(previousId);
