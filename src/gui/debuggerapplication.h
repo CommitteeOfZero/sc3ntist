@@ -3,6 +3,7 @@
 #include <QApplication>
 
 class MainWindow;
+class Project;
 
 #define dApp static_cast<::DebuggerApplication*>(QCoreApplication::instance())
 
@@ -16,7 +17,16 @@ class DebuggerApplication : public QApplication {
   void showWindow();
 
   MainWindow* window() { return _w; }
+  Project* project() { return _project; }
+
+  bool tryCreateProject(const QString& filePath);
+  void closeProject();
+
+ signals:
+  void projectClosed();
+  void projectOpened();
 
  private:
   MainWindow* _w;
+  Project* _project = nullptr;
 };

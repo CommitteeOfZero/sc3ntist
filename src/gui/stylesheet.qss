@@ -1,0 +1,21 @@
+QTreeView {
+    font-family: 'Lucida Console';
+    font-size: 9pt;
+    /* focus rectangle */
+    outline: none;
+}
+
+QTreeView::item {
+    background-color: bisque;
+    color: black;
+}
+
+QTreeView::item:hover {
+    background-color: bisque;
+    color: black;
+}
+
+QTreeView::item:selected {
+    background-color: burlywood;
+    color: black;
+}
