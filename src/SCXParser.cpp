@@ -7,10 +7,10 @@
 #include <sstream>
 #include <string>
 
-#include "SC3Argument.h"
-#include "CCDisassembler.h"
-#include "SCXFile.h"
-#include "SC3CodeBlock.h"
+#include "parser/SC3Argument.h"
+#include "parser/CCDisassembler.h"
+#include "parser/SCXFile.h"
+#include "parser/SC3CodeBlock.h"
 
 std::string uint8_vector_to_hex_string(const std::vector<uint8_t> &v) {
   std::stringstream ss;
@@ -53,9 +53,11 @@ std::string SC3ArgumentToString(const SC3Argument *arg) {
       break;
     }
     case FarLabel: {
-      const auto &expr = static_cast<const SC3ArgFarLabel *>(arg)->scriptBufferId();
+      const auto &expr =
+          static_cast<const SC3ArgFarLabel *>(arg)->scriptBufferId();
       auto id = static_cast<const SC3ArgFarLabel *>(arg)->labelId();
-      return "FarLabelRef(" + expr.toString(true) + ", " + std::to_string(id) + ")";
+      return "FarLabelRef(" + expr.toString(true) + ", " + std::to_string(id) +
+             ")";
     }
     case ReturnAddress: {
       auto id = static_cast<const SC3ArgReturnAddress *>(arg)->id();
@@ -72,16 +74,18 @@ std::string SC3ArgumentToString(const SC3Argument *arg) {
       return "FlagRef(" + expr.toString(true) + ")";
       break;
     }
-	case ExprGlobalVarRef: {
-		const auto &expr = static_cast<const SC3ArgExprGlobalVarRef *>(arg)->expr();
-		return "GlobalVarRef(" + expr.toString(true) + ")";
-		break;
-	}
-	case ExprThreadVarRef: {
-		const auto &expr = static_cast<const SC3ArgExprThreadVarRef *>(arg)->expr();
-		return "ThreadVarRef(" + expr.toString(true) + ")";
-		break;
-	}
+    case ExprGlobalVarRef: {
+      const auto &expr =
+          static_cast<const SC3ArgExprGlobalVarRef *>(arg)->expr();
+      return "GlobalVarRef(" + expr.toString(true) + ")";
+      break;
+    }
+    case ExprThreadVarRef: {
+      const auto &expr =
+          static_cast<const SC3ArgExprThreadVarRef *>(arg)->expr();
+      return "ThreadVarRef(" + expr.toString(true) + ")";
+      break;
+    }
   }
   return "unrecognized";
 }
@@ -91,7 +95,7 @@ int main() {
 
   std::string path = "G:\\Games\\SGTL\\CCEnVitaPatch101\\script_dis";
   for (auto &p : std::experimental::filesystem::directory_iterator(path)) {
-	  if (p.path().extension().string() != ".scx") continue;
+    if (p.path().extension().string() != ".scx") continue;
 
     std::ifstream file(p.path(), std::ios::binary | std::ios::ate);
     std::streamsize size = file.tellg();
@@ -106,30 +110,30 @@ int main() {
     dis.DisassembleFile();
 
     std::ofstream outFile(outPath, std::ios::out | std::ios::trunc);
-	int i = 0;
+    int i = 0;
     for (const auto &label : scx.disassembly()) {
       outFile << "\n#label" << i << "_" << label->address() << ":\n";
-	  i++;
+      i++;
       for (const auto &inst : label->instructions()) {
         if (inst->name() == "Assign") {
-          outFile << "\t" << SC3ArgumentToString(inst->args().at(0).get()) << "\n";
+          outFile << "\t" << SC3ArgumentToString(inst->args().at(0).get())
+                  << "\n";
           continue;
         }
-		outFile << "\t" << inst->name();
+        outFile << "\t" << inst->name();
         int i = 0;
         int argCount = inst->args().size();
-		if (argCount > 0)
-		{
-			outFile << "(";
-			for (const auto &arg : inst->args()) {
-				i++;
-				outFile << arg->name() << ": ";
-				outFile << SC3ArgumentToString(arg.get());
-				if (i < argCount) outFile << ", ";
-			}
-			outFile << ")";
-		}
-		outFile << "\n";
+        if (argCount > 0) {
+          outFile << "(";
+          for (const auto &arg : inst->args()) {
+            i++;
+            outFile << arg->name() << ": ";
+            outFile << SC3ArgumentToString(arg.get());
+            if (i < argCount) outFile << ", ";
+          }
+          outFile << ")";
+        }
+        outFile << "\n";
       }
     }
     outFile.close();
