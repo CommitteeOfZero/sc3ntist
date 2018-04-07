@@ -19,6 +19,8 @@ MainWindow::MainWindow(QWidget *parent)
   // TODO: move children into custom subclasses
 
   QDockWidget *disassemblyDock = new QDockWidget("Disassembly", this);
+  disassemblyDock->setFeatures(disassemblyDock->features() &
+                               ~QDockWidget::DockWidgetClosable);
   disassemblyDock->setAllowedAreas(Qt::AllDockWidgetAreas);
   _treeView = new QTreeView(disassemblyDock);
   _treeView->setUniformRowHeights(true);
@@ -30,6 +32,8 @@ MainWindow::MainWindow(QWidget *parent)
   addDockWidget(Qt::RightDockWidgetArea, disassemblyDock);
 
   QDockWidget *fileListDock = new QDockWidget("File list", this);
+  fileListDock->setFeatures(fileListDock->features() &
+                            ~QDockWidget::DockWidgetClosable);
   fileListDock->setAllowedAreas(Qt::AllDockWidgetAreas);
   _fileList = new QListWidget(fileListDock);
   fileListDock->setWidget(_fileList);
