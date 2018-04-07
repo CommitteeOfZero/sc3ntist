@@ -3,6 +3,7 @@
 #include <QModelIndex>
 #include <QVariant>
 #include "parser/SCXTypes.h"
+#include <vector>
 
 class SCXFile;
 class SC3CodeBlock;
@@ -27,10 +28,20 @@ class DisassemblyModel : public QAbstractItemModel {
   QModelIndex firstIndexForAddress(SCXOffset address) const;
 
  private:
+  enum class ColumnType { Address, Code, NumColumns };
+  enum class RowType { Label, Instruction, Comment, Blank };
+  struct DisassemblyRow {
+    RowType type;
+    int id;
+    SCXOffset address;
+    std::vector<DisassemblyRow> children;
+    DisassemblyRow* parent;
+  };
+
   const SCXFile* _script;
+  std::vector<DisassemblyRow> _labelRows;
 
   bool indexIsLabel(const QModelIndex& index) const;
   const SC3CodeBlock* labelForIndex(const QModelIndex& index) const;
   QModelIndex indexForLabel(SCXOffset labelId) const;
-  SCXOffset addressForIndex(const QModelIndex& index) const;
 };

@@ -5,24 +5,40 @@
 #include "textdump.h"
 #include <algorithm>
 
-// TODO: Per-instruction model (so instructions can have children for comments)
-
-enum class ColumnType { Address, Code, NumColumns };
-
 DisassemblyModel::DisassemblyModel(const SCXFile *script, QObject *parent)
-    : QAbstractItemModel(parent), _script(script) {}
+    : QAbstractItemModel(parent), _script(script) {
+  int labelCount = _script->disassembly().size();
+  _labelRows.reserve(labelCount);
+  for (int i = 0; i < labelCount; i++) {
+    const SC3CodeBlock *label = _script->disassembly()[i].get();
+    DisassemblyRow labelRow;
+    labelRow.type = RowType::Label;
+    labelRow.id = i;
+    labelRow.address = label->address();
+    labelRow.parent = nullptr;
+    int instCount = label->instructions().size();
+    labelRow.children.reserve(instCount + 1);
+    _labelRows.push_back(std::move(labelRow));
+    DisassemblyRow *movedLabelRow = &_labelRows.data()[i];
+    for (int j = 0; j < instCount; j++) {
+      DisassemblyRow instRow;
+      instRow.type = RowType::Instruction;
+      instRow.id = j;
+      instRow.address = label->instructions()[j]->position();
+      instRow.parent = movedLabelRow;
+      movedLabelRow->children.push_back(std::move(instRow));
+    }
+  }
+}
 
 int DisassemblyModel::rowCount(const QModelIndex &parent) const {
-  int labelCount = (int)_script->disassembly().size();
   if (!parent.isValid()) {
-    return labelCount;
+    return _labelRows.size();
   }
-  if (parent.row() < 0 || parent.row() >= labelCount ||
-      parent.parent().isValid())
-    return 0;
-
-  int ct = _script->disassembly()[parent.row()]->instructions().size() + 1;
-  return ct;
+  const DisassemblyRow *parentRow =
+      static_cast<DisassemblyRow *>(parent.internalPointer());
+  if (parentRow == nullptr) return 0;
+  return parentRow->children.size();
 }
 
 int DisassemblyModel::columnCount(const QModelIndex &parent) const {
@@ -30,34 +46,31 @@ int DisassemblyModel::columnCount(const QModelIndex &parent) const {
 }
 
 bool DisassemblyModel::indexIsLabel(const QModelIndex &index) const {
-  return !index.parent().isValid();
+  if (!index.isValid()) return false;
+  const DisassemblyRow *row =
+      static_cast<DisassemblyRow *>(index.internalPointer());
+  if (row == nullptr) return false;
+  return row->type == RowType::Label;
 }
 
 const SC3CodeBlock *DisassemblyModel::labelForIndex(
     const QModelIndex &index) const {
+  if (!index.isValid()) return nullptr;
+  const DisassemblyRow *row =
+      static_cast<DisassemblyRow *>(index.internalPointer());
+  if (row == nullptr) return nullptr;
   if (indexIsLabel(index)) {
-    return _script->disassembly()[index.row()].get();
+    return _script->disassembly()[row->id].get();
   }
-  return _script->disassembly()[index.parent().row()].get();
+  return _script->disassembly()[row->parent->id].get();
 }
 
 QModelIndex DisassemblyModel::indexForLabel(SCXOffset labelId) const {
-  if (labelId > _script->disassembly().size()) return QModelIndex();
-  return createIndex(labelId, 0, -1);
+  if (labelId > _labelRows.size()) return QModelIndex();
+  return createIndex(labelId, 0, (void *)&_labelRows.data()[labelId]);
 }
 
-SCXOffset DisassemblyModel::addressForIndex(const QModelIndex &index) const {
-  const SC3CodeBlock *label = labelForIndex(index);
-  if (indexIsLabel(index)) {
-    return label->address();
-  } else {
-    int instCount = (int)(label->instructions().size());
-    if (instCount == 0) return label->address();
-    return label->instructions()[std::min(index.row(), instCount - 1)]
-        ->position();
-  }
-}
-
+// TODO use DisassemblyRows for this?
 QModelIndex DisassemblyModel::firstIndexForAddress(SCXOffset address) const {
   const auto &disasm = _script->disassembly();
   const auto labelCount = disasm.size();
@@ -76,6 +89,7 @@ QModelIndex DisassemblyModel::firstIndexForAddress(SCXOffset address) const {
   }
   const auto &insts = disasm[labelId]->instructions();
   const auto instCount = insts.size();
+  if (instCount == 0) return indexForLabel(labelId);
   int instId = 0;
   for (int i = 0; i < instCount; i++) {
     if (insts[i]->position() == address) {
@@ -89,22 +103,30 @@ QModelIndex DisassemblyModel::firstIndexForAddress(SCXOffset address) const {
       break;
     }
   }
-  return createIndex(instId, 0, labelId);
+  return createIndex(instId, 0,
+                     (void *)&_labelRows[labelId].children.data()[instId]);
 }
 
 QModelIndex DisassemblyModel::index(int row, int column,
                                     const QModelIndex &parent) const {
-  // We use aid=-1 to refer to labels, aid!=-1 to refer to data inside them
-  if (!parent.isValid()) return createIndex(row, column, -1);
-  return createIndex(row, column, parent.row());
+  if (!parent.isValid())
+    return createIndex(row, column, (void *)&_labelRows.data()[row]);
+  const DisassemblyRow *parentRow =
+      static_cast<DisassemblyRow *>(parent.internalPointer());
+  if (parentRow == nullptr) return QModelIndex();
+  if (row >= parentRow->children.size()) return QModelIndex();
+  return createIndex(row, column, (void *)&parentRow->children.data()[row]);
 }
 
 QModelIndex DisassemblyModel::parent(const QModelIndex &index) const {
   if (!index.isValid()) return QModelIndex();
 
-  if (index.internalId() == -1) return QModelIndex();
+  const DisassemblyRow *row =
+      static_cast<DisassemblyRow *>(index.internalPointer());
 
-  return createIndex(index.internalId(), 0, -1);
+  if (row == nullptr) return QModelIndex();
+  if (row->parent == nullptr) return QModelIndex();
+  return createIndex(row->parent->id, 0, row->parent);
 }
 
 QVariant DisassemblyModel::headerData(int section, Qt::Orientation orientation,
@@ -115,37 +137,41 @@ QVariant DisassemblyModel::headerData(int section, Qt::Orientation orientation,
 
 QVariant DisassemblyModel::data(const QModelIndex &index, int role) const {
   if (!index.isValid()) return QVariant();
-
   if (role != Qt::DisplayRole) return QVariant();
+
+  const DisassemblyRow *row =
+      static_cast<DisassemblyRow *>(index.internalPointer());
+  if (row == nullptr) return QVariant();
 
   switch ((ColumnType)index.column()) {
     case ColumnType::Address:
-      return QVariant(
-          QString("%1").arg(addressForIndex(index), 8, 16, QChar('0')));
+      return QVariant(QString("%1").arg(row->address, 8, 16, QChar('0')));
     case ColumnType::Code: {
       const SC3CodeBlock *label = labelForIndex(index);
-
-      if (indexIsLabel(index)) {
-        std::stringstream _s;
-        _s << "#label" << label->id() << "_" << label->address() << ":";
-        return QVariant(QString::fromStdString(_s.str()));
-      } else {
-        if (index.row() >= (int)label->instructions().size()) {
-          return QVariant("");
-        } else {
-          const SC3Instruction *inst = label->instructions()[index.row()].get();
+      switch (row->type) {
+        case RowType::Label: {
+          std::stringstream _s;
+          _s << "#label" << label->id() << "_" << label->address() << ":";
+          return QVariant(QString::fromStdString(_s.str()));
+        }
+        case RowType::Instruction: {
+          const SC3Instruction *inst = label->instructions()[row->id].get();
           return QVariant(
               QString::fromStdString("    " + DumpSC3InstructionToText(inst)));
         }
+        default: { return QVariant(); }
       }
     }
   }
+  return QVariant();
 }
 
 Qt::ItemFlags DisassemblyModel::flags(const QModelIndex &index) const {
   if (!index.isValid()) return 0;
-  Qt::ItemFlags defaultFlags = QAbstractItemModel::flags(index);
-  if (index.parent().isValid())
-    return defaultFlags | Qt::ItemFlag::ItemNeverHasChildren;
-  return defaultFlags;
+  Qt::ItemFlags result = QAbstractItemModel::flags(index);
+  const DisassemblyRow *row =
+      static_cast<DisassemblyRow *>(index.internalPointer());
+  if (row == nullptr) return 0;
+  if (row->children.size() == 0) result |= Qt::ItemFlag::ItemNeverHasChildren;
+  return result;
 }
