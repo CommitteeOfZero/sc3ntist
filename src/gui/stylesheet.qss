@@ -1,6 +1,7 @@
 QTreeView {
     font-family: 'Lucida Console';
     font-size: 9pt;
+    background-color: bisque;
     /* focus rectangle */
     outline: none;
 }
