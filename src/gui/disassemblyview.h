@@ -3,6 +3,7 @@
 #include <QHeaderView>
 #include <QAbstractItemModel>
 #include "parser/SCXTypes.h"
+#include <QTimer>
 
 class DisassemblyView : public QTreeView {
   Q_OBJECT
@@ -14,6 +15,13 @@ class DisassemblyView : public QTreeView {
 
   void goToAddress(SCXOffset address);
   void goToLabel(int labelId);
+
+ private:
+  void resizeEvent(QResizeEvent *event) override;
+  void paintEvent(QPaintEvent *event) override;
+
+  QTimer *_resizeTimer;
+  bool _isResizing = false;
 
  private slots:
   void onCommentKeyPress();

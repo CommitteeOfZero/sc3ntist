@@ -33,6 +33,26 @@ DisassemblyView::DisassemblyView(QWidget* parent) : QTreeView(parent) {
   QShortcut* nameShortcut = new QShortcut(Qt::Key_N, this);
   connect(nameShortcut, &QShortcut::activated, this,
           &DisassemblyView::onNameKeyPress);
+
+  _resizeTimer = new QTimer(this);
+  _resizeTimer->setSingleShot(true);
+  _resizeTimer->setInterval(100);
+  connect(_resizeTimer, &QTimer::timeout, [=]() {
+    this->_isResizing = false;
+    update();
+  });
+}
+
+void DisassemblyView::resizeEvent(QResizeEvent* event) {
+  QTreeView::resizeEvent(event);
+  // prevent repaint during resize
+  _isResizing = true;
+  _resizeTimer->start();
+}
+
+void DisassemblyView::paintEvent(QPaintEvent* event) {
+  if (_isResizing) return;
+  QTreeView::paintEvent(event);
 }
 
 void DisassemblyView::setModel(QAbstractItemModel* model) {
