@@ -159,6 +159,16 @@ SCXOffset DisassemblyModel::addressForIndex(const QModelIndex &index) const {
   return row->address;
 }
 
+// TODO: this should probably be somewhere more global, for other views
+QString DisassemblyModel::labelNameForLabel(int labelId) const {
+  if (labelId < 0 || labelId >= _script->disassembly().size()) return QString();
+
+  const SC3CodeBlock *label = _script->disassembly()[labelId].get();
+  QString labelName = dApp->project()->getLabelName(_script->getId(), labelId);
+  if (!labelName.isEmpty()) return labelName;
+  return QString("label%1_%2").arg(labelId).arg(label->address());
+}
+
 QModelIndex DisassemblyModel::index(int row, int column,
                                     const QModelIndex &parent) const {
   if (!parent.isValid())
@@ -202,9 +212,7 @@ QVariant DisassemblyModel::data(const QModelIndex &index, int role) const {
       const SC3CodeBlock *label = labelForIndex(index);
       switch (row->type) {
         case RowType::Label: {
-          std::stringstream _s;
-          _s << "#label" << label->id() << "_" << label->address() << ":";
-          return QVariant(QString::fromStdString(_s.str()));
+          return QVariant(labelNameForLabel(label->id()));
         }
         case RowType::Instruction: {
           const SC3Instruction *inst = label->instructions()[row->id].get();
@@ -278,4 +286,15 @@ void DisassemblyModel::onCommentChanged(int fileId, SCXOffset address,
                                     std::move(commentRow));
     endInsertRows();
   }
+}
+
+void DisassemblyModel::onLabelNameChanged(int fileId, int labelId,
+                                          const QString &name) {
+  if (fileId != _script->getId()) return;
+  if (labelId < 0 || labelId >= _labelRows.size()) return;
+
+  QModelIndex origIndex = indexForLabel(labelId);
+  QModelIndex codeIndex = createIndex(origIndex.row(), (int)ColumnType::Code,
+                                      origIndex.internalPointer());
+  emit dataChanged(codeIndex, codeIndex);
 }

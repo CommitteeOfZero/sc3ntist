@@ -29,6 +29,8 @@ Project::Project(const QString& path, QObject* parent = 0) : QObject(parent) {
     dis.DisassembleFile();
     _files.push_back(std::move(scxFile));
   }
+
+  _inInitialLoad = false;
 }
 
 const SCXFile* Project::currentFile() const {
@@ -68,6 +70,29 @@ void Project::setComment(int fileId, SCXOffset address,
   emit commentChanged(fileId, address, comment);
 }
 
+QString Project::getLabelName(int fileId, int labelId) {
+  _getLabelNameQuery.addBindValue(fileId);
+  _getLabelNameQuery.addBindValue(labelId);
+  _getLabelNameQuery.exec();
+  _getLabelNameQuery.next();
+
+  QString result;
+  if (_getLabelNameQuery.isValid()) {
+    result = QString::fromUtf8(_getLabelNameQuery.value(0).toByteArray());
+  }
+
+  return result;
+}
+
+void Project::setLabelName(int fileId, int labelId, const QString& name) {
+  _setLabelNameQuery.addBindValue(fileId);
+  _setLabelNameQuery.addBindValue(labelId);
+  _setLabelNameQuery.addBindValue(name.toUtf8());
+  _setLabelNameQuery.exec();
+
+  emit labelNameChanged(fileId, labelId, name);
+}
+
 void Project::initDatabase() {
   // TODO: close database in destructor?
   // TODO: encoding
@@ -89,6 +114,13 @@ void Project::initDatabase() {
       "text TEXT NOT NULL,"
       "PRIMARY KEY (fileId, address)"
       ")");
+  q.exec(
+      "CREATE TABLE labels("
+      "fileId INTEGER NOT NULL,"
+      "labelId INTEGER NOT NULL,"
+      "name TEXT NOT NULL,"
+      "PRIMARY KEY (fileId, labelId)"
+      ")");
 
   _getCommentQuery = QSqlQuery(_db);
   _getCommentQuery.prepare(
@@ -96,4 +128,10 @@ void Project::initDatabase() {
   _setCommentQuery = QSqlQuery(_db);
   _setCommentQuery.prepare(
       "REPLACE INTO comments (fileId, address, text) VALUES (?, ?, ?)");
+  _getLabelNameQuery = QSqlQuery(_db);
+  _getLabelNameQuery.prepare(
+      "SELECT name FROM labels WHERE fileId = ? AND labelId = ?");
+  _setLabelNameQuery = QSqlQuery(_db);
+  _setLabelNameQuery.prepare(
+      "REPLACE INTO labels (fileId, labelId, name) VALUES (?, ?, ?)");
 }

@@ -40,8 +40,8 @@ QString DisassemblyItemDelegate::richTextFor(const QModelIndex& index) const {
                  index.data().toString().toHtmlEscaped() + "</span>";
         }
         case DisassemblyModel::RowType::Label: {
-          return "<span style='font-weight: bold; color: #008000'>" +
-                 index.data().toString().toHtmlEscaped() + "</span>";
+          return "<span style='font-weight: bold; color: #008000'>#" +
+                 index.data().toString().toHtmlEscaped() + ":</span>";
         }
       }
     }

@@ -5,6 +5,7 @@
 #include "debuggerapplication.h"
 #include <QAction>
 #include <QInputDialog>
+#include <QShortcut>
 
 DisassemblyView::DisassemblyView(QWidget* parent) : QTreeView(parent) {
   connect(dApp, &DebuggerApplication::projectOpened, this,
@@ -25,6 +26,13 @@ DisassemblyView::DisassemblyView(QWidget* parent) : QTreeView(parent) {
   setRootIsDecorated(false);
 
   setItemDelegate(new DisassemblyItemDelegate(this));
+
+  QShortcut* commentShortcut = new QShortcut(Qt::Key_C, this);
+  connect(commentShortcut, &QShortcut::activated, this,
+          &DisassemblyView::onCommentKeyPress);
+  QShortcut* nameShortcut = new QShortcut(Qt::Key_N, this);
+  connect(nameShortcut, &QShortcut::activated, this,
+          &DisassemblyView::onNameKeyPress);
 }
 
 void DisassemblyView::setModel(QAbstractItemModel* model) {
@@ -100,4 +108,22 @@ void DisassemblyView::onCommentKeyPress() {
       this, "Edit comment", "Comment:", oldComment, &ok);
   if (!ok) return;
   dApp->project()->setComment(disModel->script()->getId(), address, newComment);
+}
+
+void DisassemblyView::onNameKeyPress() {
+  const DisassemblyModel* disModel = qobject_cast<DisassemblyModel*>(model());
+  if (disModel == nullptr) return;
+
+  const DisassemblyRow* row =
+      static_cast<DisassemblyRow*>(currentIndex().internalPointer());
+  if (row == nullptr) return;
+  if (row->type != DisassemblyModel::RowType::Label) return;
+
+  QString oldName = disModel->labelNameForLabel(row->id);
+
+  bool ok;
+  QString newName = QInputDialog::getMultiLineText(this, "Edit label name",
+                                                   "New name:", oldName, &ok);
+  if (!ok) return;
+  dApp->project()->setLabelName(disModel->script()->getId(), row->id, newName);
 }

@@ -20,17 +20,24 @@ class Project : public QObject {
   QString getComment(int fileId, SCXOffset address);
   void setComment(int fileId, SCXOffset address, const QString& comment);
 
+  QString getLabelName(int fileId, int labelId);
+  void setLabelName(int fileId, int labelId, const QString& name);
+
  signals:
   void fileSwitched(int previousId);
   void commentChanged(int fileId, SCXOffset address, const QString& comment);
+  void labelNameChanged(int fileId, int labelId, const QString& name);
 
  private:
   QSqlDatabase _db;
   std::vector<std::unique_ptr<SCXFile>> _files;
   int _currentFileId = -1;
+  bool _inInitialLoad = true;
 
   void initDatabase();
 
   QSqlQuery _getCommentQuery;
   QSqlQuery _setCommentQuery;
+  QSqlQuery _getLabelNameQuery;
+  QSqlQuery _setLabelNameQuery;
 };

@@ -37,8 +37,11 @@ class DisassemblyModel : public QAbstractItemModel {
   int firstInstructionForAddress(int labelId, SCXOffset address) const;
   SCXOffset addressForIndex(const QModelIndex& index) const;
 
+  QString labelNameForLabel(int labelId) const;
+
  private slots:
   void onCommentChanged(int fileId, SCXOffset address, const QString& text);
+  void onLabelNameChanged(int fileId, int labelId, const QString& name);
 
  private:
   const SCXFile* _script;

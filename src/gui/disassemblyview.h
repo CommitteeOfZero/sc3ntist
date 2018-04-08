@@ -14,10 +14,10 @@ class DisassemblyView : public QTreeView {
 
   void goToAddress(SCXOffset address);
 
- public slots:
-  void onCommentKeyPress();
-
  private slots:
+  void onCommentKeyPress();
+  void onNameKeyPress();
+
   void onModelReset();
   void adjustHeader(int oldCount, int newCount);
 
