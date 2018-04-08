@@ -31,6 +31,20 @@ QString DisassemblyItemDelegate::richTextFor(const QModelIndex& index) const {
     case DisassemblyModel::ColumnType::Address: {
       return "<b>" + index.data().toString() + "</b>  ";
     }
+    case DisassemblyModel::ColumnType::Code: {
+      const DisassemblyRow* row =
+          static_cast<DisassemblyRow*>(index.internalPointer());
+      switch (row->type) {
+        case DisassemblyModel::RowType::Comment: {
+          return "<span style='color: #606060'>&nbsp;&nbsp;&nbsp;&nbsp;" +
+                 index.data().toString().toHtmlEscaped() + "</span>";
+        }
+        case DisassemblyModel::RowType::Label: {
+          return "<span style='font-weight: bold; color: #008000'>" +
+                 index.data().toString().toHtmlEscaped() + "</span>";
+        }
+      }
+    }
     default: { return QString(); }
   }
 }

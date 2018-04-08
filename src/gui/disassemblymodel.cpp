@@ -212,8 +212,8 @@ QVariant DisassemblyModel::data(const QModelIndex &index, int role) const {
               QString::fromStdString("    " + DumpSC3InstructionToText(inst)));
         }
         case RowType::Comment: {
-          return QVariant("    ; " + dApp->project()->getComment(
-                                         _script->getId(), row->address));
+          return QVariant("; " + dApp->project()->getComment(_script->getId(),
+                                                             row->address));
         }
         default: { return QVariant(); }
       }
