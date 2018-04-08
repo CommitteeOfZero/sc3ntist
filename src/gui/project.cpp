@@ -12,8 +12,6 @@ Project::Project(const QString& path, QObject* parent = 0) : QObject(parent) {
 
   QDirIterator it(path, QStringList() << "*.scx", QDir::Files | QDir::Readable);
 
-  int fileId = 0;
-
   while (it.hasNext()) {
     QFile file(it.next());
     if (!file.open(QIODevice::ReadOnly)) {
@@ -23,11 +21,7 @@ Project::Project(const QString& path, QObject* parent = 0) : QObject(parent) {
     uint8_t* data = (uint8_t*)malloc(length);
     file.read((char*)data, length);
     file.close();
-    std::unique_ptr<SCXFile> scxFile = std::make_unique<SCXFile>(
-        data, length, it.fileName().toStdString(), fileId++);
-    CCDisassembler dis(*scxFile);
-    dis.DisassembleFile();
-    _files.push_back(std::move(scxFile));
+    insertFile(it.fileName(), data, length);
   }
 
   _inInitialLoad = false;
@@ -103,6 +97,22 @@ void Project::setLabelName(int fileId, int labelId, const QString& name) {
   emit labelNameChanged(fileId, labelId, name);
 }
 
+void Project::insertFile(const QString& name, uint8_t* data, int size) {
+  QVariant vdata(QByteArray::fromRawData((char*)data, size));
+  int id = _files.size();
+
+  std::unique_ptr<SCXFile> scxFile =
+      std::make_unique<SCXFile>(data, size, name.toStdString(), id);
+  CCDisassembler dis(*scxFile);
+  dis.DisassembleFile();
+  _files.push_back(std::move(scxFile));
+
+  _insertFileQuery.addBindValue(id);
+  _insertFileQuery.addBindValue(name.toUtf8());
+  _insertFileQuery.addBindValue(vdata);
+  _insertFileQuery.exec();
+}
+
 void Project::initDatabase() {
   // TODO: close database in destructor?
   // TODO: encoding
@@ -144,4 +154,9 @@ void Project::initDatabase() {
   _setLabelNameQuery = QSqlQuery(_db);
   _setLabelNameQuery.prepare(
       "REPLACE INTO labels (fileId, labelId, name) VALUES (?, ?, ?)");
+  _getFileQuery = QSqlQuery(_db);
+  _getFileQuery.prepare("SELECT id, name, data FROM files ORDER BY id ASC");
+  _insertFileQuery = QSqlQuery(_db);
+  _insertFileQuery.prepare(
+      "INSERT INTO files (id, name, data) VALUES (?, ?, ?)");
 }

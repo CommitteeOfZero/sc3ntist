@@ -35,9 +35,12 @@ class Project : public QObject {
   bool _inInitialLoad = true;
 
   void initDatabase();
+  void insertFile(const QString& name, uint8_t* data, int size);
 
   QSqlQuery _getCommentQuery;
   QSqlQuery _setCommentQuery;
   QSqlQuery _getLabelNameQuery;
   QSqlQuery _setLabelNameQuery;
+  QSqlQuery _getFileQuery;
+  QSqlQuery _insertFileQuery;
 };
