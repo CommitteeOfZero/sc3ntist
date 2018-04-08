@@ -16,4 +16,8 @@ class DisassemblyView : public QTreeView {
 
  private slots:
   void adjustHeader(int oldCount, int newCount);
+
+  void onProjectOpened();
+  void onProjectClosed();
+  void onFileSwitched(int previousId);
 };

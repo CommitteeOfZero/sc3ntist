@@ -62,23 +62,9 @@ void MainWindow::onProjectOpened() {
   dApp->project()->switchFile(0);
 }
 
-void MainWindow::onProjectClosed() {
-  {
-    QAbstractItemModel *oldModel = _disasmView->model();
-    _disasmView->setModel(nullptr);
-    if (oldModel != nullptr) delete oldModel;
-  }
-
-  _fileList->clear();
-}
+void MainWindow::onProjectClosed() { _fileList->clear(); }
 
 void MainWindow::onFileSwitched(int previousId) {
-  {
-    QAbstractItemModel *oldModel = _disasmView->model();
-    _disasmView->setModel(new DisassemblyModel(dApp->project()->currentFile()));
-    if (oldModel != nullptr) delete oldModel;
-  }
-
   {
     if (previousId >= 0) {
       _fileList->item(previousId)

@@ -1,8 +1,15 @@
 #include "disassemblymodel.h"
 #include "disassemblyview.h"
 #include "disassemblyitemdelegate.h"
+#include "project.h"
+#include "debuggerapplication.h"
 
 DisassemblyView::DisassemblyView(QWidget* parent) : QTreeView(parent) {
+  connect(dApp, &DebuggerApplication::projectOpened, this,
+          &DisassemblyView::onProjectOpened);
+  connect(dApp, &DebuggerApplication::projectClosed, this,
+          &DisassemblyView::onProjectClosed);
+
   connect(header(), &QHeaderView::sectionCountChanged, this,
           &DisassemblyView::adjustHeader);
 
@@ -43,4 +50,21 @@ void DisassemblyView::adjustHeader(int oldCount, int newCount) {
   header()->resizeSection((int)DisassemblyModel::ColumnType::Breakpoint, 24);
   header()->setSectionResizeMode((int)DisassemblyModel::ColumnType::Address,
                                  QHeaderView::ResizeToContents);
+}
+
+void DisassemblyView::onProjectOpened() {
+  connect(dApp->project(), &Project::fileSwitched, this,
+          &DisassemblyView::onFileSwitched);
+}
+
+void DisassemblyView::onProjectClosed() {
+  QAbstractItemModel* oldModel = model();
+  setModel(nullptr);
+  if (oldModel != nullptr) delete oldModel;
+}
+
+void DisassemblyView::onFileSwitched(int previousId) {
+  QAbstractItemModel* oldModel = model();
+  setModel(new DisassemblyModel(dApp->project()->currentFile()));
+  if (oldModel != nullptr) delete oldModel;
 }
