@@ -21,7 +21,7 @@ DECODER_PROC(__Unrecognized__);
   {                                                                         \
     if ((data - dataStart) > maxLength) RETURN_UNRECOGNIZED();              \
     return new SC3Instruction(address, (SCXOffset)(data - dataStart), name, \
-                              std::move(args));                             \
+                              args);                                        \
   }
 
 #define ADD_BYTE_ARG(aname)                    \
@@ -132,7 +132,7 @@ DECODER_PROC(__Unrecognized__);
   DECODER_PROC(name) {                                                       \
     DECODER_PROC_INIT();                                                     \
     return new SC3Instruction(address, (SCXOffset)(data - dataStart), #name, \
-                              std::move(args));                              \
+                              args);                                         \
   }
 
 DECODER_PROC(__Unrecognized__) {
@@ -141,6 +141,5 @@ DECODER_PROC(__Unrecognized__) {
   arg.name = "data";
   arg.byteArrayValue = std::vector<uint8_t>(data, data + maxLength);
   args.push_back(std::move(arg));
-  return new SC3Instruction(address, maxLength, "__Unrecognized__",
-                            std::move(args));
+  return new SC3Instruction(address, maxLength, "__Unrecognized__", args);
 }
