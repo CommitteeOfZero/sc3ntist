@@ -71,6 +71,9 @@ void Project::setComment(int fileId, SCXOffset address,
 }
 
 QString Project::getLabelName(int fileId, int labelId) {
+  if (fileId < 0 || fileId >= _files.size()) return "";
+  const SCXFile* file = _files[fileId].get();
+  if (labelId < 0 || labelId >= file->disassembly().size()) return "";
   _getLabelNameQuery.addBindValue(fileId);
   _getLabelNameQuery.addBindValue(labelId);
   _getLabelNameQuery.exec();
@@ -79,6 +82,13 @@ QString Project::getLabelName(int fileId, int labelId) {
   QString result;
   if (_getLabelNameQuery.isValid()) {
     result = QString::fromUtf8(_getLabelNameQuery.value(0).toByteArray());
+  }
+
+  // TODO: still not quite the right place
+  if (result.isEmpty()) {
+    return QString("label%1_%2")
+        .arg(labelId)
+        .arg(file->disassembly()[labelId]->address());
   }
 
   return result;

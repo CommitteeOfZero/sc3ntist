@@ -37,8 +37,18 @@ MainWindow::MainWindow(QWidget *parent)
   connect(_fileList, &QListWidget::itemActivated,
           [=]() { dApp->project()->switchFile(_fileList->currentRow()); });
 
-  // without a centralwidget we need to fill *at least* the whole width or the
-  // resize is ignored
+  QDockWidget *labelListDock = new QDockWidget("Labels", this);
+  labelListDock->setFeatures(labelListDock->features() &
+                             ~QDockWidget::DockWidgetClosable);
+  labelListDock->setAllowedAreas(Qt::AllDockWidgetAreas);
+  _labelList = new QListWidget(labelListDock);
+  labelListDock->setWidget(_labelList);
+  splitDockWidget(fileListDock, labelListDock, Qt::Vertical);
+  connect(_labelList, &QListWidget::itemActivated,
+          [=]() { _disasmView->goToLabel(_labelList->currentRow()); });
+
+  // without a centralwidget we need to fill *at least* the whole width or
+  // the resize is ignored
   resizeDocks({fileListDock, disassemblyDock}, {200, width()}, Qt::Horizontal);
 
   connect(dApp, &DebuggerApplication::projectOpened, this,
@@ -52,6 +62,8 @@ MainWindow::~MainWindow() { delete ui; }
 void MainWindow::onProjectOpened() {
   connect(dApp->project(), &Project::fileSwitched, this,
           &MainWindow::onFileSwitched);
+  connect(dApp->project(), &Project::labelNameChanged, this,
+          &MainWindow::onLabelNameChanged);
 
   const auto &files = dApp->project()->files();
   auto fileCount = files.size();
@@ -62,7 +74,10 @@ void MainWindow::onProjectOpened() {
   dApp->project()->switchFile(0);
 }
 
-void MainWindow::onProjectClosed() { _fileList->clear(); }
+void MainWindow::onProjectClosed() {
+  _fileList->clear();
+  _labelList->clear();
+}
 
 void MainWindow::onFileSwitched(int previousId) {
   {
@@ -82,6 +97,22 @@ void MainWindow::onFileSwitched(int previousId) {
             .arg(currentFileId, 3)
             .arg(QString::fromStdString(currentFileName)));
   }
+  {
+    const SCXFile *currentFile = dApp->project()->currentFile();
+    _labelList->clear();
+    for (int i = 0; i < currentFile->disassembly().size(); i++) {
+      _labelList->addItem(QString("#%1").arg(
+          dApp->project()->getLabelName(currentFile->getId(), i)));
+    }
+  }
+}
+
+void MainWindow::onLabelNameChanged(int fileId, int labelId,
+                                    const QString &name) {
+  if (fileId != dApp->project()->currentFileId()) return;
+  auto *item = _labelList->item(labelId);
+  if (item == nullptr) return;
+  item->setText(QString("#%1").arg(name));
 }
 
 void MainWindow::on_actionOpen_triggered() {

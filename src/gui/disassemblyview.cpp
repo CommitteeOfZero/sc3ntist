@@ -66,6 +66,16 @@ void DisassemblyView::goToAddress(SCXOffset address) {
   scrollTo(index);
 }
 
+void DisassemblyView::goToLabel(int labelId) {
+  const DisassemblyModel* disModel = qobject_cast<DisassemblyModel*>(model());
+  if (disModel == nullptr) return;
+
+  QModelIndex index = disModel->indexForLabel(labelId);
+  setCurrentIndex(index);
+  // in case the line was already selected, still scroll there
+  scrollTo(index);
+}
+
 void DisassemblyView::adjustHeader(int oldCount, int newCount) {
   if (newCount != (int)DisassemblyModel::ColumnType::NumColumns) return;
   header()->setSectionResizeMode((int)DisassemblyModel::ColumnType::Breakpoint,
@@ -119,7 +129,8 @@ void DisassemblyView::onNameKeyPress() {
   if (row == nullptr) return;
   if (row->type != DisassemblyModel::RowType::Label) return;
 
-  QString oldName = disModel->labelNameForLabel(row->id);
+  QString oldName =
+      dApp->project()->getLabelName(disModel->script()->getId(), row->id);
 
   bool ok;
   QString newName = QInputDialog::getMultiLineText(this, "Edit label name",

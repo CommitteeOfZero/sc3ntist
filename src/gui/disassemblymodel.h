@@ -4,6 +4,7 @@
 #include <QVariant>
 #include "parser/SCXTypes.h"
 #include <vector>
+#include <utility>
 
 class SCXFile;
 class SC3CodeBlock;
@@ -33,11 +34,13 @@ class DisassemblyModel : public QAbstractItemModel {
 
   QModelIndex firstIndexForAddress(SCXOffset address) const;
   int firstLabelForAddress(SCXOffset address) const;
-  int firstInstructionForAddress(SCXOffset address) const;
+  std::pair<int, int> firstInstructionForAddress(SCXOffset address) const;
   int firstInstructionForAddress(int labelId, SCXOffset address) const;
   SCXOffset addressForIndex(const QModelIndex& index) const;
 
-  QString labelNameForLabel(int labelId) const;
+  bool indexIsLabel(const QModelIndex& index) const;
+  const SC3CodeBlock* labelForIndex(const QModelIndex& index) const;
+  QModelIndex indexForLabel(SCXOffset labelId) const;
 
  private slots:
   void onCommentChanged(int fileId, SCXOffset address, const QString& text);
@@ -46,10 +49,6 @@ class DisassemblyModel : public QAbstractItemModel {
  private:
   const SCXFile* _script;
   std::vector<DisassemblyRow> _labelRows;
-
-  bool indexIsLabel(const QModelIndex& index) const;
-  const SC3CodeBlock* labelForIndex(const QModelIndex& index) const;
-  QModelIndex indexForLabel(SCXOffset labelId) const;
 
   void reload();
 };

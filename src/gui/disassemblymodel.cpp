@@ -125,8 +125,16 @@ int DisassemblyModel::firstLabelForAddress(SCXOffset address) const {
   return labelId;
 }
 
-int DisassemblyModel::firstInstructionForAddress(SCXOffset address) const {
-  return firstInstructionForAddress(firstLabelForAddress(address), address);
+std::pair<int, int> DisassemblyModel::firstInstructionForAddress(
+    SCXOffset address) const {
+  int labelId = firstLabelForAddress(address);
+  int instId;
+  while (labelId < _script->disassembly().size()) {
+    instId = firstInstructionForAddress(labelId, address);
+    if (instId >= 0) return std::make_pair(labelId, instId);
+    labelId++;
+  }
+  return std::make_pair(-1, -1);
 }
 
 int DisassemblyModel::firstInstructionForAddress(int labelId,
@@ -157,16 +165,6 @@ SCXOffset DisassemblyModel::addressForIndex(const QModelIndex &index) const {
   if (row == nullptr) return -1;
 
   return row->address;
-}
-
-// TODO: this should probably be somewhere more global, for other views
-QString DisassemblyModel::labelNameForLabel(int labelId) const {
-  if (labelId < 0 || labelId >= _script->disassembly().size()) return QString();
-
-  const SC3CodeBlock *label = _script->disassembly()[labelId].get();
-  QString labelName = dApp->project()->getLabelName(_script->getId(), labelId);
-  if (!labelName.isEmpty()) return labelName;
-  return QString("label%1_%2").arg(labelId).arg(label->address());
 }
 
 QModelIndex DisassemblyModel::index(int row, int column,
@@ -212,7 +210,8 @@ QVariant DisassemblyModel::data(const QModelIndex &index, int role) const {
       const SC3CodeBlock *label = labelForIndex(index);
       switch (row->type) {
         case RowType::Label: {
-          return QVariant(labelNameForLabel(label->id()));
+          return QVariant(
+              dApp->project()->getLabelName(_script->getId(), label->id()));
         }
         case RowType::Instruction: {
           const SC3Instruction *inst = label->instructions()[row->id].get();
@@ -244,10 +243,9 @@ void DisassemblyModel::onCommentChanged(int fileId, SCXOffset address,
                                         const QString &comment) {
   if (fileId != _script->getId()) return;
 
-  int labelId = firstLabelForAddress(address);
-  if (labelId < 0) return;
-  int instId = firstInstructionForAddress(labelId, address);
-  if (instId < 0) return;
+  int labelId, instId;
+  std::tie(labelId, instId) = firstInstructionForAddress(address);
+  if (labelId < 0 || instId < 0) return;
 
   DisassemblyRow *instructionRow = &_labelRows[labelId].children.data()[instId];
 

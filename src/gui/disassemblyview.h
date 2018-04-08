@@ -13,6 +13,7 @@ class DisassemblyView : public QTreeView {
   void setModel(QAbstractItemModel *model) override;
 
   void goToAddress(SCXOffset address);
+  void goToLabel(int labelId);
 
  private slots:
   void onCommentKeyPress();
