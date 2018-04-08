@@ -6,6 +6,7 @@
 #include <QAction>
 #include <QInputDialog>
 #include <QShortcut>
+#include "xrefdialog.h"
 
 DisassemblyView::DisassemblyView(QWidget* parent) : QTreeView(parent) {
   connect(dApp, &DebuggerApplication::projectOpened, this,
@@ -33,6 +34,9 @@ DisassemblyView::DisassemblyView(QWidget* parent) : QTreeView(parent) {
   QShortcut* nameShortcut = new QShortcut(Qt::Key_N, this);
   connect(nameShortcut, &QShortcut::activated, this,
           &DisassemblyView::onNameKeyPress);
+  QShortcut* xrefShortcut = new QShortcut(Qt::Key_X, this);
+  connect(xrefShortcut, &QShortcut::activated, this,
+          &DisassemblyView::onXrefKeyPress);
 
   _resizeTimer = new QTimer(this);
   _resizeTimer->setSingleShot(true);
@@ -157,4 +161,14 @@ void DisassemblyView::onNameKeyPress() {
                                                    "New name:", oldName, &ok);
   if (!ok) return;
   dApp->project()->setLabelName(disModel->script()->getId(), row->id, newName);
+}
+
+void DisassemblyView::onXrefKeyPress() {
+  const DisassemblyModel* disModel = qobject_cast<DisassemblyModel*>(model());
+  if (disModel == nullptr) return;
+
+  SCXOffset address = disModel->addressForIndex(currentIndex());
+  if (address < 0) return;
+
+  XrefDialog(disModel->script()->getId(), address, this).exec();
 }

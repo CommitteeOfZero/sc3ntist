@@ -4,6 +4,7 @@
 #include <QTextDocument>
 #include <QApplication>
 #include <QAbstractTextDocumentLayout>
+#include "viewhelper.h"
 
 void DisassemblyItemDelegate::paint(QPainter* painter,
                                     const QStyleOptionViewItem& option,
@@ -29,7 +30,7 @@ void DisassemblyItemDelegate::paint(QPainter* painter,
 QString DisassemblyItemDelegate::richTextFor(const QModelIndex& index) const {
   switch ((DisassemblyModel::ColumnType)index.column()) {
     case DisassemblyModel::ColumnType::Address: {
-      return "<b>" + index.data().toString() + "</b>  ";
+      return "<b>" + displayTextForAddress(index.data().toInt()) + "</b>  ";
     }
     case DisassemblyModel::ColumnType::Code: {
       const DisassemblyRow* row =

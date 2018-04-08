@@ -1,9 +1,12 @@
 #include "project.h"
 #include <parser/CCDisassembler.h>
+#include <parser/SC3CodeBlock.h>
+#include <parser/SC3Instruction.h>
 #include <QFile>
 #include <QDirIterator>
 #include <QStringList>
 #include <stdexcept>
+#include "analysis.h"
 
 Project::Project(const QString& path, QObject* parent = 0) : QObject(parent) {
   initDatabase();
@@ -105,12 +108,55 @@ void Project::insertFile(const QString& name, uint8_t* data, int size) {
       std::make_unique<SCXFile>(data, size, name.toStdString(), id);
   CCDisassembler dis(*scxFile);
   dis.DisassembleFile();
+
+  // find refs
+
+  for (const auto& label : scxFile->disassembly()) {
+    for (const auto& inst : label->instructions()) {
+      std::vector<std::pair<VariableRefType, int>> refs =
+          variableRefsInInstruction(inst.get());
+
+      for (const auto& ref : refs) {
+        insertVariableRef(id, inst->position(), ref.first, ref.second);
+      }
+    }
+  }
+
   _files.push_back(std::move(scxFile));
 
   _insertFileQuery.addBindValue(id);
   _insertFileQuery.addBindValue(name.toUtf8());
   _insertFileQuery.addBindValue(vdata);
   _insertFileQuery.exec();
+}
+
+std::vector<std::pair<int, SCXOffset>> Project::getVariableRefs(
+    VariableRefType type, int var) {
+  QVariant vtype;
+  vtype.setValue(type);
+  _getVariableRefsQuery.addBindValue(vtype);
+  _getVariableRefsQuery.addBindValue(var);
+  _getVariableRefsQuery.exec();
+
+  std::vector<std::pair<int, SCXOffset>> result;
+  while (_getVariableRefsQuery.next()) {
+    result.emplace_back(_getVariableRefsQuery.value(0).toInt(),
+                        _getVariableRefsQuery.value(1).toInt());
+  }
+
+  return result;
+}
+
+// TODO: batch?
+void Project::insertVariableRef(int fileId, SCXOffset address,
+                                VariableRefType type, int var) {
+  _insertVariableRefQuery.addBindValue(fileId);
+  _insertVariableRefQuery.addBindValue(address);
+  QVariant vtype;
+  vtype.setValue(type);
+  _insertVariableRefQuery.addBindValue(vtype);
+  _insertVariableRefQuery.addBindValue(var);
+  _insertVariableRefQuery.exec();
 }
 
 void Project::initDatabase() {
@@ -141,6 +187,14 @@ void Project::initDatabase() {
       "name TEXT NOT NULL,"
       "PRIMARY KEY (fileId, labelId)"
       ")");
+  q.exec(
+      "CREATE TABLE variableRefs("
+      "refId INTEGER PRIMARY KEY,"
+      "fileId INTEGER NOT NULL,"
+      "address INTEGER NOT NULL,"
+      "variableType INTEGER NOT NULL,"
+      "variable INTEGER NOT NULL"
+      ")");
 
   _getCommentQuery = QSqlQuery(_db);
   _getCommentQuery.prepare(
@@ -159,4 +213,12 @@ void Project::initDatabase() {
   _insertFileQuery = QSqlQuery(_db);
   _insertFileQuery.prepare(
       "INSERT INTO files (id, name, data) VALUES (?, ?, ?)");
+  _getVariableRefsQuery = QSqlQuery(_db);
+  _getVariableRefsQuery.prepare(
+      "SELECT fileId, address FROM variableRefs WHERE variableType = ? AND "
+      "variable = ?");
+  _insertVariableRefQuery = QSqlQuery(_db);
+  _insertVariableRefQuery.prepare(
+      "INSERT INTO variableRefs (fileId, address, variableType, variable) "
+      "VALUES (?, ?, ?, ?)");
 }

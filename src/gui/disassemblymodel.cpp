@@ -6,6 +6,8 @@
 #include <algorithm>
 #include "debuggerapplication.h"
 #include "project.h"
+#include "analysis.h"
+#include "viewhelper.h"
 
 DisassemblyModel::DisassemblyModel(const SCXFile *script, QObject *parent)
     : QAbstractItemModel(parent), _script(script) {
@@ -97,65 +99,13 @@ QModelIndex DisassemblyModel::indexForLabel(SCXOffset labelId) const {
 // TODO use DisassemblyRows for this?
 QModelIndex DisassemblyModel::firstIndexForAddress(SCXOffset address) const {
   const auto &disasm = _script->disassembly();
-  int labelId = firstLabelForAddress(address);
+  int labelId = firstLabelForAddress(_script, address);
   if (labelId < 0) return QModelIndex();
   if (_labelRows[labelId].address == address) return indexForLabel(labelId);
-  int instId = firstInstructionForAddress(labelId, address);
+  int instId = instructionAtAddress(_script, labelId, address);
   if (instId < 0) return indexForLabel(labelId);
   return createIndex(instId, 0,
                      (void *)&_labelRows[labelId].children.data()[instId]);
-}
-
-int DisassemblyModel::firstLabelForAddress(SCXOffset address) const {
-  const auto &disasm = _script->disassembly();
-  const auto labelCount = disasm.size();
-  if (labelCount == 0) return -1;
-  int labelId = 0;
-  for (int i = 0; i < labelCount; i++) {
-    if (disasm[i]->address() == address) {
-      return i;
-    }
-    if (disasm[i]->address() < address) {
-      labelId = i;
-    }
-    if (disasm[i]->address() > address) {
-      break;
-    }
-  }
-  return labelId;
-}
-
-std::pair<int, int> DisassemblyModel::firstInstructionForAddress(
-    SCXOffset address) const {
-  int labelId = firstLabelForAddress(address);
-  int instId;
-  while (labelId < _script->disassembly().size()) {
-    instId = firstInstructionForAddress(labelId, address);
-    if (instId >= 0) return std::make_pair(labelId, instId);
-    labelId++;
-  }
-  return std::make_pair(-1, -1);
-}
-
-int DisassemblyModel::firstInstructionForAddress(int labelId,
-                                                 SCXOffset address) const {
-  if (labelId < 0 || labelId > _script->disassembly().size()) return -1;
-  const auto &insts = _script->disassembly()[labelId]->instructions();
-  const auto instCount = insts.size();
-  if (instCount == 0) return -1;
-  int instId = 0;
-  for (int i = 0; i < instCount; i++) {
-    if (insts[i]->position() == address) {
-      return i;
-    }
-    if (insts[i]->position() < address) {
-      instId = i;
-    }
-    if (insts[i]->position() > address) {
-      break;
-    }
-  }
-  return instId;
 }
 
 SCXOffset DisassemblyModel::addressForIndex(const QModelIndex &index) const {
@@ -205,7 +155,7 @@ QVariant DisassemblyModel::data(const QModelIndex &index, int role) const {
 
   switch ((ColumnType)index.column()) {
     case ColumnType::Address:
-      return QVariant(QString("%1").arg(row->address, 8, 16, QChar('0')));
+      return QVariant(row->address);
     case ColumnType::Code: {
       const SC3CodeBlock *label = labelForIndex(index);
       switch (row->type) {
@@ -244,7 +194,7 @@ void DisassemblyModel::onCommentChanged(int fileId, SCXOffset address,
   if (fileId != _script->getId()) return;
 
   int labelId, instId;
-  std::tie(labelId, instId) = firstInstructionForAddress(address);
+  std::tie(labelId, instId) = instructionAtAddress(_script, address);
   if (labelId < 0 || instId < 0) return;
 
   DisassemblyRow *instructionRow = &_labelRows[labelId].children.data()[instId];

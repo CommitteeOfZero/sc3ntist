@@ -26,6 +26,7 @@ class DisassemblyView : public QTreeView {
  private slots:
   void onCommentKeyPress();
   void onNameKeyPress();
+  void onXrefKeyPress();
 
   void onModelReset();
   void adjustHeader(int oldCount, int newCount);

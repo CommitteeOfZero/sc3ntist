@@ -4,6 +4,7 @@
 #include <QObject>
 #include "parser/SCXFile.h"
 #include <QtSql>
+#include "enums.h"
 
 class Project : public QObject {
   Q_OBJECT
@@ -23,6 +24,9 @@ class Project : public QObject {
   QString getLabelName(int fileId, int labelId);
   void setLabelName(int fileId, int labelId, const QString& name);
 
+  std::vector<std::pair<int, SCXOffset>> getVariableRefs(VariableRefType type,
+                                                         int var);
+
  signals:
   void fileSwitched(int previousId);
   void commentChanged(int fileId, SCXOffset address, const QString& comment);
@@ -36,6 +40,8 @@ class Project : public QObject {
 
   void initDatabase();
   void insertFile(const QString& name, uint8_t* data, int size);
+  void insertVariableRef(int fileId, SCXOffset address, VariableRefType type,
+                         int var);
 
   QSqlQuery _getCommentQuery;
   QSqlQuery _setCommentQuery;
@@ -43,4 +49,6 @@ class Project : public QObject {
   QSqlQuery _setLabelNameQuery;
   QSqlQuery _getFileQuery;
   QSqlQuery _insertFileQuery;
+  QSqlQuery _getVariableRefsQuery;
+  QSqlQuery _insertVariableRefQuery;
 };

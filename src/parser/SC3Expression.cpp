@@ -222,7 +222,8 @@ SC3Expression::Term SC3Expression::parseTerm(uint8_t *start, uint8_t *end) {
       case Increment:
       case Decrement: {
         result->type = type;
-        result->lhs = std::unique_ptr<SC3ExpressionNode>(parseTerm(start, cursor).node);
+        result->lhs =
+            std::unique_ptr<SC3ExpressionNode>(parseTerm(start, cursor).node);
         if (result->lhs == nullptr)
           throw std::runtime_error("invalid expression");
         break;
@@ -504,4 +505,11 @@ std::string SC3ExpressionNode::toString() const {
     }
     default: { return ""; }
   }
+}
+
+void SC3ExpressionNode::traverse(
+    std::function<void(const SC3ExpressionNode *)> visitor) const {
+  visitor(this);
+  if (lhs != nullptr) lhs->traverse(visitor);
+  if (rhs != nullptr) rhs->traverse(visitor);
 }

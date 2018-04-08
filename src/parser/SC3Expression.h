@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <functional>
 
 enum SC3ExpressionTokenType {
   EndOfExpression = 0x00,
@@ -83,6 +84,8 @@ class SC3ExpressionNode {
 
   std::string toString() const;
 
+  void traverse(std::function<void(const SC3ExpressionNode *)> visitor) const;
+
  private:
   // binary
   static int evaluateOp(SC3ExpressionTokenType op, int lhs, int rhs);
@@ -95,6 +98,9 @@ class SC3Expression {
   SC3Expression(uint8_t *rawExpression);
   int rawLength() const { return _rawLength; }
   std::string toString(bool evalConst) const;
+
+  const SC3ExpressionNode *root() const { return _root.get(); }
+  const SC3ExpressionNode *simplified() const { return _simplified.get(); }
 
  private:
   struct Term {

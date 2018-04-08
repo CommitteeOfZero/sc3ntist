@@ -33,9 +33,6 @@ class DisassemblyModel : public QAbstractItemModel {
   int columnCount(const QModelIndex& parent = QModelIndex()) const override;
 
   QModelIndex firstIndexForAddress(SCXOffset address) const;
-  int firstLabelForAddress(SCXOffset address) const;
-  std::pair<int, int> firstInstructionForAddress(SCXOffset address) const;
-  int firstInstructionForAddress(int labelId, SCXOffset address) const;
   SCXOffset addressForIndex(const QModelIndex& index) const;
 
   bool indexIsLabel(const QModelIndex& index) const;
