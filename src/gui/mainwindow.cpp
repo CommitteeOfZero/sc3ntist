@@ -9,6 +9,7 @@
 #include "disassemblyview.h"
 #include <QDockWidget>
 #include <QInputDialog>
+#include <QShortcut>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow) {
@@ -45,6 +46,10 @@ MainWindow::MainWindow(QWidget *parent)
           &MainWindow::onProjectOpened);
   connect(dApp, &DebuggerApplication::projectClosed, this,
           &MainWindow::onProjectClosed);
+
+  QShortcut *commentShortcut = new QShortcut(Qt::Key_C, this);
+  connect(commentShortcut, &QShortcut::activated, _disasmView,
+          &DisassemblyView::onCommentKeyPress);
 }
 
 MainWindow::~MainWindow() { delete ui; }

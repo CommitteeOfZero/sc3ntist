@@ -1,6 +1,6 @@
 include(common.pri)
 
-QT += core gui widgets
+QT += core gui widgets sql
 
 TARGET = sc3ntist
 TEMPLATE = app

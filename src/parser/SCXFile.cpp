@@ -1,8 +1,9 @@
 #include "SCXFile.h"
 #include <malloc.h>
 
-SCXFile::SCXFile(uint8_t *data, SCXOffset length, const std::string &name)
-    : _data(data), _length(length), _name(name) {
+SCXFile::SCXFile(uint8_t *data, SCXOffset length, const std::string &name,
+                 int id)
+    : _data(data), _length(length), _name(name), _id(id) {
   parseHeader();
 }
 

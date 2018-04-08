@@ -7,8 +7,9 @@
 
 class SCXFile {
  public:
-  SCXFile(uint8_t* data, SCXOffset length, const std::string& name);
+  SCXFile(uint8_t* data, SCXOffset length, const std::string& name, int id);
   const std::string& getName() const { return _name; }
+  int getId() const { return _id; }
   SCXOffset getStringOffset(const SCXTableIndex stringId) const;
   SCXOffset getReturnAddressOffset(const SCXTableIndex returnAddressId) const;
   SCXOffset getLabelOffset(const SCXTableIndex labelId) const;
@@ -30,6 +31,7 @@ class SCXFile {
 
  private:
   const std::string _name;
+  const int _id;
   uint8_t* _data;
   SCXOffset _length;
   SCXOffset _codeEndOffset;

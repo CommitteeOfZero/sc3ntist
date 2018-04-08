@@ -94,6 +94,8 @@ int main() {
   std::vector<std::pair<uint8_t *, std::streamsize>> files;
 
   std::string path = "G:\\Games\\SGTL\\CCEnVitaPatch101\\script_dis";
+
+  int fileId = 0;
   for (auto &p : std::experimental::filesystem::directory_iterator(path)) {
     if (p.path().extension().string() != ".scx") continue;
 
@@ -105,7 +107,7 @@ int main() {
     file.close();
 
     std::string outPath = p.path().string() + ".txt";
-    SCXFile scx(buf, size, p.path().filename().string());
+    SCXFile scx(buf, size, p.path().filename().string(), fileId++);
     CCDisassembler dis(scx);
     dis.DisassembleFile();
 
