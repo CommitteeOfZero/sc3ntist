@@ -35,16 +35,17 @@ DECODER_PROC(__Unrecognized__);
         new SC3ArgUInt16(name, *(uint16_t*)data))); \
     data += sizeof(uint16_t);                       \
   }
-#define ADD_EXPRESSION_ARG(name)                                      \
-  {                                                                   \
-    std::unique_ptr<SC3ArgExpression> arg;                            \
-    try {                                                             \
-      arg = std::make_unique<SC3ArgExpression>(name, (uint8_t*)data); \
-    } catch (...) {                                                   \
-      RETURN_UNRECOGNIZED();                                          \
-    }                                                                 \
-    data += arg->expr().rawLength();                                  \
-    args.push_back(std::move(arg));                                   \
+#define ADD_EXPRESSION_ARG(name)                       \
+  {                                                    \
+    std::unique_ptr<SC3ArgExpression> arg;             \
+    try {                                              \
+      arg = std::unique_ptr<SC3ArgExpression>(         \
+          new SC3ArgExpression(name, (uint8_t*)data)); \
+    } catch (...) {                                    \
+      RETURN_UNRECOGNIZED();                           \
+    }                                                  \
+    data += arg->expr().rawLength();                   \
+    args.push_back(std::move(arg));                    \
   }
 #define ADD_LOCAL_LABEL_ARG(name)                            \
   {                                                          \
@@ -78,38 +79,41 @@ DECODER_PROC(__Unrecognized__);
     data += sizeof(SCXTableIndex);                          \
   }
 
-#define ADD_EXPR_FLAG_REF_ARG(name)                                    \
-  {                                                                    \
-    std::unique_ptr<SC3ArgExprFlagRef> arg;                            \
-    try {                                                              \
-      arg = std::make_unique<SC3ArgExprFlagRef>(name, (uint8_t*)data); \
-    } catch (...) {                                                    \
-      RETURN_UNRECOGNIZED();                                           \
-    }                                                                  \
-    data += arg->expr().rawLength();                                   \
-    args.push_back(std::move(arg));                                    \
+#define ADD_EXPR_FLAG_REF_ARG(name)                     \
+  {                                                     \
+    std::unique_ptr<SC3ArgExprFlagRef> arg;             \
+    try {                                               \
+      arg = std::unique_ptr<SC3ArgExprFlagRef>(         \
+          new SC3ArgExprFlagRef(name, (uint8_t*)data)); \
+    } catch (...) {                                     \
+      RETURN_UNRECOGNIZED();                            \
+    }                                                   \
+    data += arg->expr().rawLength();                    \
+    args.push_back(std::move(arg));                     \
   }
-#define ADD_EXPR_GLOBAL_VAR_REF_ARG(name)                                   \
-  {                                                                         \
-    std::unique_ptr<SC3ArgExprGlobalVarRef> arg;                            \
-    try {                                                                   \
-      arg = std::make_unique<SC3ArgExprGlobalVarRef>(name, (uint8_t*)data); \
-    } catch (...) {                                                         \
-      RETURN_UNRECOGNIZED();                                                \
-    }                                                                       \
-    data += arg->expr().rawLength();                                        \
-    args.push_back(std::move(arg));                                         \
+#define ADD_EXPR_GLOBAL_VAR_REF_ARG(name)                    \
+  {                                                          \
+    std::unique_ptr<SC3ArgExprGlobalVarRef> arg;             \
+    try {                                                    \
+      arg = std::unique_ptr<SC3ArgExprGlobalVarRef>(         \
+          new SC3ArgExprGlobalVarRef(name, (uint8_t*)data)); \
+    } catch (...) {                                          \
+      RETURN_UNRECOGNIZED();                                 \
+    }                                                        \
+    data += arg->expr().rawLength();                         \
+    args.push_back(std::move(arg));                          \
   }
-#define ADD_EXPR_THREAD_VAR_REF_ARG(name)                                   \
-  {                                                                         \
-    std::unique_ptr<SC3ArgExprThreadVarRef> arg;                            \
-    try {                                                                   \
-      arg = std::make_unique<SC3ArgExprThreadVarRef>(name, (uint8_t*)data); \
-    } catch (...) {                                                         \
-      RETURN_UNRECOGNIZED();                                                \
-    }                                                                       \
-    data += arg->expr().rawLength();                                        \
-    args.push_back(std::move(arg));                                         \
+#define ADD_EXPR_THREAD_VAR_REF_ARG(name)                    \
+  {                                                          \
+    std::unique_ptr<SC3ArgExprThreadVarRef> arg;             \
+    try {                                                    \
+      arg = std::unique_ptr<SC3ArgExprThreadVarRef>(         \
+          new SC3ArgExprThreadVarRef(name, (uint8_t*)data)); \
+    } catch (...) {                                          \
+      RETURN_UNRECOGNIZED();                                 \
+    }                                                        \
+    data += arg->expr().rawLength();                         \
+    args.push_back(std::move(arg));                          \
   }
 
 #define NO_ARGS_DECODER_PROC(name)                                           \

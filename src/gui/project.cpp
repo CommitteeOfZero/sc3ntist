@@ -105,7 +105,7 @@ void Project::insertFile(const QString& name, uint8_t* data, int size) {
   int id = _files.size();
 
   std::unique_ptr<SCXFile> scxFile =
-      std::make_unique<SCXFile>(data, size, name.toStdString(), id);
+      std::unique_ptr<SCXFile>(new SCXFile(data, size, name.toStdString(), id));
   CCDisassembler dis(*scxFile);
   dis.DisassembleFile();
 

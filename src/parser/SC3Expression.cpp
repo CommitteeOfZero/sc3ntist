@@ -12,7 +12,7 @@ SC3Expression::SC3Expression(uint8_t *rawExpression) {
   auto term = parseTerm(rawExpression, nullptr);
 
   if (term.node == nullptr) {
-    _root = std::make_unique<SC3ExpressionNode>();
+    _root = std::unique_ptr<SC3ExpressionNode>(new SC3ExpressionNode());
     _root->type = EndOfExpression;
     _rawLength = 1;
   } else {
@@ -41,51 +41,57 @@ struct OpInfo {
   bool constAllowed;
 };
 
-const static std::unordered_map<SC3ExpressionTokenType, OpInfo> OperatorInfos =
-    {{EndOfExpression, {"", 99, false, true}},
-     {ImmediateValue, {"", 99, false, true}},
-     {Multiply, {"*", 9, false, true}},
-     {Divide, {"/", 9, false, true}},
-     {Add, {"+", 8, false, true}},
-     {Subtract, {"-", 8, false, true}},
-     {Modulo, {"%", 9, false, true}},
-     {LeftShift, {"<<", 7, false, true}},
-     {RightShift, {">>", 7, false, true}},
-     {BitwiseAnd, {"&", 4, false, true}},
-     {BitwiseXor, {"^", 3, false, true}},
-     {BitwiseOr, {"|", 2, false, true}},
-     {Equal, {"==", 5, false, true}},
-     {NotEqual, {"!=", 5, false, true}},
-     {LessThanEqual, {"<=", 6, false, true}},
-     {GreaterThanEqual, {">=", 6, false, true}},
-     {LessThan, {"<", 6, false, true}},
-     {GreaterThan, {">", 6, false, true}},
-     {Assign, {"=", 1, true, false}},
-     {MultiplyAssign, {"*=", 1, true, false}},
-     {DivideAssign, {"/=", 1, true, false}},
-     {AddAssign, {"+=", 1, true, false}},
-     {SubtractAssign, {"-=", 1, true, false}},
-     {ModuloAssign, {"%=", 1, true, false}},
-     {LeftShiftAssign, {"<<=", 1, true, false}},
-     {RightShiftAssign, {">>=", 1, true, false}},
-     {BitwiseAndAssign, {"&=", 1, true, false}},
-     {BitwiseOrAssign, {"|=", 1, true, false}},
-     {BitwiseXorAssign, {"^=", 1, true, false}},
-     {Increment, {"++", 11, false, false}},
-     {Decrement, {"--", 11, false, false}},
-     {Negation, {"~", 10, true, true}},
-     {FuncGlobalVars, {"GlobalVars", 11, false, false}},
-     {FuncFlags, {"Flags", 11, false, false}},
-     {FuncDataAccess, {"DataAccess", 11, false, false}},
-     {FuncLabelTable, {"LabelTable", 11, false, false}},
-     {FuncFarLabelTable, {"FarLabelTable", 11, false, false}},
-     {FuncThreadVars, {"ThreadVars", 11, false, false}},
-     {FuncDMA, {"DMA", 11, false, false}},
-     {FuncUnk2F, {"GetUnk2F", 11, false, false}},
-     {FuncUnk30, {"GetUnk30", 11, false, false}},
-     {FuncNop31, {"Nop31", 11, false, false}},
-     {FuncNop32, {"Nop32", 11, false, false}},
-     {FuncRandom, {"Random", 11, false, false}}};
+struct tokenTypeHash {
+  size_t operator()(const SC3ExpressionTokenType &type) const {
+    return (size_t)type;
+  }
+};
+
+const static std::unordered_map<SC3ExpressionTokenType, OpInfo, tokenTypeHash>
+    OperatorInfos = {{EndOfExpression, {"", 99, false, true}},
+                     {ImmediateValue, {"", 99, false, true}},
+                     {Multiply, {"*", 9, false, true}},
+                     {Divide, {"/", 9, false, true}},
+                     {Add, {"+", 8, false, true}},
+                     {Subtract, {"-", 8, false, true}},
+                     {Modulo, {"%", 9, false, true}},
+                     {LeftShift, {"<<", 7, false, true}},
+                     {RightShift, {">>", 7, false, true}},
+                     {BitwiseAnd, {"&", 4, false, true}},
+                     {BitwiseXor, {"^", 3, false, true}},
+                     {BitwiseOr, {"|", 2, false, true}},
+                     {Equal, {"==", 5, false, true}},
+                     {NotEqual, {"!=", 5, false, true}},
+                     {LessThanEqual, {"<=", 6, false, true}},
+                     {GreaterThanEqual, {">=", 6, false, true}},
+                     {LessThan, {"<", 6, false, true}},
+                     {GreaterThan, {">", 6, false, true}},
+                     {Assign, {"=", 1, true, false}},
+                     {MultiplyAssign, {"*=", 1, true, false}},
+                     {DivideAssign, {"/=", 1, true, false}},
+                     {AddAssign, {"+=", 1, true, false}},
+                     {SubtractAssign, {"-=", 1, true, false}},
+                     {ModuloAssign, {"%=", 1, true, false}},
+                     {LeftShiftAssign, {"<<=", 1, true, false}},
+                     {RightShiftAssign, {">>=", 1, true, false}},
+                     {BitwiseAndAssign, {"&=", 1, true, false}},
+                     {BitwiseOrAssign, {"|=", 1, true, false}},
+                     {BitwiseXorAssign, {"^=", 1, true, false}},
+                     {Increment, {"++", 11, false, false}},
+                     {Decrement, {"--", 11, false, false}},
+                     {Negation, {"~", 10, true, true}},
+                     {FuncGlobalVars, {"GlobalVars", 11, false, false}},
+                     {FuncFlags, {"Flags", 11, false, false}},
+                     {FuncDataAccess, {"DataAccess", 11, false, false}},
+                     {FuncLabelTable, {"LabelTable", 11, false, false}},
+                     {FuncFarLabelTable, {"FarLabelTable", 11, false, false}},
+                     {FuncThreadVars, {"ThreadVars", 11, false, false}},
+                     {FuncDMA, {"DMA", 11, false, false}},
+                     {FuncUnk2F, {"GetUnk2F", 11, false, false}},
+                     {FuncUnk30, {"GetUnk30", 11, false, false}},
+                     {FuncNop31, {"Nop31", 11, false, false}},
+                     {FuncNop32, {"Nop32", 11, false, false}},
+                     {FuncRandom, {"Random", 11, false, false}}};
 
 SC3Expression::Term SC3Expression::parseTerm(uint8_t *start, uint8_t *end) {
   uint8_t *cursor = start;
