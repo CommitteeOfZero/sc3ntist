@@ -57,45 +57,21 @@ std::vector<std::pair<VariableRefType, int>> variableRefsInInstruction(
   std::vector<std::pair<VariableRefType, int>> refs;
 
   for (const auto &arg : inst->args()) {
-    switch (arg->type()) {
-      case SC3ArgumentType::Expression: {
-        const SC3ArgExpression *exprArg =
-            static_cast<const SC3ArgExpression *>(arg.get());
-        auto argRefs = variableRefsInExpression(exprArg->expr());
-        std::copy(argRefs.begin(), argRefs.end(), std::back_inserter(refs));
-        break;
-      }
-      case SC3ArgumentType::ExprFlagRef: {
-        const SC3ArgExprFlagRef *exprArg =
-            static_cast<const SC3ArgExprFlagRef *>(arg.get());
-        if (expressionIsConstant(exprArg->expr())) {
-          refs.emplace_back(VariableRefType ::Flag,
-                            constantValueForExpression(exprArg->expr()));
-          break;
-        }
-        auto argRefs = variableRefsInExpression(exprArg->expr());
-        std::copy(argRefs.begin(), argRefs.end(), std::back_inserter(refs));
-        break;
-      }
-      case SC3ArgumentType::ExprGlobalVarRef: {
-        const SC3ArgExprGlobalVarRef *exprArg =
-            static_cast<const SC3ArgExprGlobalVarRef *>(arg.get());
-        if (expressionIsConstant(exprArg->expr())) {
-          refs.emplace_back(VariableRefType ::GlobalVar,
-                            constantValueForExpression(exprArg->expr()));
-          break;
-        }
-        auto argRefs = variableRefsInExpression(exprArg->expr());
-        std::copy(argRefs.begin(), argRefs.end(), std::back_inserter(refs));
-        break;
-      }
-      case SC3ArgumentType::ExprThreadVarRef: {
-        const SC3ArgExprThreadVarRef *exprArg =
-            static_cast<const SC3ArgExprThreadVarRef *>(arg.get());
-        auto argRefs = variableRefsInExpression(exprArg->expr());
-        std::copy(argRefs.begin(), argRefs.end(), std::back_inserter(refs));
-        break;
-      }
+    if (arg.type == SC3ArgumentType::Expression ||
+        arg.type == SC3ArgumentType::ExprFlagRef ||
+        arg.type == SC3ArgumentType::ExprGlobalVarRef ||
+        arg.type == SC3ArgumentType::ExprThreadVarRef ||
+        arg.type == SC3ArgumentType::FarLabel) {
+      auto argRefs = variableRefsInExpression(arg.exprValue);
+      std::copy(argRefs.begin(), argRefs.end(), std::back_inserter(refs));
+    }
+    if ((arg.type == SC3ArgumentType::ExprGlobalVarRef ||
+         arg.type == SC3ArgumentType::ExprFlagRef) &&
+        expressionIsConstant(arg.exprValue)) {
+      VariableRefType type = arg.type == SC3ArgumentType::ExprGlobalVarRef
+                                 ? VariableRefType::GlobalVar
+                                 : VariableRefType::Flag;
+      refs.emplace_back(type, constantValueForExpression(arg.exprValue));
     }
   }
 
