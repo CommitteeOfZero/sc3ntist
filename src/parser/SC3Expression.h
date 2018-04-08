@@ -95,6 +95,7 @@ class SC3ExpressionNode {
 
 class SC3Expression {
  public:
+  SC3Expression();
   SC3Expression(uint8_t *rawExpression);
   int rawLength() const { return _rawLength; }
   std::string toString(bool evalConst) const;

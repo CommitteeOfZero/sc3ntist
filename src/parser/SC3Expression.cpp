@@ -8,6 +8,10 @@ static inline int readInt32Le(uint8_t *src) {
   return src[0] | (src[1] << 8) | (src[2] << 16) | (src[3] << 24);
 }
 
+SC3Expression::SC3Expression() {
+  // allow blank expressions for arguments without expressions
+}
+
 SC3Expression::SC3Expression(uint8_t *rawExpression) {
   auto term = parseTerm(rawExpression, nullptr);
 

@@ -1,3 +1,7 @@
+#include <string>
+#include <vector>
+#include "SC3Expression.h"
+#include "SC3Argument.h"
 #include "CCDisassembler.h"
 #include "DisassemblerMacros.h"
 
@@ -6,7 +10,7 @@
 DECODER_PROC(Assign) {
   uint8_t* dataStart = data;
   data++;
-  std::vector<std::unique_ptr<SC3Argument>> args;
+  std::vector<SC3Argument> args;
   ADD_EXPRESSION_ARG("expr");
   RETURN_INSTRUCTION("Assign");
 }
@@ -136,9 +140,7 @@ DECODER_PROC(CopyFlag) {
 DECODER_PROC(BGMplay) {
   DECODER_PROC_INIT();
   uint8_t loop = *data++;
-  {
-    args.push_back(std::unique_ptr<SC3Argument>(new SC3ArgByte("loop", loop)));
-  }
+  { args.push_back(SC3ArgumentFromByte("loop", loop)); }
   ADD_EXPRESSION_ARG("track");
   if (loop == 2) {
     ADD_EXPRESSION_ARG("unk");
@@ -156,9 +158,7 @@ DECODER_PROC(SEplay) {
   DECODER_PROC_INIT();
   ADD_BYTE_ARG("channel");
   uint8_t type = *data++;
-  {
-    args.push_back(std::unique_ptr<SC3Argument>(new SC3ArgByte("type", type)));
-  }
+  { args.push_back(SC3ArgumentFromByte("type", type)); }
   if (type != 2) {
     ADD_EXPRESSION_ARG("effect");
     ADD_EXPRESSION_ARG("loop");
@@ -320,9 +320,7 @@ DECODER_PROC(UPLxTitle) {
 DECODER_PROC(Achievement) {
   DECODER_PROC_INIT();
   uint8_t type = *data++;
-  {
-    args.push_back(std::unique_ptr<SC3Argument>(new SC3ArgByte("type", type)));
-  }
+  { args.push_back(SC3ArgumentFromByte("type", type)); }
   if (type == 1) {
     ADD_EXPRESSION_ARG("arg1");
   }
@@ -455,9 +453,7 @@ DECODER_PROC(SetX360SysMesPos) {
 DECODER_PROC(SystemMes) {
   DECODER_PROC_INIT();
   uint8_t type = *data++;
-  {
-    args.push_back(std::unique_ptr<SC3Argument>(new SC3ArgByte("type", type)));
-  }
+  { args.push_back(SC3ArgumentFromByte("type", type)); }
   ADD_BYTE_ARG("arg2");
   switch (type) {
     case 0:
@@ -555,10 +551,7 @@ DECODER_PROC(DebugSetup) {
 DECODER_PROC(PressStart) {
   DECODER_PROC_INIT();
   uint8_t cond = *data++;
-  {
-    args.push_back(
-        std::unique_ptr<SC3Argument>(new SC3ArgByte("condition", cond)));
-  }
+  { args.push_back(SC3ArgumentFromByte("condition", cond)); }
   if (cond == 0 || cond == 2 || cond == 3) {
     ADD_LOCAL_LABEL_ARG("target");
     ADD_LOCAL_LABEL_ARG("idk");
@@ -595,9 +588,7 @@ NO_ARGS_DECODER_PROC(HelpDisp);
 DECODER_PROC(ClickOnJump) {
   DECODER_PROC_INIT();
   uint8_t arg1 = *data++;
-  {
-    args.push_back(std::unique_ptr<SC3Argument>(new SC3ArgByte("arg1", arg1)));
-  }
+  { args.push_back(SC3ArgumentFromByte("arg1", arg1)); }
   if ((arg1 & 0xFE) == 2) {
     ADD_EXPRESSION_ARG("_arg1");
     ADD_EXPRESSION_ARG("_arg2");
@@ -910,9 +901,7 @@ DECODER_PROC(MessWindow) {
 DECODER_PROC(Sel) {
   DECODER_PROC_INIT();
   uint8_t type = *data++;
-  {
-    args.push_back(std::unique_ptr<SC3Argument>(new SC3ArgByte("type", type)));
-  }
+  { args.push_back(SC3ArgumentFromByte("type", type)); }
   ADD_STRING_REF_ARG("arg1");
   if (type == 0 || type == 2) {
     ADD_EXPRESSION_ARG("arg2");
@@ -923,9 +912,7 @@ DECODER_PROC(Sel) {
 DECODER_PROC(Select) {
   DECODER_PROC_INIT();
   uint8_t type = *data++;
-  {
-    args.push_back(std::unique_ptr<SC3Argument>(new SC3ArgByte("type", type)));
-  }
+  { args.push_back(SC3ArgumentFromByte("type", type)); }
   if (type == 2) {
     ADD_EXPRESSION_ARG("arg1");
   }
@@ -935,9 +922,7 @@ DECODER_PROC(Select) {
 DECODER_PROC(SysSel) {
   DECODER_PROC_INIT();
   uint8_t type = *data++;
-  {
-    args.push_back(std::unique_ptr<SC3Argument>(new SC3ArgByte("type", type)));
-  }
+  { args.push_back(SC3ArgumentFromByte("type", type)); }
   if (type >= 2) {
     ADD_STRING_REF_ARG("arg1");
   }
@@ -947,9 +932,7 @@ DECODER_PROC(SysSel) {
 DECODER_PROC(SysSelect) {
   DECODER_PROC_INIT();
   uint8_t arg1 = *data++;
-  {
-    args.push_back(std::unique_ptr<SC3Argument>(new SC3ArgByte("arg1", arg1)));
-  }
+  { args.push_back(SC3ArgumentFromByte("arg1", arg1)); }
   switch (arg1 & 0xF) {
     case 0:
       ADD_EXPRESSION_ARG("arg2");
@@ -981,10 +964,7 @@ DECODER_PROC(SetTextTable) {
 DECODER_PROC(PlayMovie) {
   DECODER_PROC_INIT();
   uint8_t playMode = *data++;
-  {
-    args.push_back(
-        std::unique_ptr<SC3Argument>(new SC3ArgByte("playMode", playMode)));
-  }
+  { args.push_back(SC3ArgumentFromByte("playMode", playMode)); }
   if (playMode == 99) {
     ADD_EXPRESSION_ARG("playModeEx");
     ADD_EXPRESSION_ARG("playView");
@@ -1006,10 +986,7 @@ DECODER_PROC(MovieMain) {
     case 3:
       RETURN_INSTRUCTION("MovieMain_StopWaitForSomething");
       break;
-    default: {
-      args.push_back(
-          std::unique_ptr<SC3Argument>(new SC3ArgByte("type", type)));
-    }
+    default: { args.push_back(SC3ArgumentFromByte("type", type)); }
       RETURN_INSTRUCTION("MovieMain_Unk");
       break;
   }
@@ -1053,10 +1030,7 @@ DECODER_PROC(SetRevMes) {
 DECODER_PROC(PlayMovieMemory) {
   DECODER_PROC_INIT();
   uint8_t playMode = *data++;
-  {
-    args.push_back(
-        std::unique_ptr<SC3Argument>(new SC3ArgByte("playMode", playMode)));
-  }
+  { args.push_back(SC3ArgumentFromByte("playMode", playMode)); }
   if (playMode == 99) {
     ADD_EXPRESSION_ARG("playModeEx");
     ADD_EXPRESSION_ARG("playView");
@@ -1103,7 +1077,7 @@ DECODER_PROC(BGsetColor) {
 DECODER_PROC(BGsetLink) {
   DECODER_PROC_INIT();
   uint8_t id = *data++;
-  { args.push_back(std::unique_ptr<SC3Argument>(new SC3ArgByte("id", id))); }
+  { args.push_back(SC3ArgumentFromByte("id", id)); }
   ADD_EXPRESSION_ARG("arg1");
   ADD_EXPRESSION_ARG("arg2");
   if (id >= 4) {
@@ -1116,9 +1090,7 @@ DECODER_PROC(BGsetLink) {
 DECODER_PROC(CHAload) {
   DECODER_PROC_INIT();
   uint8_t type = *data++;
-  {
-    args.push_back(std::unique_ptr<SC3Argument>(new SC3ArgByte("type", type)));
-  }
+  { args.push_back(SC3ArgumentFromByte("type", type)); }
   ADD_EXPRESSION_ARG("bufferId");
   ADD_EXPRESSION_ARG("spriteId");
   if (type == 0) {
@@ -1441,9 +1413,7 @@ DECODER_PROC(LoadData) {
 DECODER_PROC(SetDic) {
   DECODER_PROC_INIT();
   uint8_t type = *data++;
-  {
-    args.push_back(std::unique_ptr<SC3Argument>(new SC3ArgByte("type", type)));
-  }
+  { args.push_back(SC3ArgumentFromByte("type", type)); }
   ADD_EXPRESSION_ARG("tip");
   if (type == 1) {
     ADD_EXPR_FLAG_REF_ARG("flag");
