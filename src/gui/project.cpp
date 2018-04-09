@@ -66,6 +66,11 @@ void Project::switchFile(int id) {
   }
 }
 
+void Project::goToAddress(int fileId, SCXOffset address) {
+  switchFile(fileId);
+  emit focusAddressSwitched(address);
+}
+
 QString Project::getComment(int fileId, SCXOffset address) {
   _getCommentQuery.addBindValue(fileId);
   _getCommentQuery.addBindValue(address);

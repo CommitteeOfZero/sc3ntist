@@ -134,5 +134,5 @@ void MainWindow::on_actionGo_to_address_triggered() {
   if (!ok) return;
   int address = input.toInt(&ok, 0);
   if (!ok) return;
-  _disasmView->goToAddress(address);
+  dApp->project()->goToAddress(dApp->project()->currentFileId(), address);
 }

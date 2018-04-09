@@ -25,6 +25,7 @@ class Project : public QObject {
   IContextProvider* contextProvider() { return &_contextProvider; }
 
   void switchFile(int id);
+  void goToAddress(int fileId, SCXOffset address);
 
   QString getComment(int fileId, SCXOffset address);
   void setComment(int fileId, SCXOffset address, const QString& comment);
@@ -41,6 +42,7 @@ class Project : public QObject {
 
  signals:
   void fileSwitched(int previousId);
+  void focusAddressSwitched(SCXOffset newAddress);
   void commentChanged(int fileId, SCXOffset address, const QString& comment);
   void labelNameChanged(int fileId, int labelId, const QString& name);
 

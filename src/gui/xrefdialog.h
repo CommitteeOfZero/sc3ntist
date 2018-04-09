@@ -14,6 +14,10 @@ class XrefDialog : public QDialog {
 
  public slots:
   int exec() override;
+  void accept() override;
+
+ private slots:
+  void goToItem();
 
  private:
   void addReferences(int &i, const QString &inRefText,
@@ -21,4 +25,6 @@ class XrefDialog : public QDialog {
 
   QTableWidget *_table;
   QDialogButtonBox *_buttons;
+
+  std::vector<std::pair<int, SCXOffset>> _outAddresses;
 };

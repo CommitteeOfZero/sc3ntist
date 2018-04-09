@@ -84,6 +84,8 @@ XrefDialog::XrefDialog(int fileId, int labelIdOrAddress, bool isLabel,
   setLayout(layout);
 
   resize(500, 300);
+
+  connect(_table, &QTableWidget::itemDoubleClicked, this, &XrefDialog::accept);
 }
 
 void XrefDialog::addReferences(
@@ -92,16 +94,36 @@ void XrefDialog::addReferences(
   for (const auto &outRef : outRefs) {
     const auto &refFile = dApp->project()->files()[outRef.first];
     _table->insertRow(i);
-    _table->setItem(i, 0, new QTableWidgetItem(inRefText));
-    _table->setItem(i, 1,
-                    new QTableWidgetItem(QString("%1@%2").arg(
-                        QString::fromStdString(refFile->getName()),
-                        displayTextForAddress(outRef.second))));
+    auto col0 = new QTableWidgetItem(inRefText);
+    col0->setData(Qt::UserRole, QVariant(i));
+    _table->setItem(i, 0, col0);
+    auto col1 = new QTableWidgetItem(
+        QString("%1@%2").arg(QString::fromStdString(refFile->getName()),
+                             displayTextForAddress(outRef.second)));
+    col1->setData(Qt::UserRole, QVariant(i));
+    _table->setItem(i, 1, col1);
     i++;
   }
+  std::copy(outRefs.begin(), outRefs.end(), std::back_inserter(_outAddresses));
 }
 
 int XrefDialog::exec() {
   if (_table->rowCount() < 1) return QDialog::Rejected;
   return QDialog::exec();
+}
+
+void XrefDialog::accept() {
+  QDialog::accept();
+  goToItem();
+}
+
+void XrefDialog::goToItem() {
+  auto selectedItems = _table->selectedItems();
+  if (selectedItems.size() == 0) return;
+  auto tableItem = selectedItems.first();
+  if (tableItem == nullptr) return;
+  auto refId = tableItem->data(Qt::UserRole).toInt();
+  if (refId < 0 || refId > _outAddresses.size()) return;
+  dApp->project()->goToAddress(_outAddresses[refId].first,
+                               _outAddresses[refId].second);
 }

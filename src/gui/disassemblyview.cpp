@@ -113,6 +113,8 @@ void DisassemblyView::adjustHeader(int oldCount, int newCount) {
 void DisassemblyView::onProjectOpened() {
   connect(dApp->project(), &Project::fileSwitched, this,
           &DisassemblyView::onFileSwitched);
+  connect(dApp->project(), &Project::focusAddressSwitched, this,
+          &DisassemblyView::goToAddress);
 }
 
 void DisassemblyView::onProjectClosed() {
