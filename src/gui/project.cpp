@@ -11,7 +11,7 @@
 // create new database
 Project::Project(const QString& dbPath, const QString& scriptFolder,
                  QObject* parent = 0)
-    : QObject(parent) {
+    : QObject(parent), _contextProvider(this) {
   createDatabase(dbPath);
 
   // TODO: read from mpk, or folder + mlp index
@@ -40,7 +40,8 @@ Project::Project(const QString& dbPath, const QString& scriptFolder,
 }
 
 // open old database
-Project::Project(const QString& dbPath, QObject* parent = 0) : QObject(parent) {
+Project::Project(const QString& dbPath, QObject* parent = 0)
+    : QObject(parent), _contextProvider(this) {
   openDatabase(dbPath);
   prepareStmts();
   loadFilesFromDb();
@@ -121,6 +122,14 @@ void Project::setLabelName(int fileId, int labelId, const QString& name) {
 
   // ugly, but we want to return the fallback if name was empty
   emit labelNameChanged(fileId, labelId, getLabelName(fileId, labelId));
+}
+
+QString Project::getVarName(VariableRefType type, int var) {
+  // TODO named variables
+  return QString("%1").arg(var);
+}
+void Project::setVarName(VariableRefType type, int var, const QString& name) {
+  // TODO fill in
 }
 
 void Project::analyzeFile(const SCXFile* file) {

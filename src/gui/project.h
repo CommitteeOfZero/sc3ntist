@@ -5,6 +5,7 @@
 #include "parser/SCXFile.h"
 #include <QtSql>
 #include "enums.h"
+#include "projectcontextprovider.h"
 
 class Project : public QObject {
   Q_OBJECT
@@ -21,6 +22,8 @@ class Project : public QObject {
   int currentFileId() const { return _currentFileId; }
   const SCXFile* currentFile() const;
 
+  IContextProvider* contextProvider() { return &_contextProvider; }
+
   void switchFile(int id);
 
   QString getComment(int fileId, SCXOffset address);
@@ -28,6 +31,9 @@ class Project : public QObject {
 
   QString getLabelName(int fileId, int labelId);
   void setLabelName(int fileId, int labelId, const QString& name);
+
+  QString getVarName(VariableRefType type, int var);
+  void setVarName(VariableRefType type, int var, const QString& name);
 
   std::vector<std::pair<int, SCXOffset>> getVariableRefs(VariableRefType type,
                                                          int var);
@@ -43,6 +49,8 @@ class Project : public QObject {
   std::vector<std::unique_ptr<SCXFile>> _files;
   int _currentFileId = -1;
   bool _inInitialLoad = true;
+
+  ProjectContextProvider _contextProvider;
 
   void createDatabase(const QString& path);
   void openDatabase(const QString& path);

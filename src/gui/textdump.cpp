@@ -7,6 +7,8 @@
 #include "parser/SCXFile.h"
 #include "parser/SC3CodeBlock.h"
 
+#include "parser/IContextProvider.h"
+
 static std::string uint8_vector_to_hex_string(const std::vector<uint8_t> &v) {
   std::stringstream ss;
   ss << std::hex << std::setfill('0');
@@ -20,7 +22,8 @@ static std::string uint8_vector_to_hex_string(const std::vector<uint8_t> &v) {
   return ss.str();
 }
 
-std::string SC3ArgumentToString(const SC3Argument &arg) {
+std::string SC3ArgumentToString(IContextProvider *ctx, int fileId,
+                                const SC3Argument &arg) {
   switch (arg.type) {
     case ByteArray: {
       return uint8_vector_to_hex_string(arg.byteArrayValue);
@@ -41,7 +44,11 @@ std::string SC3ArgumentToString(const SC3Argument &arg) {
     }
     case LocalLabel: {
       auto id = arg.uint16_value;
-      return "LocalLabelRef(" + std::to_string(id) + ")";
+      if (ctx != nullptr) {
+        return "#" + ctx->labelName(fileId, id);
+      } else {
+        return "LocalLabelRef(" + std::to_string(id) + ")";
+      }
       break;
     }
     case FarLabel: {
@@ -79,10 +86,11 @@ std::string SC3ArgumentToString(const SC3Argument &arg) {
   return "unrecognized";
 }
 
-std::string DumpSC3InstructionToText(const SC3Instruction *inst) {
+std::string DumpSC3InstructionToText(IContextProvider *ctx, int fileId,
+                                     const SC3Instruction *inst) {
   std::stringstream out;
   if (inst->name() == "Assign") {
-    out << SC3ArgumentToString(inst->args().at(0));
+    out << SC3ArgumentToString(ctx, fileId, inst->args().at(0));
   } else {
     out << inst->name();
     int i = 0;
@@ -92,7 +100,7 @@ std::string DumpSC3InstructionToText(const SC3Instruction *inst) {
       for (const auto &arg : inst->args()) {
         i++;
         out << arg.name << ": ";
-        out << SC3ArgumentToString(arg);
+        out << SC3ArgumentToString(ctx, fileId, arg);
         if (i < argCount) out << ", ";
       }
       out << ")";
@@ -101,14 +109,17 @@ std::string DumpSC3InstructionToText(const SC3Instruction *inst) {
   return out.str();
 }
 
-std::string DumpSCXFileToText(const SCXFile *file) {
+std::string DumpSCXFileToText(IContextProvider *ctx, const SCXFile *file) {
   std::stringstream out;
-  int i = 0;
   for (const auto &label : file->disassembly()) {
-    out << "\n#label" << i << "_" << label->address() << ":\n";
-    i++;
+    if (ctx != nullptr) {
+      out << "\n#" << ctx->labelName(file->getId(), label->id()) << ":\n";
+    } else {
+      out << "\n#label" << label->id() << "_" << label->address() << ":\n";
+    }
     for (const auto &inst : label->instructions()) {
-      out << "\t" << DumpSC3InstructionToText(inst.get()) << "\n";
+      out << "\t" << DumpSC3InstructionToText(ctx, file->getId(), inst.get())
+          << "\n";
     }
   }
   return out.str();

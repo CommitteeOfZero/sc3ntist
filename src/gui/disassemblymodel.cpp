@@ -163,8 +163,10 @@ QVariant DisassemblyModel::data(const QModelIndex &index, int role) const {
         }
         case RowType::Instruction: {
           const SC3Instruction *inst = label->instructions()[row->id].get();
-          return QVariant(
-              QString::fromStdString("    " + DumpSC3InstructionToText(inst)));
+          return QVariant(QString::fromStdString(
+              "    " +
+              DumpSC3InstructionToText(dApp->project()->contextProvider(),
+                                       _script->getId(), inst)));
         }
         case RowType::Comment: {
           return QVariant("; " + dApp->project()->getComment(_script->getId(),
@@ -239,8 +241,14 @@ void DisassemblyModel::onLabelNameChanged(int fileId, int labelId,
   if (fileId != _script->getId()) return;
   if (labelId < 0 || labelId >= _labelRows.size()) return;
 
+  // slow but easy way to invalidate all code rows, for xrefs
+  beginResetModel();
+  endResetModel();
+
+  /*
   QModelIndex origIndex = indexForLabel(labelId);
   QModelIndex codeIndex = createIndex(origIndex.row(), (int)ColumnType::Code,
                                       origIndex.internalPointer());
   emit dataChanged(codeIndex, codeIndex);
+  */
 }
