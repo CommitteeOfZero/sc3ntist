@@ -167,8 +167,15 @@ void DisassemblyView::onXrefKeyPress() {
   const DisassemblyModel* disModel = qobject_cast<DisassemblyModel*>(model());
   if (disModel == nullptr) return;
 
-  SCXOffset address = disModel->addressForIndex(currentIndex());
-  if (address < 0) return;
+  const DisassemblyRow* row =
+      static_cast<DisassemblyRow*>(currentIndex().internalPointer());
+  if (row == nullptr) return;
+  if (row->type == DisassemblyModel::RowType::Label) {
+    XrefDialog(disModel->script()->getId(), row->id, true, this).exec();
+  } else {
+    SCXOffset address = disModel->addressForIndex(currentIndex());
+    if (address < 0) return;
 
-  XrefDialog(disModel->script()->getId(), address, this).exec();
+    XrefDialog(disModel->script()->getId(), address, false, this).exec();
+  }
 }

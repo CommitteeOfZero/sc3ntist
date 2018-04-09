@@ -31,6 +31,7 @@ class Project : public QObject {
 
   std::vector<std::pair<int, SCXOffset>> getVariableRefs(VariableRefType type,
                                                          int var);
+  std::vector<std::pair<int, SCXOffset>> getLabelRefs(int fileId, int labelId);
 
  signals:
   void fileSwitched(int previousId);
@@ -51,6 +52,7 @@ class Project : public QObject {
   void insertFile(const QString& name, uint8_t* data, int size);
   void insertVariableRef(int fileId, SCXOffset address, VariableRefType type,
                          int var);
+  void insertLocalLabelRef(int fileId, SCXOffset address, int labelId);
 
   QSqlQuery _getCommentQuery;
   QSqlQuery _setCommentQuery;
@@ -60,4 +62,6 @@ class Project : public QObject {
   QSqlQuery _insertFileQuery;
   QSqlQuery _getVariableRefsQuery;
   QSqlQuery _insertVariableRefQuery;
+  QSqlQuery _getLabelRefsQuery;
+  QSqlQuery _insertLocalLabelRefQuery;
 };

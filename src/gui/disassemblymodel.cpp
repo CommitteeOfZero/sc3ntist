@@ -100,7 +100,7 @@ QModelIndex DisassemblyModel::firstIndexForAddress(SCXOffset address) const {
   int labelId = firstLabelForAddress(_script, address);
   if (labelId < 0) return QModelIndex();
   if (_labelRows[labelId].address == address) return indexForLabel(labelId);
-  int instId = instructionAtAddress(_script, labelId, address);
+  int instId = instIdAtAddress(_script, labelId, address);
   if (instId < 0) return indexForLabel(labelId);
   return createIndex(instId, 0,
                      (void *)&_labelRows[labelId].children.data()[instId]);
@@ -192,7 +192,7 @@ void DisassemblyModel::onCommentChanged(int fileId, SCXOffset address,
   if (fileId != _script->getId()) return;
 
   int labelId, instId;
-  std::tie(labelId, instId) = instructionAtAddress(_script, address);
+  std::tie(labelId, instId) = instIdAtAddress(_script, address);
   if (labelId < 0 || instId < 0) return;
 
   DisassemblyRow *instructionRow = &_labelRows[labelId].children.data()[instId];

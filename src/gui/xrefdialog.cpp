@@ -6,15 +6,10 @@
 #include <QVBoxLayout>
 #include "viewhelper.h"
 
-XrefDialog::XrefDialog(int fileId, SCXOffset address, QWidget *parent)
+XrefDialog::XrefDialog(int fileId, int labelIdOrAddress, bool isLabel,
+                       QWidget *parent)
     : QDialog(parent) {
   _table = new QTableWidget(this);
-
-  if (fileId < 0 || fileId >= dApp->project()->files().size()) return;
-  const SCXFile *file = dApp->project()->files()[fileId].get();
-
-  auto inRefs = variableRefsAtAddress(file, address);
-  if (inRefs.size() == 0) return;
 
   _table->setColumnCount(2);
   _table->setHorizontalHeaderLabels(QStringList() << "Item"
@@ -28,25 +23,50 @@ XrefDialog::XrefDialog(int fileId, SCXOffset address, QWidget *parent)
   _table->setSelectionMode(QAbstractItemView::SingleSelection);
   _table->verticalHeader()->setVisible(false);
 
-  int i = 0;
-  for (const auto &inRef : inRefs) {
-    QString inRefText;
-    if (inRef.first == VariableRefType ::GlobalVar) {
-      inRefText = QString("GlobalVars[%1]").arg(inRef.second);
-    } else {
-      inRefText = QString("Flags[%1]").arg(inRef.second);
+  if (isLabel) {
+    // refs to label
+    QString inRefText = QString("#%1").arg(
+        dApp->project()->getLabelName(fileId, labelIdOrAddress));
+    int i = 0;
+    auto outLabelRefs = dApp->project()->getLabelRefs(fileId, labelIdOrAddress);
+    // also show the label itself
+    outLabelRefs.emplace_back(fileId, dApp->project()
+                                          ->files()[fileId]
+                                          ->disassembly()[labelIdOrAddress]
+                                          ->address());
+    addReferences(i, inRefText, outLabelRefs);
+  } else {
+    if (fileId < 0 || fileId >= dApp->project()->files().size()) return;
+    const SCXFile *file = dApp->project()->files()[fileId].get();
+
+    int i = 0;
+
+    auto inVarRefs = variableRefsAtAddress(file, labelIdOrAddress);
+    for (const auto &inRef : inVarRefs) {
+      QString inRefText;
+      if (inRef.first == VariableRefType ::GlobalVar) {
+        inRefText = QString("GlobalVars[%1]").arg(inRef.second);
+      } else {
+        inRefText = QString("Flags[%1]").arg(inRef.second);
+      }
+      addReferences(
+          i, inRefText,
+          dApp->project()->getVariableRefs(inRef.first, inRef.second));
     }
-    auto outRefs = dApp->project()->getVariableRefs(inRef.first, inRef.second);
-    for (const auto &outRef : outRefs) {
-      const auto &refFile = dApp->project()->files()[outRef.first];
-      _table->insertRow(i);
-      _table->setItem(i, 0, new QTableWidgetItem(inRefText));
-      _table->setItem(i, 1,
-                      new QTableWidgetItem(QString("%1@%2").arg(
-                          QString::fromStdString(refFile->getName()),
-                          displayTextForAddress(outRef.second))));
-      i++;
+
+    auto inLabelRefs = localLabelRefsAtAddress(file, labelIdOrAddress);
+    for (int labelId : inLabelRefs) {
+      QString inRefText =
+          QString("#%1").arg(dApp->project()->getLabelName(fileId, labelId));
+      auto outLabelRefs = dApp->project()->getLabelRefs(fileId, labelId);
+      // also show the label itself
+      outLabelRefs.emplace_back(
+          fileId,
+          dApp->project()->files()[fileId]->disassembly()[labelId]->address());
+      addReferences(i, inRefText, outLabelRefs);
     }
+
+    if (i == 0) return;
   }
 
   _table->setSortingEnabled(true);
@@ -64,6 +84,21 @@ XrefDialog::XrefDialog(int fileId, SCXOffset address, QWidget *parent)
   setLayout(layout);
 
   resize(500, 300);
+}
+
+void XrefDialog::addReferences(
+    int &i, const QString &inRefText,
+    const std::vector<std::pair<int, SCXOffset>> &outRefs) {
+  for (const auto &outRef : outRefs) {
+    const auto &refFile = dApp->project()->files()[outRef.first];
+    _table->insertRow(i);
+    _table->setItem(i, 0, new QTableWidgetItem(inRefText));
+    _table->setItem(i, 1,
+                    new QTableWidgetItem(QString("%1@%2").arg(
+                        QString::fromStdString(refFile->getName()),
+                        displayTextForAddress(outRef.second))));
+    i++;
+  }
 }
 
 int XrefDialog::exec() {

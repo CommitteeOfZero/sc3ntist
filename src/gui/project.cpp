@@ -126,14 +126,21 @@ void Project::setLabelName(int fileId, int labelId, const QString& name) {
 void Project::analyzeFile(const SCXFile* file) {
   int fileId = file->getId();
 
-  // variable references
+  // TODO: batch inserts?
+  // probably not necessary because of the transaction
   for (const auto& label : file->disassembly()) {
     for (const auto& inst : label->instructions()) {
-      std::vector<std::pair<VariableRefType, int>> refs =
-          variableRefsInInstruction(inst.get());
+      const SC3Instruction* instruction = inst.get();
+      std::vector<std::pair<VariableRefType, int>> varRefs =
+          variableRefsInInstruction(instruction);
+      std::vector<int> localLabelRefs =
+          localLabelRefsInInstruction(instruction);
 
-      for (const auto& ref : refs) {
+      for (const auto& ref : varRefs) {
         insertVariableRef(fileId, inst->position(), ref.first, ref.second);
+      }
+      for (const auto& ref : localLabelRefs) {
+        insertLocalLabelRef(fileId, inst->position(), ref);
       }
     }
   }
@@ -195,7 +202,21 @@ std::vector<std::pair<int, SCXOffset>> Project::getVariableRefs(
   return result;
 }
 
-// TODO: batch?
+std::vector<std::pair<int, SCXOffset>> Project::getLabelRefs(int fileId,
+                                                             int labelId) {
+  _getLabelRefsQuery.addBindValue(fileId);
+  _getLabelRefsQuery.addBindValue(labelId);
+  _getLabelRefsQuery.exec();
+
+  std::vector<std::pair<int, SCXOffset>> result;
+  while (_getLabelRefsQuery.next()) {
+    result.emplace_back(_getLabelRefsQuery.value(0).toInt(),
+                        _getLabelRefsQuery.value(1).toInt());
+  }
+
+  return result;
+}
+
 void Project::insertVariableRef(int fileId, SCXOffset address,
                                 VariableRefType type, int var) {
   _insertVariableRefQuery.addBindValue(fileId);
@@ -205,6 +226,13 @@ void Project::insertVariableRef(int fileId, SCXOffset address,
   _insertVariableRefQuery.addBindValue(vtype);
   _insertVariableRefQuery.addBindValue(var);
   _insertVariableRefQuery.exec();
+}
+
+void Project::insertLocalLabelRef(int fileId, SCXOffset address, int labelId) {
+  _insertLocalLabelRefQuery.addBindValue(fileId);
+  _insertLocalLabelRefQuery.addBindValue(address);
+  _insertLocalLabelRefQuery.addBindValue(labelId);
+  _insertLocalLabelRefQuery.exec();
 }
 
 void Project::openDatabase(const QString& path) {
@@ -247,7 +275,13 @@ void Project::createDatabase(const QString& path) {
       "variableType INTEGER NOT NULL,"
       "variable INTEGER NOT NULL"
       ")");
-
+  q.exec(
+      "CREATE TABLE localLabelRefs("
+      "refId INTEGER PRIMARY KEY,"
+      "fileId INTEGER NOT NULL,"
+      "address INTEGER NOT NULL,"
+      "labelId INTEGER NOT NULL"
+      ")");
   prepareStmts();
 }
 
@@ -278,4 +312,12 @@ void Project::prepareStmts() {
   _insertVariableRefQuery.prepare(
       "INSERT INTO variableRefs (fileId, address, variableType, variable) "
       "VALUES (?, ?, ?, ?)");
+  // TODO union with far label refs
+  _getLabelRefsQuery = QSqlQuery(_db);
+  _getLabelRefsQuery.prepare(
+      "SELECT fileId, address FROM localLabelRefs WHERE fileId = ? AND labelId "
+      "= ?");
+  _insertLocalLabelRefQuery = QSqlQuery(_db);
+  _insertLocalLabelRefQuery.prepare(
+      "INSERT INTO localLabelRefs (fileId, address, labelId) VALUES (?, ?, ?)");
 }
