@@ -116,7 +116,12 @@ void MainWindow::onLabelNameChanged(int fileId, int labelId,
 }
 
 void MainWindow::on_actionOpen_triggered() {
-  dApp->tryCreateProject("G:/Games/SGTL/CCEnVitaPatch101/script_dis");
+  if (QFile("C:/Users/drdax/Documents/sc3ntist.sqlite").exists()) {
+    dApp->tryOpenProject("C:/Users/drdax/Documents/sc3ntist.sqlite");
+  } else {
+    dApp->tryCreateProject("C:/Users/drdax/Documents/sc3ntist.sqlite",
+                           "G:/Games/SGTL/CCEnVitaPatch101/script_dis");
+  }
 }
 
 void MainWindow::on_actionClose_triggered() { dApp->closeProject(); }

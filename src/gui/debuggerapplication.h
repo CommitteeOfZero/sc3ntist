@@ -19,7 +19,8 @@ class DebuggerApplication : public QApplication {
   MainWindow* window() { return _w; }
   Project* project() { return _project; }
 
-  bool tryCreateProject(const QString& filePath);
+  bool tryOpenProject(const QString& dbPath);
+  bool tryCreateProject(const QString& dbPath, const QString& scriptFolder);
   void closeProject();
 
  signals:

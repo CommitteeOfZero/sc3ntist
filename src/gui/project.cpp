@@ -9,19 +9,26 @@
 #include "analysis.h"
 #include <QElapsedTimer>
 
-Project::Project(const QString& path, QObject* parent = 0) : QObject(parent) {
-  initDatabase();
+// create new database
+Project::Project(const QString& dbPath, const QString& scriptFolder,
+                 QObject* parent = 0)
+    : QObject(parent) {
+  createDatabase(dbPath);
 
   // TODO: read from mpk, or folder + mlp index
 
-  QDirIterator it(path, QStringList() << "*.scx", QDir::Files | QDir::Readable);
+  QDirIterator it(scriptFolder, QStringList() << "*.scx",
+                  QDir::Files | QDir::Readable);
 
   QElapsedTimer timer;
   timer.start();
 
+  _db.transaction();
+
   while (it.hasNext()) {
     QFile file(it.next());
     if (!file.open(QIODevice::ReadOnly)) {
+      _db.rollback();
       throw std::runtime_error("Couldn't open file");
     }
     SCXOffset length = (SCXOffset)file.size();
@@ -31,9 +38,24 @@ Project::Project(const QString& path, QObject* parent = 0) : QObject(parent) {
     insertFile(it.fileName(), data, length);
   }
 
+  _db.commit();
+
   qDebug() << "Took " << timer.elapsed() << "milliseconds";
 
   _inInitialLoad = false;
+}
+
+// open old database
+Project::Project(const QString& dbPath, QObject* parent = 0) : QObject(parent) {
+  openDatabase(dbPath);
+  prepareStmts();
+  loadFilesFromDb();
+
+  _inInitialLoad = false;
+}
+
+Project::~Project() {
+  if (_db.isOpen()) _db.close();
 }
 
 const SCXFile* Project::currentFile() const {
@@ -103,7 +125,44 @@ void Project::setLabelName(int fileId, int labelId, const QString& name) {
   _setLabelNameQuery.addBindValue(name.toUtf8());
   _setLabelNameQuery.exec();
 
-  emit labelNameChanged(fileId, labelId, name);
+  // ugly, but we want to return the fallback if name was empty
+  emit labelNameChanged(fileId, labelId, getLabelName(fileId, labelId));
+}
+
+void Project::analyzeFile(const SCXFile* file) {
+  int fileId = file->getId();
+
+  // variable references
+  for (const auto& label : file->disassembly()) {
+    for (const auto& inst : label->instructions()) {
+      std::vector<std::pair<VariableRefType, int>> refs =
+          variableRefsInInstruction(inst.get());
+
+      for (const auto& ref : refs) {
+        insertVariableRef(fileId, inst->position(), ref.first, ref.second);
+      }
+    }
+  }
+}
+
+void Project::loadFilesFromDb() {
+  _getFilesQuery.exec();
+
+  std::vector<std::pair<int, SCXOffset>> result;
+  while (_getFilesQuery.next()) {
+    int id = _getFilesQuery.value(0).toInt();
+    std::string name = _getFilesQuery.value(1).toByteArray().toStdString();
+    QByteArray bdata = _getFilesQuery.value(2).toByteArray();
+    uint8_t* data = (uint8_t*)malloc(bdata.size());
+    memcpy(data, bdata.constData(), bdata.size());
+
+    std::unique_ptr<SCXFile> scxFile =
+        std::unique_ptr<SCXFile>(new SCXFile(data, bdata.size(), name, id));
+    CCDisassembler dis(*scxFile);
+    dis.DisassembleFile();
+
+    _files.push_back(std::move(scxFile));
+  }
 }
 
 void Project::insertFile(const QString& name, uint8_t* data, int size) {
@@ -115,18 +174,7 @@ void Project::insertFile(const QString& name, uint8_t* data, int size) {
   CCDisassembler dis(*scxFile);
   dis.DisassembleFile();
 
-  // find refs
-
-  for (const auto& label : scxFile->disassembly()) {
-    for (const auto& inst : label->instructions()) {
-      std::vector<std::pair<VariableRefType, int>> refs =
-          variableRefsInInstruction(inst.get());
-
-      for (const auto& ref : refs) {
-        insertVariableRef(id, inst->position(), ref.first, ref.second);
-      }
-    }
-  }
+  analyzeFile(scxFile.get());
 
   _files.push_back(std::move(scxFile));
 
@@ -165,12 +213,16 @@ void Project::insertVariableRef(int fileId, SCXOffset address,
   _insertVariableRefQuery.exec();
 }
 
-void Project::initDatabase() {
-  // TODO: close database in destructor?
-  // TODO: encoding
+void Project::openDatabase(const QString& path) {
   _db = QSqlDatabase::addDatabase("QSQLITE");
-  _db.setDatabaseName(":memory:");
+  _db.setDatabaseName(path);
   _db.open();
+}
+
+void Project::createDatabase(const QString& path) {
+  if (QFile(path).exists()) QFile(path).remove();
+
+  openDatabase(path);
 
   QSqlQuery q;
   q.exec(
@@ -202,6 +254,11 @@ void Project::initDatabase() {
       "variable INTEGER NOT NULL"
       ")");
 
+  prepareStmts();
+}
+
+// Unfortunately these tables need to exist before we can prepare the statements
+void Project::prepareStmts() {
   _getCommentQuery = QSqlQuery(_db);
   _getCommentQuery.prepare(
       "SELECT text FROM comments WHERE fileId = ? AND address = ?");
@@ -214,8 +271,8 @@ void Project::initDatabase() {
   _setLabelNameQuery = QSqlQuery(_db);
   _setLabelNameQuery.prepare(
       "REPLACE INTO labels (fileId, labelId, name) VALUES (?, ?, ?)");
-  _getFileQuery = QSqlQuery(_db);
-  _getFileQuery.prepare("SELECT id, name, data FROM files ORDER BY id ASC");
+  _getFilesQuery = QSqlQuery(_db);
+  _getFilesQuery.prepare("SELECT id, name, data FROM files ORDER BY id ASC");
   _insertFileQuery = QSqlQuery(_db);
   _insertFileQuery.prepare(
       "INSERT INTO files (id, name, data) VALUES (?, ?, ?)");

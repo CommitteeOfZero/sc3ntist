@@ -19,11 +19,24 @@ DebuggerApplication::~DebuggerApplication() { delete _w; }
 
 void DebuggerApplication::showWindow() { _w->show(); }
 
-bool DebuggerApplication::tryCreateProject(const QString& filePath) {
+bool DebuggerApplication::tryOpenProject(const QString& dbPath) {
   if (_project != nullptr) closeProject();
 
   try {
-    _project = new Project(filePath, this);
+    _project = new Project(dbPath, this);
+  } catch (std::runtime_error e) {
+    return false;
+  }
+  emit projectOpened();
+  return true;
+}
+
+bool DebuggerApplication::tryCreateProject(const QString& dbPath,
+                                           const QString& scriptFolder) {
+  if (_project != nullptr) closeProject();
+
+  try {
+    _project = new Project(dbPath, scriptFolder, this);
   } catch (std::runtime_error e) {
     return false;
   }
