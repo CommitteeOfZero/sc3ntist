@@ -159,8 +159,8 @@ void DisassemblyView::onNameKeyPress() {
       dApp->project()->getLabelName(disModel->script()->getId(), row->id);
 
   bool ok;
-  QString newName = QInputDialog::getMultiLineText(this, "Edit label name",
-                                                   "New name:", oldName, &ok);
+  QString newName = QInputDialog::getText(
+      this, "Edit label name", "New name:", QLineEdit::Normal, oldName, &ok);
   if (!ok) return;
   dApp->project()->setLabelName(disModel->script()->getId(), row->id, newName);
 }
