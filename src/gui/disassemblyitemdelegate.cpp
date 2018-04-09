@@ -30,19 +30,24 @@ void DisassemblyItemDelegate::paint(QPainter* painter,
 QString DisassemblyItemDelegate::richTextFor(const QModelIndex& index) const {
   switch ((DisassemblyModel::ColumnType)index.column()) {
     case DisassemblyModel::ColumnType::Address: {
-      return "<b>" + displayTextForAddress(index.data().toInt()) + "</b>  ";
+      return "<div class='address'>" +
+             displayTextForAddress(index.data().toInt()) + "</div>";
     }
     case DisassemblyModel::ColumnType::Code: {
       const DisassemblyRow* row =
           static_cast<DisassemblyRow*>(index.internalPointer());
       switch (row->type) {
         case DisassemblyModel::RowType::Comment: {
-          return "<span style='color: #606060'>&nbsp;&nbsp;&nbsp;&nbsp;" +
-                 index.data().toString().toHtmlEscaped() + "</span>";
+          return "<div class='comment'>" +
+                 index.data().toString().toHtmlEscaped() + "</div>";
         }
         case DisassemblyModel::RowType::Label: {
-          return "<span style='font-weight: bold; color: #008000'>#" +
-                 index.data().toString().toHtmlEscaped() + ":</span>";
+          return "<div class='label'>#" +
+                 index.data().toString().toHtmlEscaped() + ":</div>";
+        }
+        case DisassemblyModel::RowType::Instruction: {
+          return "<div class='instruction'>" + index.data().toString() +
+                 "</div>";
         }
         default: { break; }
       }
@@ -63,10 +68,8 @@ void DisassemblyItemDelegate::paintRichText(QPainter* painter,
   painter->save();
 
   QTextDocument doc;
-  // TODO global unified styling
-  doc.setDefaultStyleSheet(
-      "body { font-family: 'Lucida Console'; font-size: 9pt; }");
-  doc.setHtml("<body>" + richText + "</body>");
+  doc.setDefaultStyleSheet(qApp->styleSheet());
+  doc.setHtml("<div class='disassemblyRow'>" + richText + "</div>");
 
   const QWidget* widget = options.widget;
   QStyle* style = widget ? widget->style() : QApplication::style();
@@ -86,8 +89,7 @@ QSize DisassemblyItemDelegate::sizeHint(const QStyleOptionViewItem& option,
   if (richText.isEmpty()) return QStyledItemDelegate::sizeHint(option, index);
 
   QTextDocument doc;
-  doc.setDefaultStyleSheet(
-      "body { font-family: 'Lucida Console'; font-size: 9pt; }");
-  doc.setHtml("<body>" + richText + "</body>");
+  doc.setDefaultStyleSheet(qApp->styleSheet());
+  doc.setHtml("<div class='disassemblyRow'>" + richText + "</div>");
   return QSize(doc.idealWidth(), doc.size().height());
 }

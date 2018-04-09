@@ -20,3 +20,55 @@ QTreeView::item:selected {
     background-color: burlywood;
     color: black;
 }
+
+.disassemblyRow {
+    font-family: 'Lucida Console';
+    font-size: 9pt;
+}
+
+.address {
+    font-weight: bold;
+    margin-right: 16px;
+}
+
+.comment {
+    margin-left: 24px;
+}
+
+.Inst__Unrecognized__,
+.comment {
+    color: #606060;
+}
+
+.instruction {
+    margin-left: 24px;
+}
+
+.label {
+    font-weight: bold;
+    color: #008000;
+}
+
+.argName {
+    font-style: italic;
+}
+
+.InstJump>.instructionName,
+.InstJumpTable>.instructionName,
+.InstIf>.instructionName,
+.InstCall>.instructionName,
+.InstJumpFar>.instructionName,
+.InstCallFar>.instructionName,
+.InstReturn>.instructionName,
+.InstLoop>.instructionName,
+.InstFlagOnJump>.instructionName,
+.InstKeyOnJump>.instructionName,
+.InstLoadJump>.instructionName,
+.InstSwitch>.instructionName,
+.InstCase>.instructionName,
+.InstClickOnJump>.instructionName,
+.InstKeyboardOnJump>.instructionName,
+.InstControlOnJump>.instructionName {
+    font-weight: bold;
+    color: #0087BD;
+}

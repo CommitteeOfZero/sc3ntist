@@ -29,4 +29,5 @@ class MainWindow : public QMainWindow {
   void on_actionOpen_triggered();
   void on_actionClose_triggered();
   void on_actionGo_to_address_triggered();
+  void on_actionEdit_stylesheet_triggered();
 };

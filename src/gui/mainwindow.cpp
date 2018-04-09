@@ -136,3 +136,11 @@ void MainWindow::on_actionGo_to_address_triggered() {
   if (!ok) return;
   dApp->project()->goToAddress(dApp->project()->currentFileId(), address);
 }
+
+void MainWindow::on_actionEdit_stylesheet_triggered() {
+  QString sheet = dApp->styleSheet();
+  bool ok;
+  sheet = QInputDialog::getMultiLineText(this, "Edit stylesheet",
+                                         "Stylesheet:", sheet, &ok);
+  if (ok) dApp->setStyleSheet(sheet);
+}

@@ -35,8 +35,15 @@
     </property>
     <addaction name="actionGo_to_address"/>
    </widget>
+   <widget class="QMenu" name="menuOptions">
+    <property name="title">
+     <string>Options</string>
+    </property>
+    <addaction name="actionEdit_stylesheet"/>
+   </widget>
    <addaction name="menuProject"/>
    <addaction name="menuScript"/>
+   <addaction name="menuOptions"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionOpen">
@@ -52,6 +59,11 @@
   <action name="actionGo_to_address">
    <property name="text">
     <string>Go to address...</string>
+   </property>
+  </action>
+  <action name="actionEdit_stylesheet">
+   <property name="text">
+    <string>Edit stylesheet...</string>
    </property>
   </action>
  </widget>

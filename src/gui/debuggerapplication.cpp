@@ -12,7 +12,7 @@ DebuggerApplication::DebuggerApplication(int& argc, char** argv)
   QFile qssFile(":/stylesheet.qss");
   qssFile.open(QFile::ReadOnly | QFile::Text);
   QTextStream ts(&qssFile);
-  _w->setStyleSheet(ts.readAll());
+  setStyleSheet(ts.readAll());
 }
 
 DebuggerApplication::~DebuggerApplication() { delete _w; }

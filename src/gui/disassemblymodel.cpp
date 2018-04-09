@@ -164,8 +164,7 @@ QVariant DisassemblyModel::data(const QModelIndex &index, int role) const {
         case RowType::Instruction: {
           const SC3Instruction *inst = label->instructions()[row->id].get();
           return QVariant(QString::fromStdString(
-              "    " +
-              DumpSC3InstructionToText(dApp->project()->contextProvider(),
+              DumpSC3InstructionToText(true, dApp->project()->contextProvider(),
                                        _script->getId(), inst)));
         }
         case RowType::Comment: {
