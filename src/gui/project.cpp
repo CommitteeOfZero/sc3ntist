@@ -7,7 +7,6 @@
 #include <QStringList>
 #include <stdexcept>
 #include "analysis.h"
-#include <QElapsedTimer>
 
 // create new database
 Project::Project(const QString& dbPath, const QString& scriptFolder,
@@ -19,9 +18,6 @@ Project::Project(const QString& dbPath, const QString& scriptFolder,
 
   QDirIterator it(scriptFolder, QStringList() << "*.scx",
                   QDir::Files | QDir::Readable);
-
-  QElapsedTimer timer;
-  timer.start();
 
   _db.transaction();
 
@@ -39,8 +35,6 @@ Project::Project(const QString& dbPath, const QString& scriptFolder,
   }
 
   _db.commit();
-
-  qDebug() << "Took " << timer.elapsed() << "milliseconds";
 
   _inInitialLoad = false;
 }
