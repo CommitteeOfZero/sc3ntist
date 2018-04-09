@@ -121,7 +121,7 @@ SC3Expression::Term SC3Expression::parseTerm(uint8_t *start, uint8_t *end) {
           cursor += 5;
           break;
       }
-      uint8_t prec = *cursor++;  // skip this, we don't actually need it
+      cursor++;  // skip precedence byte
       if (lowestPrecedenceOp == nullptr &&
           std::find(std::begin(_eaten), std::end(_eaten), imm) ==
               std::end(_eaten)) {
@@ -156,7 +156,7 @@ SC3Expression::Term SC3Expression::parseTerm(uint8_t *start, uint8_t *end) {
 
   if ((*cursor & 0x80) == 0x80)  // immediate value
   {
-    int value;
+    int value = 0;
     switch (cursor[0] & 0x60)  // length
     {
       case 0:  // 1 byte
@@ -276,6 +276,7 @@ SC3Expression::Term SC3Expression::parseTerm(uint8_t *start, uint8_t *end) {
         cursor = std::max(std::max(end, firstArg.end), secondArg.end);
         break;
       }
+      default: { throw std::runtime_error("invalid expression"); }
     }
   }
 
@@ -376,6 +377,7 @@ SC3ExpressionNode *SC3ExpressionNode::simplify() const {
       result->rhs = std::unique_ptr<SC3ExpressionNode>(rhs->simplify());
       break;
     }
+    default: { result->type = SC3ExpressionTokenType::EndOfExpression; }
   }
   return result;
 }
@@ -414,16 +416,18 @@ int SC3ExpressionNode::evaluateOp(SC3ExpressionTokenType op, int lhs, int rhs) {
       return lhs < rhs;
     case GreaterThan:
       return lhs > rhs;
+    default:
+      throw std::runtime_error("invalid operator");
   }
-  throw std::runtime_error("invalid operator");
 }
 
 int SC3ExpressionNode::evaluateOp(SC3ExpressionTokenType op, int rhs) {
   switch (op) {
     case Negation:
       return ~rhs;
+    default:
+      throw std::runtime_error("invalid operator");
   }
-  throw std::runtime_error("invalid operator");
 }
 
 std::string SC3ExpressionNode::toString() const {
@@ -462,7 +466,6 @@ std::string SC3ExpressionNode::toString() const {
       std::stringstream _s;
       const OpInfo &lhsOp = OperatorInfos.at(lhs->type);
       const OpInfo &rhsOp = OperatorInfos.at(rhs->type);
-      bool shouldParenthesizeLhs = false;
       if (lhsOp.precedence < thisOp.precedence ||
           (lhsOp.precedence == thisOp.precedence && thisOp.rightAssociative)) {
         _s << "(" << lhs->toString() << ")";

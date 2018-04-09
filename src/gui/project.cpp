@@ -7,6 +7,7 @@
 #include <QStringList>
 #include <stdexcept>
 #include "analysis.h"
+#include <QElapsedTimer>
 
 Project::Project(const QString& path, QObject* parent = 0) : QObject(parent) {
   initDatabase();
@@ -14,6 +15,9 @@ Project::Project(const QString& path, QObject* parent = 0) : QObject(parent) {
   // TODO: read from mpk, or folder + mlp index
 
   QDirIterator it(path, QStringList() << "*.scx", QDir::Files | QDir::Readable);
+
+  QElapsedTimer timer;
+  timer.start();
 
   while (it.hasNext()) {
     QFile file(it.next());
@@ -26,6 +30,8 @@ Project::Project(const QString& path, QObject* parent = 0) : QObject(parent) {
     file.close();
     insertFile(it.fileName(), data, length);
   }
+
+  qDebug() << "Took " << timer.elapsed() << "milliseconds";
 
   _inInitialLoad = false;
 }

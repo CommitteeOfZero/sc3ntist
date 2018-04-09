@@ -1,11 +1,14 @@
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#endif
+
 #include <string>
 #include <vector>
 #include "SC3Expression.h"
 #include "SC3Argument.h"
 #include "CCDisassembler.h"
 #include "DisassemblerMacros.h"
-
-#pragma region Instruction decoders
 
 DECODER_PROC(Assign) {
   uint8_t* dataStart = data;
@@ -238,12 +241,6 @@ DECODER_PROC(LoadJump) {
 }
 
 NO_ARGS_DECODER_PROC(Vsync);
-
-DECODER_PROC(LongAssign) {
-  DECODER_PROC_INIT();
-  ADD_EXPRESSION_ARG("arg");
-  RETURN_INSTRUCTION("LongAssign");
-}
 
 DECODER_PROC(Test) {
   DECODER_PROC_INIT();
@@ -1777,10 +1774,6 @@ DECODER_PROC(IOS) {
 NO_ARGS_DECODER_PROC(ScreenChange);
 NO_ARGS_DECODER_PROC(ExitGame);
 
-#pragma endregion
-
-#pragma region Decoder tables
-
 static DecoderProc DecoderTableSystem[256] = {
     InstEnd,                  // 00 00
     InstCreateThread,         // 00 01
@@ -2558,8 +2551,6 @@ static DecoderProc DecoderTableUser1[256] = {
     Inst__Unrecognized__   // 10 FF
 };
 
-#pragma endregion
-
 SC3Instruction* CCDisassembler::DisassembleAt(SCXOffset address,
                                               SCXOffset maxLength) {
   uint8_t* inst = _file.getPData() + address;
@@ -2582,3 +2573,7 @@ SC3Instruction* CCDisassembler::DisassembleAt(SCXOffset address,
       break;
   }
 }
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif

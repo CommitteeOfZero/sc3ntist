@@ -13,8 +13,8 @@ class SC3Instruction {
         _name(name),
         _args(std::move(args)){};
 
-  const SCXOffset position() const { return _position; }
-  const SCXOffset length() const { return _length; }
+  SCXOffset position() const { return _position; }
+  SCXOffset length() const { return _length; }
   const std::string& name() const { return _name; }
   const std::vector<SC3Argument>& args() const { return _args; }
 

@@ -30,10 +30,10 @@ class SCXFile {
   }
 
  private:
-  const std::string _name;
-  const int _id;
   uint8_t* _data;
   SCXOffset _length;
+  const std::string _name;
+  const int _id;
   SCXOffset _codeEndOffset;
   SCXTableIndex _stringCount;
   SCXTableIndex _returnAddressCount;

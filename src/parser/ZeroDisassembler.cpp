@@ -1,7 +1,10 @@
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#endif
+
 #include "ZeroDisassembler.h"
 #include "DisassemblerMacros.h"
-
-#pragma region Instruction decoders
 
 DECODER_PROC(Assign) {
   uint8_t* dataStart = data;
@@ -1322,10 +1325,6 @@ DECODER_PROC(Group1037) {
 NO_ARGS_DECODER_PROC(Win32_SetResolution);
 NO_ARGS_DECODER_PROC(Win32_DestroyWindow);
 
-#pragma endregion
-
-#pragma region Decoder tables
-
 static DecoderProc DecoderTable00[256] = {
     InstEndOfScript,           // 00 00
     InstCreateThread,          // 00 01
@@ -2103,8 +2102,6 @@ static DecoderProc DecoderTable10[256] = {
     Inst__Unrecognized__       // 10 FF
 };
 
-#pragma endregion
-
 SC3Instruction* ZeroDisassembler::DisassembleAt(SCXOffset address,
                                                 SCXOffset maxLength) {
   uint8_t* inst = _file.getPData() + address;
@@ -2127,3 +2124,7 @@ SC3Instruction* ZeroDisassembler::DisassembleAt(SCXOffset address,
       break;
   }
 }
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif

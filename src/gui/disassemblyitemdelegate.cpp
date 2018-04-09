@@ -44,10 +44,12 @@ QString DisassemblyItemDelegate::richTextFor(const QModelIndex& index) const {
           return "<span style='font-weight: bold; color: #008000'>#" +
                  index.data().toString().toHtmlEscaped() + ":</span>";
         }
+        default: { break; }
       }
     }
-    default: { return QString(); }
+    default: { break; }
   }
+  return QString();
 }
 
 // https://stackoverflow.com/a/1956781
@@ -55,7 +57,7 @@ void DisassemblyItemDelegate::paintRichText(QPainter* painter,
                                             const QStyleOptionViewItem& option,
                                             const QModelIndex& index,
                                             const QString& richText) const {
-  QStyleOptionViewItemV4 options = option;
+  QStyleOptionViewItem options = option;
   initStyleOption(&options, index);
 
   painter->save();

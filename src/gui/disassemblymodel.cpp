@@ -96,9 +96,7 @@ QModelIndex DisassemblyModel::indexForLabel(SCXOffset labelId) const {
   return createIndex(labelId, 0, (void *)&_labelRows.data()[labelId]);
 }
 
-// TODO use DisassemblyRows for this?
 QModelIndex DisassemblyModel::firstIndexForAddress(SCXOffset address) const {
-  const auto &disasm = _script->disassembly();
   int labelId = firstLabelForAddress(_script, address);
   if (labelId < 0) return QModelIndex();
   if (_labelRows[labelId].address == address) return indexForLabel(labelId);
@@ -175,8 +173,8 @@ QVariant DisassemblyModel::data(const QModelIndex &index, int role) const {
         default: { return QVariant(); }
       }
     }
+    default: { return QVariant(); }
   }
-  return QVariant();
 }
 
 Qt::ItemFlags DisassemblyModel::flags(const QModelIndex &index) const {

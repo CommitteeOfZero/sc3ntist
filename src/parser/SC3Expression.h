@@ -65,8 +65,8 @@ class SC3ExpressionToken {
  public:
   SC3ExpressionToken(SC3ExpressionTokenType type, int value)
       : _type(type), _value(value){};
-  const SC3ExpressionTokenType type() const { return _type; }
-  const int value() const { return _value; }
+  SC3ExpressionTokenType type() const { return _type; }
+  int value() const { return _value; }
 
  private:
   const SC3ExpressionTokenType _type;
