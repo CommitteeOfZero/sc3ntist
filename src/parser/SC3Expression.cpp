@@ -38,20 +38,7 @@ std::string SC3Expression::toString(bool evalConst) const {
   return _root->toString();
 }
 
-struct OpInfo {
-  const std::string str;
-  int precedence;
-  bool rightAssociative;
-  bool constAllowed;
-};
-
-struct tokenTypeHash {
-  size_t operator()(const SC3ExpressionTokenType &type) const {
-    return (size_t)type;
-  }
-};
-
-const static std::unordered_map<SC3ExpressionTokenType, OpInfo, tokenTypeHash>
+const std::unordered_map<SC3ExpressionTokenType, OpInfo, tokenTypeHash>
     OperatorInfos = {{EndOfExpression, {"", 99, false, true}},
                      {ImmediateValue, {"", 99, false, true}},
                      {Multiply, {"*", 9, false, true}},

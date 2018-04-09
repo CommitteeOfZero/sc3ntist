@@ -6,6 +6,7 @@
 #include "parser/SC3Argument.h"
 #include "parser/SCXFile.h"
 #include "parser/SC3CodeBlock.h"
+#include "parser/SC3Expression.h"
 
 #include "parser/IContextProvider.h"
 
@@ -20,6 +21,130 @@ static std::string uint8_vector_to_hex_string(const std::vector<uint8_t> &v) {
   }
 
   return ss.str();
+}
+
+// TODO this could go into a per-file textifier class, held by DisassemblyModel,
+// really
+
+std::string SC3ExpressionNodeToString(IContextProvider *ctx, int fileId,
+                                      const SC3ExpressionNode *node) {
+  const OpInfo &thisOp = OperatorInfos.at(node->type);
+  switch (node->type) {
+    case ImmediateValue: {
+      return std::to_string(node->value);
+    }
+    case Multiply:
+    case Divide:
+    case Add:
+    case Subtract:
+    case Modulo:
+    case LeftShift:
+    case RightShift:
+    case BitwiseAnd:
+    case BitwiseXor:
+    case BitwiseOr:
+    case Equal:
+    case NotEqual:
+    case LessThanEqual:
+    case GreaterThanEqual:
+    case LessThan:
+    case GreaterThan:
+    case Assign:
+    case MultiplyAssign:
+    case DivideAssign:
+    case AddAssign:
+    case SubtractAssign:
+    case ModuloAssign:
+    case LeftShiftAssign:
+    case RightShiftAssign:
+    case BitwiseAndAssign:
+    case BitwiseOrAssign:
+    case BitwiseXorAssign: {
+      std::stringstream _s;
+      const OpInfo &lhsOp = OperatorInfos.at(node->lhs->type);
+      const OpInfo &rhsOp = OperatorInfos.at(node->rhs->type);
+      if (lhsOp.precedence < thisOp.precedence ||
+          (lhsOp.precedence == thisOp.precedence && thisOp.rightAssociative)) {
+        _s << "(" << SC3ExpressionNodeToString(ctx, fileId, node->lhs.get())
+           << ")";
+      } else {
+        _s << SC3ExpressionNodeToString(ctx, fileId, node->lhs.get());
+      }
+      _s << " " << thisOp.str << " ";
+      if (rhsOp.precedence < thisOp.precedence ||
+          (rhsOp.precedence == thisOp.precedence && !thisOp.rightAssociative)) {
+        _s << "(" << SC3ExpressionNodeToString(ctx, fileId, node->rhs.get())
+           << ")";
+      } else {
+        _s << SC3ExpressionNodeToString(ctx, fileId, node->rhs.get());
+      }
+      return _s.str();
+    }
+    case Increment:
+    case Decrement: {
+      std::stringstream _s;
+      const OpInfo &lhsOp = OperatorInfos.at(node->lhs->type);
+      if (thisOp.precedence < lhsOp.precedence) {
+        _s << "(" << SC3ExpressionNodeToString(ctx, fileId, node->lhs.get())
+           << ")";
+      } else {
+        _s << SC3ExpressionNodeToString(ctx, fileId, node->lhs.get());
+      }
+      _s << thisOp.str;
+      return _s.str();
+    }
+    case FuncUnk2F:
+    case FuncUnk30:
+    case FuncNop31:
+    case FuncNop32: {
+      return thisOp.str;
+    }
+    case FuncGlobalVars:
+    case FuncFlags:
+    case FuncLabelTable:
+      if (ctx == nullptr || node->rhs->type != ImmediateValue) {
+        return thisOp.str + "[" +
+               SC3ExpressionNodeToString(ctx, fileId, node->rhs.get()) + "]";
+      } else {
+        std::string name;
+        switch (node->type) {
+          case FuncGlobalVars:
+            name = ctx->globalVarName(node->rhs->value);
+            break;
+          case FuncFlags:
+            name = ctx->flagName(node->rhs->value);
+            break;
+          case FuncLabelTable:
+            name = ctx->labelName(fileId, node->rhs->value);
+            break;
+          default:
+            break;
+        }
+        return thisOp.str + "[" + name + "]";
+      }
+    case FuncThreadVars:
+      return thisOp.str + "[" +
+             SC3ExpressionNodeToString(ctx, fileId, node->rhs.get()) + "]";
+    case Negation:
+    case FuncRandom: {
+      return thisOp.str + "(" +
+             SC3ExpressionNodeToString(ctx, fileId, node->rhs.get()) + ")";
+    }
+    case FuncDataAccess:
+    case FuncFarLabelTable:
+    case FuncDMA: {
+      return thisOp.str + "(" +
+             SC3ExpressionNodeToString(ctx, fileId, node->lhs.get()) + ", " +
+             SC3ExpressionNodeToString(ctx, fileId, node->rhs.get()) + ")";
+    }
+    default: { return ""; }
+  }
+}
+
+std::string SC3ExpressionToString(IContextProvider *ctx, int fileId,
+                                  const SC3Expression &expr) {
+  auto root = expr.simplified();
+  return SC3ExpressionNodeToString(ctx, fileId, root);
 }
 
 std::string SC3ArgumentToString(IContextProvider *ctx, int fileId,
@@ -39,7 +164,7 @@ std::string SC3ArgumentToString(IContextProvider *ctx, int fileId,
     }
     case Expression: {
       const auto &expr = arg.exprValue;
-      return expr.toString(true);
+      return SC3ExpressionToString(ctx, fileId, expr);
       break;
     }
     case LocalLabel: {
@@ -54,8 +179,8 @@ std::string SC3ArgumentToString(IContextProvider *ctx, int fileId,
     case FarLabel: {
       const auto &expr = arg.exprValue;
       auto id = arg.uint16_value;
-      return "FarLabelRef(" + expr.toString(true) + ", " + std::to_string(id) +
-             ")";
+      return "FarLabelRef(" + SC3ExpressionToString(ctx, fileId, expr) + ", " +
+             std::to_string(id) + ")";
     }
     case ReturnAddress: {
       auto id = arg.uint16_value;
@@ -69,17 +194,24 @@ std::string SC3ArgumentToString(IContextProvider *ctx, int fileId,
     }
     case ExprFlagRef: {
       const auto &expr = arg.exprValue;
-      return "FlagRef(" + expr.toString(true) + ")";
+      if (ctx != nullptr && expr.simplified()->type == ImmediateValue) {
+        return "FlagRef(" + ctx->flagName(expr.simplified()->value) + ")";
+      }
+      return "FlagRef(" + SC3ExpressionToString(ctx, fileId, expr) + ")";
       break;
     }
     case ExprGlobalVarRef: {
       const auto &expr = arg.exprValue;
-      return "GlobalVarRef(" + expr.toString(true) + ")";
+      if (ctx != nullptr && expr.simplified()->type == ImmediateValue) {
+        return "GlobalVarRef(" + ctx->globalVarName(expr.simplified()->value) +
+               ")";
+      }
+      return "GlobalVarRef(" + SC3ExpressionToString(ctx, fileId, expr) + ")";
       break;
     }
     case ExprThreadVarRef: {
       const auto &expr = arg.exprValue;
-      return "ThreadVarRef(" + expr.toString(true) + ")";
+      return "ThreadVarRef(" + SC3ExpressionToString(ctx, fileId, expr) + ")";
       break;
     }
   }

@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include <functional>
+#include <unordered_map>
 
 enum SC3ExpressionTokenType {
   EndOfExpression = 0x00,
@@ -60,6 +61,22 @@ enum SC3ExpressionTokenType {
   FuncNop32 = 0x32,
   FuncRandom = 0x33
 };
+
+struct OpInfo {
+  const std::string str;
+  int precedence;
+  bool rightAssociative;
+  bool constAllowed;
+};
+
+struct tokenTypeHash {
+  size_t operator()(const SC3ExpressionTokenType &type) const {
+    return (size_t)type;
+  }
+};
+
+extern const std::unordered_map<SC3ExpressionTokenType, OpInfo, tokenTypeHash>
+    OperatorInfos;
 
 class SC3ExpressionToken {
  public:
