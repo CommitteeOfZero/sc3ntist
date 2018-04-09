@@ -17,7 +17,7 @@ void DisassemblyItemDelegate::paint(QPainter* painter,
   switch ((DisassemblyModel::ColumnType)index.column()) {
     case DisassemblyModel::ColumnType::Breakpoint: {
       // TODO parameterize
-      painter->fillRect(option.rect, QColor("#d3b892"));
+      painter->fillRect(option.rect, QColor("#101923"));
       break;
     }
     default: {

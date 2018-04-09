@@ -1,29 +1,32 @@
-QTreeView {
-    font-family: 'Lucida Console';
-    font-size: 9pt;
-    background-color: bisque;
+* {
+    font-family: 'Consolas';
+    font-size: 10pt;
+}
+
+DisassemblyView,
+DisassemblyView>QHeaderView::section {
+    background-color: rgb(2, 4, 6);
     /* focus rectangle */
     outline: none;
 }
 
-QTreeView::item {
-    background-color: bisque;
-    color: black;
+DisassemblyView::item {
+    background-color: rgb(2, 4, 6);
+    color: rgb(118, 159, 200);
 }
 
-QTreeView::item:hover {
-    background-color: bisque;
-    color: black;
+DisassemblyView::item:hover {
+    background-color: rgb(2, 4, 6);
+    color: rgb(118, 159, 200);
 }
 
-QTreeView::item:selected {
-    background-color: burlywood;
-    color: black;
+DisassemblyView::item:selected {
+    background-color: rgb(29, 38, 47);
+    color: rgb(118, 159, 200);
 }
 
 .disassemblyRow {
-    font-family: 'Lucida Console';
-    font-size: 9pt;
+    color: rgb(118, 159, 200);
 }
 
 .address {
@@ -37,16 +40,17 @@ QTreeView::item:selected {
 
 .Inst__Unrecognized__,
 .comment {
-    color: #606060;
+    color: rgb(62, 81, 91);
 }
 
 .instruction {
     margin-left: 24px;
 }
 
-.label {
+.label,
+.LabelTable_name {
     font-weight: bold;
-    color: #008000;
+    color: rgb(173, 144, 80);
 }
 
 .argName {
@@ -70,5 +74,22 @@ QTreeView::item:selected {
 .InstKeyboardOnJump>.instructionName,
 .InstControlOnJump>.instructionName {
     font-weight: bold;
-    color: #0087BD;
+    color: rgb(96, 172, 234);
+}
+
+.number {
+    color: rgb(99, 166, 80);
+}
+
+.operator {
+    color: rgb(135, 207, 123);
+}
+
+.func,
+.GlobalVars,
+.ThreadVars,
+.Flags,
+.LabelTable {
+    font-weight: bold;
+    color: rgb(208, 138, 217);
 }
