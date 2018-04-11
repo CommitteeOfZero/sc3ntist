@@ -8,6 +8,7 @@ class MainWindow;
 }
 
 class DisassemblyView;
+class MemoryView;
 
 class MainWindow : public QMainWindow {
   Q_OBJECT
@@ -20,6 +21,7 @@ class MainWindow : public QMainWindow {
   DisassemblyView *_disasmView;
   QListWidget *_fileList;
   QListWidget *_labelList;
+  MemoryView *_memoryView;
 
  private slots:
   void onProjectOpened();

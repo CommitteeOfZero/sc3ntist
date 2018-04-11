@@ -34,6 +34,14 @@ Project::Project(const QString& dbPath, const QString& scriptFolder,
     insertFile(it.fileName(), data, length);
   }
 
+  for (int globalVar = 0; globalVar < 8000; globalVar++) {
+    insertVariable(VariableRefType::GlobalVar, globalVar,
+                   QString("%1").arg(globalVar));
+  }
+  // TODO: recheck if 8000 is the max
+  for (int flag = 0; flag < 8000; flag++) {
+    insertVariable(VariableRefType::Flag, flag, QString("%1").arg(flag));
+  }
   _db.commit();
 
   _inInitialLoad = false;
@@ -69,6 +77,10 @@ void Project::switchFile(int id) {
 void Project::goToAddress(int fileId, SCXOffset address) {
   switchFile(fileId);
   emit focusAddressSwitched(address);
+}
+
+void Project::focusMemory(VariableRefType type, int var) {
+  emit focusMemorySwitched(type, var);
 }
 
 QString Project::getComment(int fileId, SCXOffset address) {
@@ -130,11 +142,33 @@ void Project::setLabelName(int fileId, int labelId, const QString& name) {
 }
 
 QString Project::getVarName(VariableRefType type, int var) {
-  // TODO named variables
-  return QString("%1").arg(var);
+  QVariant vtype;
+  vtype.setValue(type);
+  _getVarNameQuery.addBindValue(vtype);
+  _getVarNameQuery.addBindValue(var);
+  _getVarNameQuery.exec();
+  _getVarNameQuery.next();
+
+  QString result;
+  if (_getVarNameQuery.isValid()) {
+    result = QString::fromUtf8(_getVarNameQuery.value(0).toByteArray());
+  }
+  if (result.isEmpty()) {
+    return QString("%1").arg(var);
+  }
+  return result;
 }
-void Project::setVarName(VariableRefType type, int var, const QString& name) {
-  // TODO fill in
+void Project::setVarName(const QString& name, VariableRefType type, int var) {
+  _setVarNameQuery.addBindValue(name.toUtf8());
+  QVariant vtype;
+  vtype.setValue(type);
+  _setVarNameQuery.addBindValue(vtype);
+  _setVarNameQuery.addBindValue(var);
+  _setVarNameQuery.exec();
+
+  if (!_batchUpdatingVars) {
+    emit varNameChanged(type, var, getVarName(type, var));
+  }
 }
 
 void Project::analyzeFile(const SCXFile* file) {
@@ -197,6 +231,16 @@ void Project::insertFile(const QString& name, uint8_t* data, int size) {
   _insertFileQuery.addBindValue(name.toUtf8());
   _insertFileQuery.addBindValue(vdata);
   _insertFileQuery.exec();
+}
+
+void Project::insertVariable(VariableRefType type, int var,
+                             const QString& name) {
+  QVariant vtype;
+  vtype.setValue(type);
+  _insertVariableQuery.addBindValue(vtype);
+  _insertVariableQuery.addBindValue(var);
+  _insertVariableQuery.addBindValue(name);
+  _insertVariableQuery.exec();
 }
 
 std::vector<std::pair<int, SCXOffset>> Project::getVariableRefs(
@@ -282,6 +326,13 @@ void Project::createDatabase(const QString& path) {
       "PRIMARY KEY (fileId, labelId)"
       ")");
   q.exec(
+      "CREATE TABLE variables("
+      "variableType INTEGER NOT NULL,"
+      "variable INTEGER NOT NULL,"
+      "name TEXT NOT NULL,"
+      "PRIMARY KEY (variableType, variable)"
+      ")");
+  q.exec(
       "CREATE TABLE variableRefs("
       "refId INTEGER PRIMARY KEY,"
       "fileId INTEGER NOT NULL,"
@@ -318,6 +369,19 @@ void Project::prepareStmts() {
   _insertFileQuery = QSqlQuery(_db);
   _insertFileQuery.prepare(
       "INSERT INTO files (id, name, data) VALUES (?, ?, ?)");
+  _getAllVarNamesQuery = QSqlQuery(_db);
+  _getAllVarNamesQuery.prepare(
+      "SELECT name FROM variables WHERE variableType = ? ORDER BY variable "
+      "ASC");
+  _getVarNameQuery = QSqlQuery(_db);
+  _getVarNameQuery.prepare(
+      "SELECT name FROM variables WHERE variableType = ? AND variable = ?");
+  _insertVariableQuery = QSqlQuery(_db);
+  _insertVariableQuery.prepare(
+      "INSERT INTO variables (variableType, variable, name) VALUES (?, ?, ?)");
+  _setVarNameQuery = QSqlQuery(_db);
+  _setVarNameQuery.prepare(
+      "UPDATE variables SET name = ? WHERE variableType = ? AND variable = ?");
   _getVariableRefsQuery = QSqlQuery(_db);
   _getVariableRefsQuery.prepare(
       "SELECT fileId, address FROM variableRefs WHERE variableType = ? AND "

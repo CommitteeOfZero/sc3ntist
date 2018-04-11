@@ -15,6 +15,12 @@ DisassemblyModel::DisassemblyModel(const SCXFile *script, QObject *parent)
 
   connect(dApp->project(), &Project::commentChanged, this,
           &DisassemblyModel::onCommentChanged);
+  connect(dApp->project(), &Project::labelNameChanged, this,
+          &DisassemblyModel::onLabelNameChanged);
+  connect(dApp->project(), &Project::varNameChanged, this,
+          &DisassemblyModel::onVarNameChanged);
+  connect(dApp->project(), &Project::allVarNamesChanged, this,
+          &DisassemblyModel::onAllVarNamesChanged);
 }
 
 void DisassemblyModel::reload() {
@@ -250,4 +256,14 @@ void DisassemblyModel::onLabelNameChanged(int fileId, int labelId,
                                       origIndex.internalPointer());
   emit dataChanged(codeIndex, codeIndex);
   */
+}
+
+void DisassemblyModel::onVarNameChanged(VariableRefType type, int var,
+                                        const QString &name) {
+  beginResetModel();
+  endResetModel();
+}
+void DisassemblyModel::onAllVarNamesChanged() {
+  beginResetModel();
+  endResetModel();
 }

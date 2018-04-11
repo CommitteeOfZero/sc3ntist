@@ -9,19 +9,7 @@
 XrefDialog::XrefDialog(int fileId, int labelIdOrAddress, bool isLabel,
                        QWidget *parent)
     : QDialog(parent) {
-  _table = new QTableWidget(this);
-
-  _table->setColumnCount(2);
-  _table->setHorizontalHeaderLabels(QStringList() << "Item"
-                                                  << "Referenced at");
-  _table->horizontalHeader()->setSectionsMovable(false);
-  _table->horizontalHeader()->setSectionsClickable(true);
-  // TODO user resizable
-  _table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-  _table->setEditTriggers(QAbstractItemView::NoEditTriggers);
-  _table->setSelectionBehavior(QAbstractItemView::SelectRows);
-  _table->setSelectionMode(QAbstractItemView::SingleSelection);
-  _table->verticalHeader()->setVisible(false);
+  setupViewBeforeData();
 
   if (isLabel) {
     // refs to label
@@ -42,17 +30,7 @@ XrefDialog::XrefDialog(int fileId, int labelIdOrAddress, bool isLabel,
     int i = 0;
 
     auto inVarRefs = variableRefsAtAddress(file, labelIdOrAddress);
-    for (const auto &inRef : inVarRefs) {
-      QString inRefText;
-      if (inRef.first == VariableRefType ::GlobalVar) {
-        inRefText = QString("GlobalVars[%1]").arg(inRef.second);
-      } else {
-        inRefText = QString("Flags[%1]").arg(inRef.second);
-      }
-      addReferences(
-          i, inRefText,
-          dApp->project()->getVariableRefs(inRef.first, inRef.second));
-    }
+    addVarRefs(i, inVarRefs);
 
     auto inLabelRefs = localLabelRefsAtAddress(file, labelIdOrAddress);
     for (int labelId : inLabelRefs) {
@@ -65,13 +43,37 @@ XrefDialog::XrefDialog(int fileId, int labelIdOrAddress, bool isLabel,
           dApp->project()->files()[fileId]->disassembly()[labelId]->address());
       addReferences(i, inRefText, outLabelRefs);
     }
-
-    if (i == 0) return;
   }
 
-  _table->setSortingEnabled(true);
-  _table->sortByColumn(0, Qt::AscendingOrder);
-  _table->horizontalHeader()->setSortIndicator(0, Qt::AscendingOrder);
+  setupViewAfterData();
+}
+
+XrefDialog::XrefDialog(VariableRefType type, int var, QWidget *parent)
+    : QDialog(parent) {
+  setupViewBeforeData();
+
+  std::vector<std::pair<VariableRefType, int>> varVec;
+  varVec.emplace_back(type, var);
+  int i = 0;
+  addVarRefs(i, varVec);
+
+  setupViewAfterData();
+}
+
+void XrefDialog::setupViewBeforeData() {
+  _table = new QTableWidget(this);
+
+  _table->setColumnCount(2);
+  _table->setHorizontalHeaderLabels(QStringList() << "Item"
+                                                  << "Referenced at");
+  _table->horizontalHeader()->setSectionsMovable(false);
+  _table->horizontalHeader()->setSectionsClickable(true);
+  // TODO user resizable
+  _table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+  _table->setEditTriggers(QAbstractItemView::NoEditTriggers);
+  _table->setSelectionBehavior(QAbstractItemView::SelectRows);
+  _table->setSelectionMode(QAbstractItemView::SingleSelection);
+  _table->verticalHeader()->setVisible(false);
 
   _buttons =
       new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
@@ -86,6 +88,12 @@ XrefDialog::XrefDialog(int fileId, int labelIdOrAddress, bool isLabel,
   resize(500, 300);
 
   connect(_table, &QTableWidget::itemDoubleClicked, this, &XrefDialog::accept);
+}
+
+void XrefDialog::setupViewAfterData() {
+  _table->setSortingEnabled(true);
+  _table->sortByColumn(0, Qt::AscendingOrder);
+  _table->horizontalHeader()->setSortIndicator(0, Qt::AscendingOrder);
 }
 
 void XrefDialog::addReferences(
@@ -105,6 +113,24 @@ void XrefDialog::addReferences(
     i++;
   }
   std::copy(outRefs.begin(), outRefs.end(), std::back_inserter(_outAddresses));
+}
+
+void XrefDialog::addVarRefs(
+    int &i, const std::vector<std::pair<VariableRefType, int>> &varRefs) {
+  for (const auto &inRef : varRefs) {
+    QString inRefText;
+    if (inRef.first == VariableRefType ::GlobalVar) {
+      inRefText =
+          QString("GlobalVars[%1]")
+              .arg(dApp->project()->getVarName(inRef.first, inRef.second));
+    } else {
+      inRefText =
+          QString("Flags[%1]")
+              .arg(dApp->project()->getVarName(inRef.first, inRef.second));
+    }
+    addReferences(i, inRefText,
+                  dApp->project()->getVariableRefs(inRef.first, inRef.second));
+  }
 }
 
 int XrefDialog::exec() {

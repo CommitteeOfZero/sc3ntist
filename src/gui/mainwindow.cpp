@@ -9,6 +9,7 @@
 #include "disassemblyview.h"
 #include <QDockWidget>
 #include <QInputDialog>
+#include "memoryview.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow) {
@@ -46,6 +47,14 @@ MainWindow::MainWindow(QWidget *parent)
   splitDockWidget(fileListDock, labelListDock, Qt::Vertical);
   connect(_labelList, &QListWidget::itemActivated,
           [=]() { _disasmView->goToLabel(_labelList->currentRow()); });
+
+  QDockWidget *memoryDock = new QDockWidget("Memory", this);
+  memoryDock->setFeatures(memoryDock->features() &
+                          ~QDockWidget::DockWidgetClosable);
+  memoryDock->setAllowedAreas(Qt::AllDockWidgetAreas);
+  _memoryView = new MemoryView(this);
+  memoryDock->setWidget(_memoryView);
+  splitDockWidget(disassemblyDock, memoryDock, Qt::Vertical);
 
   // without a centralwidget we need to fill *at least* the whole width or
   // the resize is ignored

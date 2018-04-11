@@ -3,6 +3,7 @@
 #include <QModelIndex>
 #include <QVariant>
 #include "parser/SCXTypes.h"
+#include "enums.h"
 #include <vector>
 #include <utility>
 
@@ -42,6 +43,8 @@ class DisassemblyModel : public QAbstractItemModel {
  private slots:
   void onCommentChanged(int fileId, SCXOffset address, const QString& text);
   void onLabelNameChanged(int fileId, int labelId, const QString& name);
+  void onVarNameChanged(VariableRefType type, int var, const QString& name);
+  void onAllVarNamesChanged();
 
  private:
   const SCXFile* _script;
