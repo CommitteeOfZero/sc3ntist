@@ -31,12 +31,15 @@ DisassemblyView::DisassemblyView(QWidget* parent) : QTreeView(parent) {
   QShortcut* commentShortcut = new QShortcut(Qt::Key_C, this);
   connect(commentShortcut, &QShortcut::activated, this,
           &DisassemblyView::onCommentKeyPress);
+  commentShortcut->setContext(Qt::WidgetWithChildrenShortcut);
   QShortcut* nameShortcut = new QShortcut(Qt::Key_N, this);
   connect(nameShortcut, &QShortcut::activated, this,
           &DisassemblyView::onNameKeyPress);
+  nameShortcut->setContext(Qt::WidgetWithChildrenShortcut);
   QShortcut* xrefShortcut = new QShortcut(Qt::Key_X, this);
   connect(xrefShortcut, &QShortcut::activated, this,
           &DisassemblyView::onXrefKeyPress);
+  xrefShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 
   _resizeTimer = new QTimer(this);
   _resizeTimer->setSingleShot(true);

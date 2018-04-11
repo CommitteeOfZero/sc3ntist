@@ -21,11 +21,13 @@ MemoryView::MemoryView(QWidget* parent) : QTableView(parent) {
   verticalHeader()->setVisible(false);
 
   // TODO: resolve shortcut conflict
-  /*QShortcut* xrefShortcut = new QShortcut(Qt::Key_X, this);
+  QShortcut* xrefShortcut = new QShortcut(Qt::Key_X, this);
   connect(xrefShortcut, &QShortcut::activated, this,
-          &MemoryView::onXrefKeyPress);*/
+          &MemoryView::onXrefKeyPress);
+  xrefShortcut->setContext(Qt::WidgetWithChildrenShortcut);
   QShortcut* goShortcut = new QShortcut(Qt::Key_G, this);
   connect(goShortcut, &QShortcut::activated, this, &MemoryView::onGoKeyPress);
+  goShortcut->setContext(Qt::WidgetWithChildrenShortcut);
 }
 
 void MemoryView::adjustHeader(int oldCount, int newCount) {
