@@ -134,7 +134,7 @@ std::string SC3ExpressionNodeToString(bool richText, IContextProvider *ctx,
           if (name == std::to_string(node->rhs->value))
             _s << "<span class='number'>";
           else
-            _s << "<span class='" << thisOp.str << "'_name'>";
+            _s << "<span class='" << thisOp.str << "_name'>";
         }
         _s << name;
         if (richText) _s << "</span>";

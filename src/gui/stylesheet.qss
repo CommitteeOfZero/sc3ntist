@@ -96,3 +96,8 @@ DisassemblyView::item:selected {
     font-weight: bold;
     color: rgb(208, 138, 217);
 }
+
+.GlobalVars_name,
+.Flags_name {
+    color: rgb(234, 97, 97);
+}
