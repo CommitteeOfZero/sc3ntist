@@ -28,6 +28,7 @@
     </property>
     <addaction name="actionOpen"/>
     <addaction name="actionClose"/>
+    <addaction name="actionImport_worklist"/>
    </widget>
    <widget class="QMenu" name="menuScript">
     <property name="title">
@@ -64,6 +65,11 @@
   <action name="actionEdit_stylesheet">
    <property name="text">
     <string>Edit stylesheet...</string>
+   </property>
+  </action>
+  <action name="actionImport_worklist">
+   <property name="text">
+    <string>Import worklist...</string>
    </property>
   </action>
  </widget>

@@ -5,6 +5,7 @@
 #include <QFile>
 #include <QDirIterator>
 #include <QStringList>
+#include <QTextStream>
 #include <stdexcept>
 #include "analysis.h"
 
@@ -291,6 +292,46 @@ void Project::insertLocalLabelRef(int fileId, SCXOffset address, int labelId) {
   _insertLocalLabelRefQuery.addBindValue(address);
   _insertLocalLabelRefQuery.addBindValue(labelId);
   _insertLocalLabelRefQuery.exec();
+}
+
+void Project::importWorklist(const QString& path, const char* encoding) {
+  QFile inFile(path);
+  if (!inFile.open(QFile::ReadOnly)) {
+    throw std::runtime_error("Couldn't open worklist at " + path.toStdString());
+  }
+  QTextStream in(&inFile);
+  in.setCodec(encoding);
+
+  VariableRefType currentType = VariableRefType::GlobalVar;
+
+  _db.transaction();
+  _batchUpdatingVars = true;
+  QString name;
+  int var;
+  QChar c;
+  while (!in.atEnd()) {
+    in >> name;
+    if (name.startsWith(":flag")) {
+      currentType = VariableRefType::Flag;
+    } else if (name.startsWith(":work")) {
+      currentType = VariableRefType::GlobalVar;
+    } else {
+      in >> var;
+      setVarName(name, currentType, var);
+    }
+    in.skipWhiteSpace();
+    // skip comment if present
+    qint64 pos = in.pos();
+    in >> c;
+    if (c == QChar('/')) {
+      in.readLine();
+    } else {
+      in.seek(pos);
+    }
+  }
+  _db.commit();
+  _batchUpdatingVars = false;
+  emit allVarNamesChanged();
 }
 
 void Project::openDatabase(const QString& path) {

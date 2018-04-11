@@ -10,6 +10,7 @@
 #include <QDockWidget>
 #include <QInputDialog>
 #include "memoryview.h"
+#include "worklistdialog.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow) {
@@ -152,4 +153,9 @@ void MainWindow::on_actionEdit_stylesheet_triggered() {
   sheet = QInputDialog::getMultiLineText(this, "Edit stylesheet",
                                          "Stylesheet:", sheet, &ok);
   if (ok) dApp->setStyleSheet(sheet);
+}
+
+void MainWindow::on_actionImport_worklist_triggered() {
+  if (dApp->project() == nullptr) return;
+  WorklistDialog(this).exec();
 }

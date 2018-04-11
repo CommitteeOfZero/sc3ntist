@@ -42,6 +42,8 @@ class Project : public QObject {
                                                          int var);
   std::vector<std::pair<int, SCXOffset>> getLabelRefs(int fileId, int labelId);
 
+  void importWorklist(const QString& path, const char* encoding);
+
  signals:
   void fileSwitched(int previousId);
   void focusAddressSwitched(SCXOffset newAddress);
