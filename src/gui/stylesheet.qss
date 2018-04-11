@@ -89,7 +89,10 @@ DisassemblyView::item:selected {
 .GlobalVars,
 .ThreadVars,
 .Flags,
-.LabelTable {
+.LabelTable,
+.globalVarRefFunc,
+.flagRefFunc,
+.threadVarRefFunc {
     font-weight: bold;
     color: rgb(208, 138, 217);
 }

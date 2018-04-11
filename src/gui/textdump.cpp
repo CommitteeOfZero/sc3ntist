@@ -281,7 +281,10 @@ std::string SC3ArgumentToString(bool richText, IContextProvider *ctx,
       const auto &expr = arg.exprValue;
       if (richText) out << "<span class='exprFlagRefArg'>";
       if (ctx != nullptr && expr.simplified()->type == ImmediateValue) {
-        out << "FlagRef(";
+        if (richText) out << "<span class='flagRefFunc'>";
+        out << "FlagRef";
+        if (richText) out << "</span>";
+        out << "(";
         auto name = ctx->flagName(expr.simplified()->value);
         if (richText) {
           if (name == std::to_string(expr.simplified()->value))
@@ -293,7 +296,10 @@ std::string SC3ArgumentToString(bool richText, IContextProvider *ctx,
         if (richText) out << "</span>";
         out << ")";
       } else {
-        out << "FlagRef(";
+        if (richText) out << "<span class='flagRefFunc'>";
+        out << "FlagRef";
+        if (richText) out << "</span>";
+        out << "(";
         if (richText) out << "<span class='expr'>";
         out << SC3ExpressionToString(richText, ctx, fileId, expr);
         if (richText) out << "</span>";
@@ -306,7 +312,10 @@ std::string SC3ArgumentToString(bool richText, IContextProvider *ctx,
       const auto &expr = arg.exprValue;
       if (richText) out << "<span class='exprGlobalVarRefArg'>";
       if (ctx != nullptr && expr.simplified()->type == ImmediateValue) {
-        out << "GlobalVarRef(";
+        if (richText) out << "<span class='globalVarRefFunc'>";
+        out << "GlobalVarRef";
+        if (richText) out << "</span>";
+        out << "(";
         auto name = ctx->globalVarName(expr.simplified()->value);
         if (richText) {
           if (name == std::to_string(expr.simplified()->value))
@@ -318,7 +327,10 @@ std::string SC3ArgumentToString(bool richText, IContextProvider *ctx,
         if (richText) out << "</span>";
         out << ")";
       } else {
-        out << "GlobalVarRef(";
+        if (richText) out << "<span class='globalVarRefFunc'>";
+        out << "GlobalVarRef";
+        if (richText) out << "</span>";
+        out << "(";
         if (richText) out << "<span class='expr'>";
         out << SC3ExpressionToString(richText, ctx, fileId, expr);
         if (richText) out << "</span>";
@@ -330,7 +342,10 @@ std::string SC3ArgumentToString(bool richText, IContextProvider *ctx,
     case ExprThreadVarRef: {
       const auto &expr = arg.exprValue;
       if (richText) out << "<span class='exprThreadVarRefArg'>";
-      out << "ThreadVarRef(";
+      if (richText) out << "<span class='threadVarRefFunc'>";
+      out << "ThreadVarRef";
+      if (richText) out << "</span>";
+      out << "(";
       if (richText) out << "<span class='expr'>";
       out << SC3ExpressionToString(richText, ctx, fileId, expr);
       if (richText) out << "</span>";
