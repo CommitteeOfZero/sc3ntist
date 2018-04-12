@@ -32,11 +32,11 @@ bool DebuggerApplication::tryOpenProject(const QString& dbPath) {
 }
 
 bool DebuggerApplication::tryCreateProject(const QString& dbPath,
-                                           const QString& scriptFolder) {
+                                           const QString& loadPath) {
   if (_project != nullptr) closeProject();
 
   try {
-    _project = new Project(dbPath, scriptFolder, this);
+    _project = new Project(dbPath, loadPath, this);
   } catch (std::runtime_error e) {
     return false;
   }

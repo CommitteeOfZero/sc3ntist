@@ -10,31 +10,28 @@
 #include "analysis.h"
 
 // create new database
-Project::Project(const QString& dbPath, const QString& scriptFolder,
+Project::Project(const QString& dbPath, const QString& loadPath,
                  QObject* parent = 0)
     : QObject(parent), _contextProvider(this) {
   createDatabase(dbPath);
 
-  // TODO: read from mpk, or folder + mlp index
-
-  QDirIterator it(scriptFolder, QStringList() << "*.scx",
-                  QDir::Files | QDir::Readable);
-
-  int fileId = 0;
+  std::vector<TmpFileData> files;
+  if (!importMpk(loadPath, files)) {
+    for (const auto& file : files) {
+      free(file.data);
+    }
+    files.clear();
+    if (!importMlp(loadPath, files)) {
+      for (const auto& file : files) {
+        free(file.data);
+      }
+      throw std::runtime_error("Couldn't read input");
+    }
+  }
 
   _db.transaction();
-
-  while (it.hasNext()) {
-    QFile file(it.next());
-    if (!file.open(QIODevice::ReadOnly)) {
-      _db.rollback();
-      throw std::runtime_error("Couldn't open file");
-    }
-    SCXOffset length = (SCXOffset)file.size();
-    uint8_t* data = (uint8_t*)malloc(length);
-    file.read((char*)data, length);
-    file.close();
-    insertFile(it.fileName(), data, length, fileId++);
+  for (const auto& file : files) {
+    insertFile(file.name, file.data, file.size, file.id);
   }
 
   for (int globalVar = 0; globalVar < 8000; globalVar++) {
@@ -62,6 +59,60 @@ Project::Project(const QString& dbPath, QObject* parent = 0)
 
 Project::~Project() {
   if (_db.isOpen()) _db.close();
+}
+
+bool Project::importMpk(const QString& mpkPath,
+                        std::vector<TmpFileData>& files) {
+  QFile mpk(mpkPath);
+  if (!mpk.open(QIODevice::ReadOnly)) {
+    return false;
+  }
+  QByteArray magic = mpk.read(4);
+  if (magic != QByteArrayLiteral("MPK\0")) return false;
+  uint16_t versionMinor;
+  uint16_t versionMajor;
+  mpk.read((char*)&versionMinor, 2);
+  mpk.read((char*)&versionMajor, 2);
+  if (qFromLittleEndian(versionMinor) != 0 ||
+      qFromLittleEndian(versionMajor) != 2)
+    return false;
+  int fileCount;
+  mpk.read((char*)&fileCount, 4);
+  fileCount = qFromLittleEndian(fileCount);
+  for (int i = 0; i < fileCount; i++) {
+    TmpFileData file;
+    mpk.seek(0x40 + 0x100 * i);
+    int compression;
+    mpk.read((char*)&compression, 4);
+    if (compression != 0) return false;
+    mpk.read((char*)&file.id, 4);
+    file.id = qFromLittleEndian(file.id);
+    qint64 dataOffset;
+    mpk.read((char*)&dataOffset, 8);
+    dataOffset = qFromLittleEndian(dataOffset);
+    qint64 dataSize;
+    mpk.read((char*)&dataSize, 8);
+    dataSize = qFromLittleEndian(dataSize);
+    mpk.seek(mpk.pos() + 8);  // compressed == uncompressed
+    if (dataSize > INT_MAX) return false;
+    file.size = (int)dataSize;
+    QByteArray name = mpk.read(0xE0);
+    file.name = QString(name);
+    mpk.seek(dataOffset);
+    file.data = (uint8_t*)malloc(file.size);
+    if (mpk.read((char*)file.data, file.size) < file.size) {
+      free(file.data);
+      return false;
+    }
+    files.push_back(file);
+  }
+  return true;
+}
+
+bool Project::importMlp(const QString& mlpPath,
+                        std::vector<TmpFileData>& files) {
+  // TODO: .mlp support
+  return false;
 }
 
 const SCXFile* Project::currentFile() const {

@@ -20,7 +20,7 @@ class DebuggerApplication : public QApplication {
   Project* project() { return _project; }
 
   bool tryOpenProject(const QString& dbPath);
-  bool tryCreateProject(const QString& dbPath, const QString& scriptFolder);
+  bool tryCreateProject(const QString& dbPath, const QString& loadPath);
   void closeProject();
 
  signals:

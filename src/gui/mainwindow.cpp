@@ -136,7 +136,7 @@ void MainWindow::on_actionOpen_triggered() {
     dApp->tryOpenProject("C:/Users/drdax/Documents/sc3ntist.sqlite");
   } else {
     dApp->tryCreateProject("C:/Users/drdax/Documents/sc3ntist.sqlite",
-                           "G:/Games/SGTL/CCEnVitaPatch101/script_dis");
+                           "G:/Games/SGTL/CHAOSCHILD/USRDIR/script.mpk");
   }
 }
 

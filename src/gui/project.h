@@ -13,7 +13,7 @@ class Project : public QObject {
 
  public:
   // create new project
-  explicit Project(const QString& dbPath, const QString& scriptFolder,
+  explicit Project(const QString& dbPath, const QString& loadPath,
                    QObject* parent);
   // open old project
   explicit Project(const QString& dbPath, QObject* parent);
@@ -67,6 +67,15 @@ class Project : public QObject {
   bool _batchUpdatingVars = false;
 
   ProjectContextProvider _contextProvider;
+
+  struct TmpFileData {
+    int id;
+    QString name;
+    uint8_t* data;
+    int size;
+  };
+  bool importMpk(const QString& mpkPath, std::vector<TmpFileData>& dest);
+  bool importMlp(const QString& mlpPath, std::vector<TmpFileData>& dest);
 
   void createDatabase(const QString& path);
   void openDatabase(const QString& path);
