@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <map>
 #include <QObject>
 #include "parser/SCXFile.h"
 #include <QtSql>
@@ -18,7 +19,7 @@ class Project : public QObject {
   explicit Project(const QString& dbPath, QObject* parent);
   ~Project();
 
-  std::vector<std::unique_ptr<SCXFile>>& files() { return _files; }
+  std::map<int, std::unique_ptr<SCXFile>>& files() { return _files; }
   int currentFileId() const { return _currentFileId; }
   const SCXFile* currentFile() const;
 
@@ -59,7 +60,7 @@ class Project : public QObject {
 
  private:
   QSqlDatabase _db;
-  std::vector<std::unique_ptr<SCXFile>> _files;
+  std::map<int, std::unique_ptr<SCXFile>> _files;
   int _currentFileId = -1;
   bool _inInitialLoad = true;
 
@@ -72,7 +73,7 @@ class Project : public QObject {
   void prepareStmts();
   void analyzeFile(const SCXFile* file);
   void loadFilesFromDb();
-  void insertFile(const QString& name, uint8_t* data, int size);
+  void insertFile(const QString& name, uint8_t* data, int size, int id);
   void insertVariable(VariableRefType type, int var, const QString& name);
   void insertVariableRef(int fileId, SCXOffset address, VariableRefType type,
                          int var);

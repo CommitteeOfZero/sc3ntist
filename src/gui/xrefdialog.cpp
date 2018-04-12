@@ -24,8 +24,8 @@ XrefDialog::XrefDialog(int fileId, int labelIdOrAddress, bool isLabel,
                                           ->address());
     addReferences(i, inRefText, outLabelRefs);
   } else {
-    if (fileId < 0 || fileId >= dApp->project()->files().size()) return;
-    const SCXFile *file = dApp->project()->files()[fileId].get();
+    if (fileId < 0 || dApp->project()->files().count(fileId) == 0) return;
+    const SCXFile *file = dApp->project()->files().at(fileId).get();
 
     int i = 0;
 
@@ -38,9 +38,8 @@ XrefDialog::XrefDialog(int fileId, int labelIdOrAddress, bool isLabel,
           QString("#%1").arg(dApp->project()->getLabelName(fileId, labelId));
       auto outLabelRefs = dApp->project()->getLabelRefs(fileId, labelId);
       // also show the label itself
-      outLabelRefs.emplace_back(
-          fileId,
-          dApp->project()->files()[fileId]->disassembly()[labelId]->address());
+      outLabelRefs.emplace_back(fileId,
+                                file->disassembly()[labelId]->address());
       addReferences(i, inRefText, outLabelRefs);
     }
   }
@@ -100,7 +99,7 @@ void XrefDialog::addReferences(
     int &i, const QString &inRefText,
     const std::vector<std::pair<int, SCXOffset>> &outRefs) {
   for (const auto &outRef : outRefs) {
-    const auto &refFile = dApp->project()->files()[outRef.first];
+    const auto &refFile = dApp->project()->files().at(outRef.first);
     _table->insertRow(i);
     auto col0 = new QTableWidgetItem(inRefText);
     col0->setData(Qt::UserRole, QVariant(i));

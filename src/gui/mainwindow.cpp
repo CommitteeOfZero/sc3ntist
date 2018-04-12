@@ -36,8 +36,10 @@ MainWindow::MainWindow(QWidget *parent)
   _fileList = new QListWidget(fileListDock);
   fileListDock->setWidget(_fileList);
   addDockWidget(Qt::LeftDockWidgetArea, fileListDock);
-  connect(_fileList, &QListWidget::itemActivated,
-          [=]() { dApp->project()->switchFile(_fileList->currentRow()); });
+  connect(_fileList, &QListWidget::itemActivated, [=]() {
+    dApp->project()->switchFile(
+        _fileList->currentItem()->data(Qt::UserRole).toInt());
+  });
 
   QDockWidget *labelListDock = new QDockWidget("Labels", this);
   labelListDock->setFeatures(labelListDock->features() &
@@ -76,12 +78,16 @@ void MainWindow::onProjectOpened() {
           &MainWindow::onLabelNameChanged);
 
   const auto &files = dApp->project()->files();
-  auto fileCount = files.size();
-  for (int i = 0; i < fileCount; i++) {
-    _fileList->addItem(QString("[%1] %2").arg(i, 3).arg(
-        QString::fromStdString(files[i]->getName())));
+  if (files.size() == 0) return;
+  for (const auto &file : files) {
+    auto fileItem = new QListWidgetItem(
+        QString("[%1] %2")
+            .arg(file.first, 3)
+            .arg(QString::fromStdString(file.second->getName())));
+    fileItem->setData(Qt::UserRole, QVariant(file.first));
+    _fileList->addItem(fileItem);
   }
-  dApp->project()->switchFile(0);
+  dApp->project()->switchFile(files.begin()->first);
 }
 
 void MainWindow::onProjectClosed() {

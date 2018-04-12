@@ -20,6 +20,8 @@ Project::Project(const QString& dbPath, const QString& scriptFolder,
   QDirIterator it(scriptFolder, QStringList() << "*.scx",
                   QDir::Files | QDir::Readable);
 
+  int fileId = 0;
+
   _db.transaction();
 
   while (it.hasNext()) {
@@ -32,7 +34,7 @@ Project::Project(const QString& dbPath, const QString& scriptFolder,
     uint8_t* data = (uint8_t*)malloc(length);
     file.read((char*)data, length);
     file.close();
-    insertFile(it.fileName(), data, length);
+    insertFile(it.fileName(), data, length, fileId++);
   }
 
   for (int globalVar = 0; globalVar < 8000; globalVar++) {
@@ -63,12 +65,12 @@ Project::~Project() {
 }
 
 const SCXFile* Project::currentFile() const {
-  if (_currentFileId < 0 || _currentFileId >= _files.size()) return nullptr;
-  return _files[_currentFileId].get();
+  if (_currentFileId < 0 || _files.count(_currentFileId) == 0) return nullptr;
+  return _files.at(_currentFileId).get();
 }
 
 void Project::switchFile(int id) {
-  if (id >= 0 && id < _files.size() && _currentFileId != id) {
+  if (id >= 0 && _currentFileId != id && _files.count(id) > 0) {
     int previousId = _currentFileId;
     _currentFileId = id;
     emit fileSwitched(previousId);
@@ -109,8 +111,8 @@ void Project::setComment(int fileId, SCXOffset address,
 }
 
 QString Project::getLabelName(int fileId, int labelId) {
-  if (fileId < 0 || fileId >= _files.size()) return "";
-  const SCXFile* file = _files[fileId].get();
+  if (fileId < 0 || _files.count(fileId) == 0) return "";
+  const SCXFile* file = _files.at(fileId).get();
   if (labelId < 0 || labelId >= file->disassembly().size()) return "";
   _getLabelNameQuery.addBindValue(fileId);
   _getLabelNameQuery.addBindValue(labelId);
@@ -239,13 +241,12 @@ void Project::loadFilesFromDb() {
     CCDisassembler dis(*scxFile);
     dis.DisassembleFile();
 
-    _files.push_back(std::move(scxFile));
+    _files[id] = std::move(scxFile);
   }
 }
 
-void Project::insertFile(const QString& name, uint8_t* data, int size) {
+void Project::insertFile(const QString& name, uint8_t* data, int size, int id) {
   QVariant vdata(QByteArray::fromRawData((char*)data, size));
-  int id = _files.size();
 
   std::unique_ptr<SCXFile> scxFile =
       std::unique_ptr<SCXFile>(new SCXFile(data, size, name.toStdString(), id));
@@ -254,7 +255,7 @@ void Project::insertFile(const QString& name, uint8_t* data, int size) {
 
   analyzeFile(scxFile.get());
 
-  _files.push_back(std::move(scxFile));
+  _files[id] = std::move(scxFile);
 
   _insertFileQuery.addBindValue(id);
   _insertFileQuery.addBindValue(name.toUtf8());
