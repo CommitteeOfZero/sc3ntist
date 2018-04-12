@@ -8,7 +8,7 @@ class MemoryModel : public QAbstractTableModel {
   Q_OBJECT
 
  public:
-  enum class ColumnType { VarType, Name, NumColumns };
+  enum class ColumnType { VarType, Name, Comment, NumColumns };
 
   explicit MemoryModel(QObject *parent = 0);
 
@@ -26,6 +26,6 @@ class MemoryModel : public QAbstractTableModel {
   std::pair<VariableRefType, int> varForIndex(const QModelIndex &index) const;
 
  private slots:
-  void onVarNameChanged(VariableRefType type, int var, const QString &name);
-  void onAllVarNamesChanged();
+  void onVarTextChanged(VariableRefType type, int var, const QString &text);
+  void onAllVarsChanged();
 };

@@ -172,6 +172,34 @@ void Project::setVarName(const QString& name, VariableRefType type, int var) {
   }
 }
 
+QString Project::getVarComment(VariableRefType type, int var) {
+  QVariant vtype;
+  vtype.setValue(type);
+  _getVarCommentQuery.addBindValue(vtype);
+  _getVarCommentQuery.addBindValue(var);
+  _getVarCommentQuery.exec();
+  _getVarCommentQuery.next();
+
+  QString result;
+  if (_getVarCommentQuery.isValid()) {
+    result = QString::fromUtf8(_getVarCommentQuery.value(0).toByteArray());
+  }
+  return result;
+}
+void Project::setVarComment(const QString& comment, VariableRefType type,
+                            int var) {
+  _setVarCommentQuery.addBindValue(comment.toUtf8());
+  QVariant vtype;
+  vtype.setValue(type);
+  _setVarCommentQuery.addBindValue(vtype);
+  _setVarCommentQuery.addBindValue(var);
+  _setVarCommentQuery.exec();
+
+  if (!_batchUpdatingVars) {
+    emit varCommentChanged(type, var, comment);
+  }
+}
+
 void Project::analyzeFile(const SCXFile* file) {
   int fileId = file->getId();
 
@@ -311,27 +339,37 @@ void Project::importWorklist(const QString& path, const char* encoding) {
   QChar c;
   while (!in.atEnd()) {
     in >> name;
+    bool settingVar;
     if (name.startsWith(":flag")) {
       currentType = VariableRefType::Flag;
+      settingVar = false;
     } else if (name.startsWith(":work")) {
       currentType = VariableRefType::GlobalVar;
+      settingVar = false;
     } else {
       in >> var;
       setVarName(name, currentType, var);
+      settingVar = true;
     }
     in.skipWhiteSpace();
-    // skip comment if present
+    // read comment if present
     qint64 pos = in.pos();
     in >> c;
     if (c == QChar('/')) {
-      in.readLine();
+      if (settingVar) {
+        in >> c;
+        QString comment = in.readLine();
+        setVarComment(comment, currentType, var);
+      } else {
+        in.readLine();
+      }
     } else {
       in.seek(pos);
     }
   }
   _db.commit();
   _batchUpdatingVars = false;
-  emit allVarNamesChanged();
+  emit allVarsChanged();
 }
 
 void Project::openDatabase(const QString& path) {
@@ -371,6 +409,7 @@ void Project::createDatabase(const QString& path) {
       "variableType INTEGER NOT NULL,"
       "variable INTEGER NOT NULL,"
       "name TEXT NOT NULL,"
+      "comment TEXT NULL,"
       "PRIMARY KEY (variableType, variable)"
       ")");
   q.exec(
@@ -417,12 +456,19 @@ void Project::prepareStmts() {
   _getVarNameQuery = QSqlQuery(_db);
   _getVarNameQuery.prepare(
       "SELECT name FROM variables WHERE variableType = ? AND variable = ?");
+  _getVarCommentQuery = QSqlQuery(_db);
+  _getVarCommentQuery.prepare(
+      "SELECT comment FROM variables WHERE variableType = ? AND variable = ?");
   _insertVariableQuery = QSqlQuery(_db);
   _insertVariableQuery.prepare(
       "INSERT INTO variables (variableType, variable, name) VALUES (?, ?, ?)");
   _setVarNameQuery = QSqlQuery(_db);
   _setVarNameQuery.prepare(
       "UPDATE variables SET name = ? WHERE variableType = ? AND variable = ?");
+  _setVarCommentQuery = QSqlQuery(_db);
+  _setVarCommentQuery.prepare(
+      "UPDATE variables SET comment = ? WHERE variableType = ? AND variable = "
+      "?");
   _getVariableRefsQuery = QSqlQuery(_db);
   _getVariableRefsQuery.prepare(
       "SELECT fileId, address FROM variableRefs WHERE variableType = ? AND "

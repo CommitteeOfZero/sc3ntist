@@ -4,9 +4,11 @@
 
 MemoryModel::MemoryModel(QObject *parent) : QAbstractTableModel(parent) {
   connect(dApp->project(), &Project::varNameChanged, this,
-          &MemoryModel::onVarNameChanged);
-  connect(dApp->project(), &Project::allVarNamesChanged, this,
-          &MemoryModel::onAllVarNamesChanged);
+          &MemoryModel::onVarTextChanged);
+  connect(dApp->project(), &Project::varCommentChanged, this,
+          &MemoryModel::onVarTextChanged);
+  connect(dApp->project(), &Project::allVarsChanged, this,
+          &MemoryModel::onAllVarsChanged);
 }
 
 int MemoryModel::columnCount(const QModelIndex &parent) const {
@@ -25,6 +27,8 @@ QVariant MemoryModel::headerData(int section, Qt::Orientation orientation,
       return QVariant("Type");
     case ColumnType::Name:
       return QVariant("Name");
+    case ColumnType::Comment:
+      return QVariant("Comment");
     default:
       return QVariant();
   }
@@ -33,7 +37,8 @@ QVariant MemoryModel::headerData(int section, Qt::Orientation orientation,
 Qt::ItemFlags MemoryModel::flags(const QModelIndex &index) const {
   auto origFlags = QAbstractTableModel::flags(index);
   if (!index.isValid()) return origFlags;
-  if ((ColumnType)index.column() == ColumnType::Name)
+  if ((ColumnType)index.column() == ColumnType::Name ||
+      (ColumnType)index.column() == ColumnType::Comment)
     return origFlags | Qt::ItemIsEditable;
   return origFlags;
 }
@@ -41,11 +46,16 @@ Qt::ItemFlags MemoryModel::flags(const QModelIndex &index) const {
 bool MemoryModel::setData(const QModelIndex &index, const QVariant &value,
                           int role) {
   if (index.isValid() && role == Qt::EditRole &&
-      (ColumnType)index.column() == ColumnType::Name) {
+          ((ColumnType)index.column() == ColumnType::Name) ||
+      (ColumnType)index.column() == ColumnType::Comment) {
     VariableRefType type;
     int var;
     std::tie(type, var) = varForIndex(index);
-    dApp->project()->setVarName(value.toString(), type, var);
+    if ((ColumnType)index.column() == ColumnType::Name) {
+      dApp->project()->setVarName(value.toString(), type, var);
+    } else {
+      dApp->project()->setVarComment(value.toString(), type, var);
+    }
     return true;
   }
   return false;
@@ -76,6 +86,9 @@ QVariant MemoryModel::data(const QModelIndex &index, int role) const {
       return QVariant(name);
       break;
     }
+    case ColumnType::Comment: {
+      return QVariant(dApp->project()->getVarComment(varType, var));
+    }
     default:
       return QVariant();
   }
@@ -97,8 +110,8 @@ std::pair<VariableRefType, int> MemoryModel::varForIndex(
     return std::make_pair(VariableRefType::Flag, index.row() - 8000);
 }
 
-void MemoryModel::onVarNameChanged(VariableRefType type, int var,
-                                   const QString &name) {
+void MemoryModel::onVarTextChanged(VariableRefType type, int var,
+                                   const QString &text) {
   QModelIndex origIndex = indexForVar(type, var);
   QModelIndex endIndex =
       createIndex(origIndex.row(), (int)ColumnType::NumColumns - 1,
@@ -106,7 +119,7 @@ void MemoryModel::onVarNameChanged(VariableRefType type, int var,
   emit dataChanged(origIndex, endIndex);
 }
 
-void MemoryModel::onAllVarNamesChanged() {
+void MemoryModel::onAllVarsChanged() {
   beginResetModel();
   endResetModel();
 }

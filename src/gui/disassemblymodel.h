@@ -44,7 +44,7 @@ class DisassemblyModel : public QAbstractItemModel {
   void onCommentChanged(int fileId, SCXOffset address, const QString& text);
   void onLabelNameChanged(int fileId, int labelId, const QString& name);
   void onVarNameChanged(VariableRefType type, int var, const QString& name);
-  void onAllVarNamesChanged();
+  void onAllVarsChanged();
 
  private:
   const SCXFile* _script;

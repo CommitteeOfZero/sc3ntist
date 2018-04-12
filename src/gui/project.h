@@ -37,6 +37,9 @@ class Project : public QObject {
   QString getVarName(VariableRefType type, int var);
   void setVarName(const QString& name, VariableRefType type, int var);
 
+  QString getVarComment(VariableRefType type, int var);
+  void setVarComment(const QString& comment, VariableRefType type, int var);
+
   std::vector<QString> getVariableNames(VariableRefType type, int var);
   std::vector<std::pair<int, SCXOffset>> getVariableRefs(VariableRefType type,
                                                          int var);
@@ -51,7 +54,8 @@ class Project : public QObject {
   void commentChanged(int fileId, SCXOffset address, const QString& comment);
   void labelNameChanged(int fileId, int labelId, const QString& name);
   void varNameChanged(VariableRefType type, int var, const QString& name);
-  void allVarNamesChanged();
+  void varCommentChanged(VariableRefType type, int var, const QString& comment);
+  void allVarsChanged();
 
  private:
   QSqlDatabase _db;
@@ -82,8 +86,10 @@ class Project : public QObject {
   QSqlQuery _insertFileQuery;
   QSqlQuery _getAllVarNamesQuery;
   QSqlQuery _getVarNameQuery;
+  QSqlQuery _getVarCommentQuery;
   QSqlQuery _insertVariableQuery;
   QSqlQuery _setVarNameQuery;
+  QSqlQuery _setVarCommentQuery;
   QSqlQuery _getVariableRefsQuery;
   QSqlQuery _insertVariableRefQuery;
   QSqlQuery _getLabelRefsQuery;

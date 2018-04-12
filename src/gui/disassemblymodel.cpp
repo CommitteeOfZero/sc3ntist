@@ -19,8 +19,8 @@ DisassemblyModel::DisassemblyModel(const SCXFile *script, QObject *parent)
           &DisassemblyModel::onLabelNameChanged);
   connect(dApp->project(), &Project::varNameChanged, this,
           &DisassemblyModel::onVarNameChanged);
-  connect(dApp->project(), &Project::allVarNamesChanged, this,
-          &DisassemblyModel::onAllVarNamesChanged);
+  connect(dApp->project(), &Project::allVarsChanged, this,
+          &DisassemblyModel::onAllVarsChanged);
 }
 
 void DisassemblyModel::reload() {
@@ -263,7 +263,7 @@ void DisassemblyModel::onVarNameChanged(VariableRefType type, int var,
   beginResetModel();
   endResetModel();
 }
-void DisassemblyModel::onAllVarNamesChanged() {
+void DisassemblyModel::onAllVarsChanged() {
   beginResetModel();
   endResetModel();
 }
