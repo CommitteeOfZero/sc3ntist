@@ -125,22 +125,14 @@ class SC3Expression {
   const SC3ExpressionNode *simplified() const { return _simplified.get(); }
 
  private:
-  struct Term {
-    SC3ExpressionNode *node;
-    uint8_t *end;
-  };
-
   std::unique_ptr<SC3ExpressionNode> _root;
   std::unique_ptr<SC3ExpressionNode> _simplified;
   int _rawLength;
 
   uint8_t *_cursor;
-  SC3ExpressionNode *ParseSubExpression(int minPrec);
-  SC3ExpressionNode *_ParseTerm();
-  SC3ExpressionToken PeekExpressionToken();
-  void EatExpressionToken(const SC3ExpressionToken &token);
-  SC3ExpressionToken NextExpressionToken();
-
-  Term parseTerm(uint8_t *start, uint8_t *end);
-  std::vector<uint8_t *> _eaten;
+  SC3ExpressionNode *parseSubExpression(int minPrec);
+  SC3ExpressionNode *parseTerm();
+  SC3ExpressionToken peekExpressionToken();
+  void eatExpressionToken(const SC3ExpressionToken &token);
+  SC3ExpressionToken nextExpressionToken();
 };
