@@ -62,11 +62,20 @@ enum SC3ExpressionTokenType {
   FuncRandom = 0x33
 };
 
+enum SC3ExpressionTokenOperandsType {
+  Binary,
+  PostfixUnary,
+  PrefixUnary,
+  TwoArgFunc,
+  None
+};
+
 struct OpInfo {
   const std::string str;
   int precedence;
   bool rightAssociative;
   bool constAllowed;
+  SC3ExpressionTokenOperandsType operands;
 };
 
 struct tokenTypeHash {
@@ -78,16 +87,11 @@ struct tokenTypeHash {
 extern const std::unordered_map<SC3ExpressionTokenType, OpInfo, tokenTypeHash>
     OperatorInfos;
 
-class SC3ExpressionToken {
- public:
-  SC3ExpressionToken(SC3ExpressionTokenType type, int value)
-      : _type(type), _value(value){};
-  SC3ExpressionTokenType type() const { return _type; }
-  int value() const { return _value; }
-
- private:
-  const SC3ExpressionTokenType _type;
-  const int _value;
+struct SC3ExpressionToken {
+  SC3ExpressionTokenType type;
+  int precedence;
+  int value;
+  int length;
 };
 
 class SC3ExpressionNode {
@@ -129,6 +133,14 @@ class SC3Expression {
   std::unique_ptr<SC3ExpressionNode> _root;
   std::unique_ptr<SC3ExpressionNode> _simplified;
   int _rawLength;
+
+  uint8_t *_cursor;
+  SC3ExpressionNode *ParseSubExpression(int minPrec);
+  SC3ExpressionNode *_ParseTerm();
+  SC3ExpressionToken PeekExpressionToken();
+  void EatExpressionToken(const SC3ExpressionToken &token);
+  SC3ExpressionToken NextExpressionToken();
+
   Term parseTerm(uint8_t *start, uint8_t *end);
   std::vector<uint8_t *> _eaten;
 };
