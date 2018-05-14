@@ -111,8 +111,40 @@ bool Project::importMpk(const QString& mpkPath,
 
 bool Project::importMlp(const QString& mlpPath,
                         std::vector<TmpFileData>& files) {
-  // TODO: .mlp support
-  return false;
+  QFile mlpFile(mlpPath);
+  if (!mlpFile.open(QIODevice::ReadOnly)) {
+    return false;
+  }
+  QTextStream in(&mlpFile);
+  in.setCodec("UTF-8");
+  while (!in.atEnd()) {
+    TmpFileData file;
+    QString line = in.readLine();
+    int splitter = line.lastIndexOf(QChar(','));
+    if (splitter < 0) {
+      for (auto& script : files) {
+        if (script.data != nullptr) free(script.data);
+      }
+      return false;
+    }
+    QString path =
+        QFileInfo(mlpPath).absolutePath() + "/" + line.left(splitter);
+    file.id = line.right(line.length() - (splitter + 1)).toInt();
+    QFileInfo fi(path);
+    file.name = fi.fileName();
+    file.size = fi.size();
+    QFile scriptFile(path);
+    if (!scriptFile.open(QIODevice::ReadOnly)) {
+      for (auto& script : files) {
+        if (script.data != nullptr) free(script.data);
+      }
+      return false;
+    }
+    file.data = (uint8_t*)malloc(file.size);
+    scriptFile.read((char*)file.data, file.size);
+    files.push_back(file);
+  }
+  return true;
 }
 
 const SCXFile* Project::currentFile() const {
