@@ -50,6 +50,9 @@ class Project : public QObject {
                                                          int var);
   std::vector<std::pair<int, SCXOffset>> getLabelRefs(int fileId, int labelId);
 
+  int getVariableId(VariableRefType type, const QString& name);
+  std::pair<VariableRefType, int> parseVarRefString(const QString& str);
+
   void importWorklist(const QString& path, const char* encoding);
 
  signals:
@@ -118,4 +121,5 @@ class Project : public QObject {
   QSqlQuery _insertStringQuery;
   QSqlQuery _getGameIdQuery;
   QSqlQuery _setGameIdQuery;
+  QSqlQuery _getVarByNameQuery;
 };

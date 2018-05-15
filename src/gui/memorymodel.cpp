@@ -95,7 +95,9 @@ QVariant MemoryModel::data(const QModelIndex &index, int role) const {
 }
 
 QModelIndex MemoryModel::indexForVar(VariableRefType type, int var) const {
-  if (var >= 8000) return QModelIndex();
+  if (var >= 8000 || var < 0 || (int)type < 0 ||
+      (int)type > (int)VariableRefType::Flag)
+    return QModelIndex();
   if (type == VariableRefType::GlobalVar)
     return createIndex(var, 0, nullptr);
   else

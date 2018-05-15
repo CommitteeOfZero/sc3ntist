@@ -5,6 +5,8 @@
 #include "xrefdialog.h"
 #include <QHeaderView>
 #include <QShortcut>
+#include <QInputDialog>
+#include <QLineEdit>
 
 MemoryView::MemoryView(QWidget* parent) : QTableView(parent) {
   connect(dApp, &DebuggerApplication::projectOpened, this,
@@ -72,4 +74,17 @@ void MemoryView::onXrefKeyPress() {
   XrefDialog(type, var, this).exec();
 }
 
-void MemoryView::onGoKeyPress() {}
+void MemoryView::onGoKeyPress() {
+  if (dApp->project() == nullptr) return;
+
+  bool ok;
+  QString refStr = QInputDialog::getText(
+      this, "Go to variable",
+      "Variable reference (e.g. GlobalVars[BG1NO] or Flags[1234])",
+      QLineEdit::Normal, QString(), &ok);
+  if (!ok) return;
+  VariableRefType type;
+  int id;
+  std::tie(type, id) = dApp->project()->parseVarRefString(refStr);
+  goToVar(type, id);
+}

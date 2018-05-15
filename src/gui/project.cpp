@@ -7,6 +7,7 @@
 #include <QDirIterator>
 #include <QStringList>
 #include <QTextStream>
+#include <QRegExp>
 #include <stdexcept>
 #include "analysis.h"
 
@@ -252,7 +253,13 @@ QString Project::getVarName(VariableRefType type, int var) {
   return result;
 }
 void Project::setVarName(const QString& name, VariableRefType type, int var) {
-  _setVarNameQuery.addBindValue(name.toUtf8());
+  QString outName = name;
+  int existingId = getVariableId(type, name);
+
+  if (existingId == var) return;
+  if (existingId >= 0) outName.append(QString("_%1").arg(var));
+
+  _setVarNameQuery.addBindValue(outName.toUtf8());
   QVariant vtype;
   vtype.setValue(type);
   _setVarNameQuery.addBindValue(vtype);
@@ -467,6 +474,40 @@ void Project::setGameId(int gameId) {
   _setGameIdQuery.exec();
 }
 
+int Project::getVariableId(VariableRefType type, const QString& name) {
+  QVariant vtype;
+  vtype.setValue(type);
+  _getVarByNameQuery.addBindValue(vtype);
+  _getVarByNameQuery.addBindValue(name.toUtf8());
+  _getVarByNameQuery.exec();
+  _getVarByNameQuery.next();
+
+  int result = -1;
+  if (_getVarByNameQuery.isValid()) {
+    result = _getVarByNameQuery.value(0).toInt();
+  }
+  return result;
+}
+std::pair<VariableRefType, int> Project::parseVarRefString(const QString& str) {
+  QRegExp regex("^(GlobalVars|Flags)\\[(.+)\\]$");
+
+  std::pair<VariableRefType, int> invalidResult =
+      std::make_pair((VariableRefType)-1, -1);
+
+  if (regex.indexIn(str) < 0) return invalidResult;
+  VariableRefType type = regex.cap(1) == "GlobalVars"
+                             ? VariableRefType::GlobalVar
+                             : VariableRefType::Flag;
+  QString name = regex.cap(2);
+  int id = getVariableId(type, name);
+  if (id < 0) {
+    bool ok;
+    id = name.toInt(&ok);
+    if (!ok || id >= 8000) return invalidResult;
+  }
+  return std::make_pair(type, id);
+}
+
 void Project::importWorklist(const QString& path, const char* encoding) {
   QFile inFile(path);
   if (!inFile.open(QFile::ReadOnly)) {
@@ -555,6 +596,7 @@ void Project::createDatabase(const QString& path) {
       "variable INTEGER NOT NULL,"
       "name TEXT NOT NULL,"
       "comment TEXT NULL,"
+      "UNIQUE (variableType, name),"
       "PRIMARY KEY (variableType, variable)"
       ")");
   q.exec(
@@ -654,4 +696,7 @@ void Project::prepareStmts() {
   _setGameIdQuery = QSqlQuery(_db);
   _setGameIdQuery.prepare(
       "REPLACE INTO keyValue (key, value) VALUES ('gameId', ?)");
+  _getVarByNameQuery = QSqlQuery(_db);
+  _getVarByNameQuery.prepare(
+      "SELECT variable FROM variables WHERE variableType = ? AND name = ?");
 }
