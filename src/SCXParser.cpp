@@ -9,6 +9,8 @@
 
 #include "parser/SC3Argument.h"
 #include "parser/CCDisassembler.h"
+#include "parser/SC3StringDecoder.h"
+#include "parser/CCCharset.h"
 #include "parser/SCXFile.h"
 #include "parser/SC3CodeBlock.h"
 
@@ -84,6 +86,18 @@ std::string SC3ArgumentToString(const SC3Argument &arg) {
   return "unrecognized";
 }
 
+std::string GetFirstSC3String(const std::vector<std::string> &stringTable,
+                              const SC3Instruction *inst) {
+  for (const auto &arg : inst->args()) {
+    if (arg.type == StringRef) {
+      if (arg.uint16_value < stringTable.size())
+        return "\t; " + stringTable[arg.uint16_value];
+      return "";
+    }
+  }
+  return "";
+}
+
 int main() {
   std::vector<std::pair<uint8_t *, std::streamsize>> files;
 
@@ -104,8 +118,12 @@ int main() {
     SCXFile scx(buf, size, p.path().filename().string(), fileId++);
     CCDisassembler dis(scx);
     dis.DisassembleFile();
+    SC3StringDecoder strdec(scx, CCCharset);
+    const std::vector<std::string> stringTable =
+        strdec.decodeStringTableToUtf8();
 
-    std::ofstream outFile(outPath, std::ios::out | std::ios::trunc);
+    std::ofstream outFile(outPath,
+                          std::ios::out | std::ios::trunc | std::ios::binary);
     int i = 0;
     for (const auto &label : scx.disassembly()) {
       outFile << "\n#label" << i << "_" << label->address() << ":\n";
@@ -127,6 +145,7 @@ int main() {
             if (i < argCount) outFile << ", ";
           }
           outFile << ")";
+          outFile << GetFirstSC3String(stringTable, inst.get());
         }
         outFile << "\n";
       }
