@@ -41,6 +41,9 @@ class Project : public QObject {
   QString getVarComment(VariableRefType type, int var);
   void setVarComment(const QString& comment, VariableRefType type, int var);
 
+  QString getString(int fileId, int stringId);
+  int getStringCount(int fileId);
+
   std::vector<QString> getVariableNames(VariableRefType type, int var);
   std::vector<std::pair<int, SCXOffset>> getVariableRefs(VariableRefType type,
                                                          int var);
@@ -87,6 +90,7 @@ class Project : public QObject {
   void insertVariableRef(int fileId, SCXOffset address, VariableRefType type,
                          int var);
   void insertLocalLabelRef(int fileId, SCXOffset address, int labelId);
+  void insertString(int fileId, int stringId, const std::string& string);
 
   QSqlQuery _getCommentQuery;
   QSqlQuery _setCommentQuery;
@@ -104,4 +108,6 @@ class Project : public QObject {
   QSqlQuery _insertVariableRefQuery;
   QSqlQuery _getLabelRefsQuery;
   QSqlQuery _insertLocalLabelRefQuery;
+  QSqlQuery _getStringQuery;
+  QSqlQuery _insertStringQuery;
 };

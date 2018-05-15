@@ -1,7 +1,9 @@
 #include "project.h"
-#include <parser/RNEDisassembler.h>
+#include <parser/CCDisassembler.h>
 #include <parser/SC3CodeBlock.h>
 #include <parser/SC3Instruction.h>
+#include <parser/SC3StringDecoder.h>
+#include <parser/CCCharset.h>
 #include <QFile>
 #include <QDirIterator>
 #include <QStringList>
@@ -285,6 +287,24 @@ void Project::setVarComment(const QString& comment, VariableRefType type,
   }
 }
 
+QString Project::getString(int fileId, int stringId) {
+  _getStringQuery.addBindValue(fileId);
+  _getStringQuery.addBindValue(stringId);
+  _getStringQuery.exec();
+  _getStringQuery.next();
+
+  QString result;
+  if (_getStringQuery.isValid()) {
+    result = QString::fromUtf8(_getStringQuery.value(0).toByteArray());
+  }
+  return result;
+}
+
+int Project::getStringCount(int fileId) {
+  if (_files.count(fileId) <= 0) return -1;
+  return _files[fileId]->getStringCount();
+}
+
 void Project::analyzeFile(const SCXFile* file) {
   int fileId = file->getId();
 
@@ -306,6 +326,14 @@ void Project::analyzeFile(const SCXFile* file) {
       }
     }
   }
+
+  SC3StringDecoder strdec(*file, CCCharset);
+  const std::vector<std::string> stringTable = strdec.decodeStringTableToUtf8();
+
+  int stringId = 0;
+  for (const auto& string : stringTable) {
+    insertString(file->getId(), stringId++, string);
+  }
 }
 
 void Project::loadFilesFromDb() {
@@ -321,7 +349,7 @@ void Project::loadFilesFromDb() {
 
     std::unique_ptr<SCXFile> scxFile =
         std::unique_ptr<SCXFile>(new SCXFile(data, bdata.size(), name, id));
-    RNEDisassembler dis(*scxFile);
+    CCDisassembler dis(*scxFile);
     dis.DisassembleFile();
 
     _files[id] = std::move(scxFile);
@@ -333,7 +361,7 @@ void Project::insertFile(const QString& name, uint8_t* data, int size, int id) {
 
   std::unique_ptr<SCXFile> scxFile =
       std::unique_ptr<SCXFile>(new SCXFile(data, size, name.toStdString(), id));
-  RNEDisassembler dis(*scxFile);
+  CCDisassembler dis(*scxFile);
   dis.DisassembleFile();
 
   analyzeFile(scxFile.get());
@@ -404,6 +432,16 @@ void Project::insertLocalLabelRef(int fileId, SCXOffset address, int labelId) {
   _insertLocalLabelRefQuery.addBindValue(address);
   _insertLocalLabelRefQuery.addBindValue(labelId);
   _insertLocalLabelRefQuery.exec();
+}
+
+void Project::insertString(int fileId, int stringId,
+                           const std::string& string) {
+  _insertStringQuery.addBindValue(fileId);
+  _insertStringQuery.addBindValue(stringId);
+  QByteArray ba = QByteArray::fromStdString(string);
+  QVariant v(ba);
+  _insertStringQuery.addBindValue(v);
+  _insertStringQuery.exec();
 }
 
 void Project::importWorklist(const QString& path, const char* encoding) {
@@ -511,6 +549,13 @@ void Project::createDatabase(const QString& path) {
       "address INTEGER NOT NULL,"
       "labelId INTEGER NOT NULL"
       ")");
+  q.exec(
+      "CREATE TABLE strings("
+      "fileId INTEGER NOT NULL,"
+      "stringId INTEGER NOT NULL,"
+      "text TEXT NOT NULL,"
+      "PRIMARY KEY (fileId, stringId)"
+      ")");
   prepareStmts();
 }
 
@@ -569,4 +614,11 @@ void Project::prepareStmts() {
   _insertLocalLabelRefQuery = QSqlQuery(_db);
   _insertLocalLabelRefQuery.prepare(
       "INSERT INTO localLabelRefs (fileId, address, labelId) VALUES (?, ?, ?)");
+  _getStringQuery = QSqlQuery(_db);
+  _getStringQuery.prepare(
+      "SELECT text FROM strings WHERE fileId = ? AND stringId "
+      "= ?");
+  _insertStringQuery = QSqlQuery(_db);
+  _insertStringQuery.prepare(
+      "INSERT INTO strings (fileId, stringId, text) VALUES (?, ?, ?)");
 }

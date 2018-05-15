@@ -3,9 +3,12 @@
     font-size: 10pt;
 }
 
+/* TODO: Header section handles */
+
 DisassemblyView,
 DisassemblyView>QHeaderView::section {
     background-color: rgb(2, 4, 6);
+    color: rgb(118, 159, 200);
     /* focus rectangle */
     outline: none;
 }
@@ -39,8 +42,13 @@ DisassemblyView::item:selected {
 }
 
 .Inst__Unrecognized__,
-.comment {
+.comment,
+.string {
     color: rgb(62, 81, 91);
+}
+
+.string {
+    margin-left: 24px;
 }
 
 .instruction {

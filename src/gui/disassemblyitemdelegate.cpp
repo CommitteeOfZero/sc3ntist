@@ -52,6 +52,10 @@ QString DisassemblyItemDelegate::richTextFor(const QModelIndex& index) const {
         default: { break; }
       }
     }
+    case DisassemblyModel::ColumnType::Text: {
+      return "<div class='string'>" + index.data().toString().toHtmlEscaped() +
+             "</div>";
+    }
     default: { break; }
   }
   return QString();

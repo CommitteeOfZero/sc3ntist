@@ -1,5 +1,3 @@
-#pragma once
-
 #include "RNECharset.h"
 
 const std::vector<std::string> RNECharset{

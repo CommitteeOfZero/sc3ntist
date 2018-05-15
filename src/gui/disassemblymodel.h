@@ -9,13 +9,14 @@
 
 class SCXFile;
 class SC3CodeBlock;
+class SC3Instruction;
 struct DisassemblyRow;
 
 class DisassemblyModel : public QAbstractItemModel {
   Q_OBJECT
 
  public:
-  enum class ColumnType { Breakpoint, Address, Code, NumColumns };
+  enum class ColumnType { Breakpoint, Address, Code, Text, NumColumns };
   enum class RowType { Label, Instruction, Comment, Blank };
 
   explicit DisassemblyModel(const SCXFile* script, QObject* parent = 0);
@@ -51,6 +52,8 @@ class DisassemblyModel : public QAbstractItemModel {
   std::vector<DisassemblyRow> _labelRows;
 
   void reload();
+
+  QString firstStringInInstruction(const SC3Instruction* inst) const;
 };
 
 struct DisassemblyRow {

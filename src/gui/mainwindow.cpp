@@ -132,12 +132,12 @@ void MainWindow::onLabelNameChanged(int fileId, int labelId,
 }
 
 void MainWindow::on_actionOpen_triggered() {
-  if (QFile("C:/Users/drdax/Documents/sc3ntist_rne.sqlite").exists()) {
-    dApp->tryOpenProject("C:/Users/drdax/Documents/sc3ntist_rne.sqlite");
+  if (QFile("C:/Users/drdax/Documents/sc3ntist.sqlite").exists()) {
+    dApp->tryOpenProject("C:/Users/drdax/Documents/sc3ntist.sqlite");
   } else {
     dApp->tryCreateProject(
-        "C:/Users/drdax/Documents/sc3ntist_rne.sqlite",
-        "G:/Games/SGTL/PCSG00352-RobNotesElite/gamedata/script/script.mlp");
+        "C:/Users/drdax/Documents/sc3ntist.sqlite",
+        "G:/Games/SGTL/CHAOSCHILD/languagebarrier/enscript.mpk");
   }
 }
 

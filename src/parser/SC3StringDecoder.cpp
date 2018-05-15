@@ -1,4 +1,3 @@
-#pragma once
 #include "SC3StringDecoder.h"
 #include "SC3Expression.h"
 #include <exception>

@@ -1,5 +1,3 @@
-#pragma once
-
 #include "CCCharset.h"
 
 const std::vector<std::string> CCCharset{

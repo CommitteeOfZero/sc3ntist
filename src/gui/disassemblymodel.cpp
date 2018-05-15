@@ -146,6 +146,14 @@ QModelIndex DisassemblyModel::parent(const QModelIndex &index) const {
 QVariant DisassemblyModel::headerData(int section, Qt::Orientation orientation,
                                       int role) const {
   if (role != Qt::DisplayRole) return QVariant();
+  switch ((ColumnType)section) {
+    case ColumnType::Address:
+      return "Address";
+    case ColumnType::Code:
+      return "Code";
+    case ColumnType::Text:
+      return "Text";
+  }
   return QVariant();
 }
 
@@ -180,6 +188,12 @@ QVariant DisassemblyModel::data(const QModelIndex &index, int role) const {
         default: { return QVariant(); }
       }
     }
+    case ColumnType::Text: {
+      if (row->type != RowType::Instruction) return QVariant();
+      const SC3CodeBlock *label = labelForIndex(index);
+      const SC3Instruction *inst = label->instructions()[row->id].get();
+      return QVariant(firstStringInInstruction(inst));
+    }
     default: { return QVariant(); }
   }
 }
@@ -192,6 +206,19 @@ Qt::ItemFlags DisassemblyModel::flags(const QModelIndex &index) const {
   if (row == nullptr) return 0;
   if (row->children.size() == 0) result |= Qt::ItemFlag::ItemNeverHasChildren;
   return result;
+}
+
+QString DisassemblyModel::firstStringInInstruction(
+    const SC3Instruction *inst) const {
+  for (const auto &arg : inst->args()) {
+    if (arg.type == StringRef) {
+      if (arg.uint16_value < _script->getStringCount())
+        return "; " +
+               dApp->project()->getString(_script->getId(), arg.uint16_value);
+      return "";
+    }
+  }
+  return "";
 }
 
 void DisassemblyModel::onCommentChanged(int fileId, SCXOffset address,
