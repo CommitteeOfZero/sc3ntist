@@ -5,3 +5,9 @@ A (heavily) work-in-progress interactive disassembler/debugger (read: it doesn't
 Also includes *SCXParser*, which just outputs disassembly for all *.scx scripts in a directory.
 
 **Not currently supported.**
+
+### Warning
+
+This program does little to no bounds checking. **Do not run on untrusted data.**
+
+(and if you don't know what that means, this program probably isn't for you anyway)
