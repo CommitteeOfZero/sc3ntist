@@ -306,13 +306,12 @@ DECODER_PROC(Save) {
   DECODER_PROC_INIT();
   uint8_t arg = *data++;
   { args.push_back(SC3ArgumentFromByte("arg", arg)); }
-  if(arg == 40) {
+  if (arg == 40) {
     ADD_EXPRESSION_ARG("arg2");
     ADD_EXPRESSION_ARG("arg3");
     ADD_EXPRESSION_ARG("arg4");
     ADD_EXPRESSION_ARG("arg5");
-  }
-  else if(arg == 82) {
+  } else if (arg == 82) {
     ADD_EXPRESSION_ARG("arg2");
   }
   RETURN_INSTRUCTION("Save");
@@ -562,38 +561,38 @@ DECODER_PROC(PressStart) {
   DECODER_PROC_INIT();
   uint8_t type = *data++;
   switch (type) {
-  case 0:
-	  ADD_EXPRESSION_ARG("arg1");
-	  ADD_EXPRESSION_ARG("arg2");
-	  RETURN_INSTRUCTION("PressStart_0");
-	  break;
-  case 1:
-	  RETURN_INSTRUCTION("PressStart_1");
-	  break;
-  case 2:
-	  ADD_EXPRESSION_ARG("arg1");
-	  ADD_EXPRESSION_ARG("arg2");
-	  ADD_EXPRESSION_ARG("arg3");
-	  RETURN_INSTRUCTION("PressStart_2");
-	  break;
-  case 3:
-	  ADD_EXPRESSION_ARG("arg1");
-	  RETURN_INSTRUCTION("PressStart_3");
-	  break;
-  case 4:
-	  RETURN_INSTRUCTION("PressStart_4");
-	  break;
-  case 5:
-	  ADD_EXPRESSION_ARG("arg1");
-	  ADD_EXPRESSION_ARG("arg2");
-	  RETURN_INSTRUCTION("PressStart_5");
-	  break;
-  case 6:
-	  RETURN_INSTRUCTION("PressStart_6");
-	  break;
-  case 7:
-	  RETURN_INSTRUCTION("PressStart_7");
-	  break;
+    case 0:
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_EXPRESSION_ARG("arg2");
+      RETURN_INSTRUCTION("PressStart_0");
+      break;
+    case 1:
+      RETURN_INSTRUCTION("PressStart_1");
+      break;
+    case 2:
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_EXPRESSION_ARG("arg2");
+      ADD_EXPRESSION_ARG("arg3");
+      RETURN_INSTRUCTION("PressStart_2");
+      break;
+    case 3:
+      ADD_EXPRESSION_ARG("arg1");
+      RETURN_INSTRUCTION("PressStart_3");
+      break;
+    case 4:
+      RETURN_INSTRUCTION("PressStart_4");
+      break;
+    case 5:
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_EXPRESSION_ARG("arg2");
+      RETURN_INSTRUCTION("PressStart_5");
+      break;
+    case 6:
+      RETURN_INSTRUCTION("PressStart_6");
+      break;
+    case 7:
+      RETURN_INSTRUCTION("PressStart_7");
+      break;
   }
   RETURN_UNRECOGNIZED();
 }
@@ -637,7 +636,7 @@ DECODER_PROC(CreateSurf) {
   { args.push_back(SC3ArgumentFromByte("format", format)); }
   ADD_EXPRESSION_ARG("surfaceId");
   if (format == 10) {
-	  ADD_EXPRESSION_ARG("arg2");
+    ADD_EXPRESSION_ARG("arg2");
   }
   ADD_EXPRESSION_ARG("width");
   ADD_EXPRESSION_ARG("height");
@@ -753,10 +752,10 @@ DECODER_PROC(MesSync) {
   DECODER_PROC_INIT();
   uint8_t arg1 = *data++;
   { args.push_back(SC3ArgumentFromByte("arg1", arg1)); }
-  switch(arg1) {
+  switch (arg1) {
     case 10:
       ADD_EXPRESSION_ARG("arg2");
-	  break;
+      break;
   }
   RETURN_INSTRUCTION("MesSync");
 }
@@ -1004,7 +1003,7 @@ DECODER_PROC(MovieMain) {
     case 3:
       RETURN_INSTRUCTION("MovieMain_StopWaitForSomething");
       break;
-    default:   { args.push_back(SC3ArgumentFromByte("type", type)); }
+    default: { args.push_back(SC3ArgumentFromByte("type", type)); }
       RETURN_INSTRUCTION("MovieMain_Unk");
       break;
   }
@@ -1108,9 +1107,9 @@ DECODER_PROC(BGsetLink) {
 }
 
 DECODER_PROC(BGrelease) {
-	DECODER_PROC_INIT();
-	ADD_EXPRESSION_ARG("bufferId");
-	RETURN_INSTRUCTION("BGrelease");
+  DECODER_PROC_INIT();
+  ADD_EXPRESSION_ARG("bufferId");
+  RETURN_INSTRUCTION("BGrelease");
 }
 
 DECODER_PROC(BGcopy) {
@@ -1223,9 +1222,9 @@ DECODER_PROC(SoundMenu) {
     case 1:
       RETURN_INSTRUCTION("SoundMenu_MusicMain");
       break;
-	case 10:
-	  RETURN_INSTRUCTION("SoundMenu_ProfSetXboxEvent");
-	  break;
+    case 10:
+      RETURN_INSTRUCTION("SoundMenu_ProfSetXboxEvent");
+      break;
   }
   RETURN_UNRECOGNIZED();
 }
@@ -1242,9 +1241,9 @@ DECODER_PROC(Album) {
     case 1:
       RETURN_INSTRUCTION("Album_EXmenuMain");
       break;
-	case 10:
-	  RETURN_INSTRUCTION("Album_ProfSetXboxEvent");
-	  break;
+    case 10:
+      RETURN_INSTRUCTION("Album_ProfSetXboxEvent");
+      break;
   }
   RETURN_UNRECOGNIZED();
 }
@@ -1276,9 +1275,9 @@ DECODER_PROC(ClistInit) {
     case 3:
       RETURN_INSTRUCTION("ClistInit_Unused");
       break;
-	case 10:
-	  RETURN_INSTRUCTION("ClistInit_ProfSetXboxEvent");
-	  break;
+    case 10:
+      RETURN_INSTRUCTION("ClistInit_ProfSetXboxEvent");
+      break;
   }
   RETURN_UNRECOGNIZED();
 }
@@ -1303,7 +1302,7 @@ DECODER_PROC(AutoSave) {
       ADD_UINT16_ARG("checkpointId");
       RETURN_INSTRUCTION("AutoSave_SaveState");
       break;
-	case 2:
+    case 2:
     case 4:
       RETURN_INSTRUCTION("AutoSave_NotImplemented");
       break;
@@ -1325,21 +1324,21 @@ DECODER_PROC(SaveMenu) {
     case 2:
       RETURN_INSTRUCTION("SaveMenu_SaveResetThumnail");
       break;
-	case 10:
-	  RETURN_INSTRUCTION("SaveMenu_Unk10");
-	  break;
-	case 11:
-	  RETURN_INSTRUCTION("SaveMenu_Unk11");
-	  break;
-	case 12:
-	  RETURN_INSTRUCTION("SaveMenu_Unk12");
-	  break;
-	case 13:
-	  RETURN_INSTRUCTION("SaveMenu_Unk13");
-	  break;
-	case 20:
-	  RETURN_INSTRUCTION("SaveMenu_Unk20");
-	  break;
+    case 10:
+      RETURN_INSTRUCTION("SaveMenu_Unk10");
+      break;
+    case 11:
+      RETURN_INSTRUCTION("SaveMenu_Unk11");
+      break;
+    case 12:
+      RETURN_INSTRUCTION("SaveMenu_Unk12");
+      break;
+    case 13:
+      RETURN_INSTRUCTION("SaveMenu_Unk13");
+      break;
+    case 20:
+      RETURN_INSTRUCTION("SaveMenu_Unk20");
+      break;
   }
   RETURN_UNRECOGNIZED();
 }
@@ -1348,17 +1347,17 @@ DECODER_PROC(LoadData) {
   DECODER_PROC_INIT();
   uint8_t type = *data++;
   { args.push_back(SC3ArgumentFromByte("type", type)); }
-  switch(type) {
-	case 0:
-	case 10:
-	  ADD_EXPRESSION_ARG("arg1");
-	  RETURN_INSTRUCTION("LoadData");
-	  break;
-	case 1:
-	case 2:
-	case 11:
+  switch (type) {
+    case 0:
+    case 10:
+      ADD_EXPRESSION_ARG("arg1");
       RETURN_INSTRUCTION("LoadData");
-	  break;
+      break;
+    case 1:
+    case 2:
+    case 11:
+      RETURN_INSTRUCTION("LoadData");
+      break;
   }
   RETURN_UNRECOGNIZED();
 }
@@ -1413,8 +1412,8 @@ DECODER_PROC(BGeffectWave) {
   uint8_t type = *data++;
   switch (type) {
     case 0:
-	case 2:
-	  RETURN_INSTRUCTION("BGeffectWave_Unimplemented");
+    case 2:
+      RETURN_INSTRUCTION("BGeffectWave_Unimplemented");
       break;
     case 1:
       ADD_EXPRESSION_ARG("arg1");
@@ -1475,121 +1474,121 @@ DECODER_PROC(BGeffectWave) {
 }
 
 DECODER_PROC(Unk1031) {
-	DECODER_PROC_INIT();
-	uint8_t type = *data++;
-	switch (type) {
-	case 0:
-		ADD_LOCAL_LABEL_ARG("label1");
-		ADD_LOCAL_LABEL_ARG("label2");
-		RETURN_INSTRUCTION("Unk1031_00");
-		break;
-	case 1:
-		ADD_EXPRESSION_ARG("arg1");
-		ADD_EXPRESSION_ARG("arg2");
-		RETURN_INSTRUCTION("Unk1031_01");
-		break;
-	case 2:
-		ADD_EXPRESSION_ARG("arg1");
-		ADD_EXPRESSION_ARG("arg2");
-		RETURN_INSTRUCTION("Unk1031_02");
-		break;
-	case 3:
-		ADD_EXPRESSION_ARG("arg1");
-		ADD_LOCAL_LABEL_ARG("label1");
-		RETURN_INSTRUCTION("Unk1031_03");
-		break;
-	case 4:
-		ADD_EXPRESSION_ARG("arg1");
-		ADD_LOCAL_LABEL_ARG("label1");
-		RETURN_INSTRUCTION("Unk1031_04");
-		break;
-	case 5:
-		ADD_EXPRESSION_ARG("arg1");
-		ADD_LOCAL_LABEL_ARG("label1");
-		RETURN_INSTRUCTION("Unk1031_05");
-		break;
-	case 6:
-		ADD_EXPRESSION_ARG("arg1");
-		ADD_LOCAL_LABEL_ARG("label1");
-		RETURN_INSTRUCTION("Unk1031_06");
-		break;
-	case 7:
-		ADD_EXPRESSION_ARG("arg1");
-		ADD_EXPRESSION_ARG("arg2");
-		RETURN_INSTRUCTION("Unk1031_07");
-		break;
-	case 8:
-		ADD_EXPRESSION_ARG("arg1");
-		ADD_EXPRESSION_ARG("arg2");
-		RETURN_INSTRUCTION("Unk1031_08");
-		break;
-	case 9:
-		ADD_EXPRESSION_ARG("arg1");
-		ADD_EXPRESSION_ARG("arg2");
-		RETURN_INSTRUCTION("Unk1031_09");
-		break;
-	case 10:
-		RETURN_INSTRUCTION("Unk1031_10");
-		break;
-	case 11:
-		ADD_EXPRESSION_ARG("arg1");
-		ADD_EXPRESSION_ARG("arg2");
-		ADD_EXPRESSION_ARG("arg3");
-		ADD_EXPRESSION_ARG("arg4");
-		ADD_EXPRESSION_ARG("arg5");
-		RETURN_INSTRUCTION("Unk1031_11");
-		break;
-	case 12:
-		RETURN_INSTRUCTION("Unk1031_12");
-		break;
-	case 13:
-		ADD_EXPRESSION_ARG("arg1");
-		RETURN_INSTRUCTION("Unk1031_13");
-		break;
-	case 14:
-		ADD_EXPRESSION_ARG("arg1");
-		ADD_EXPRESSION_ARG("arg2");
-		RETURN_INSTRUCTION("Unk1031_14");
-		break;
-	case 15:
-		ADD_EXPRESSION_ARG("arg1");
-		ADD_EXPRESSION_ARG("arg2");
-		ADD_EXPRESSION_ARG("arg3");
-		ADD_EXPRESSION_ARG("arg4");
-		RETURN_INSTRUCTION("Unk1031_15");
-		break;
-	case 20:
-		ADD_EXPRESSION_ARG("arg1");
-		ADD_EXPRESSION_ARG("arg2");
-		ADD_EXPRESSION_ARG("arg3");
-		ADD_EXPRESSION_ARG("arg4");
-		ADD_EXPRESSION_ARG("arg5");
-		ADD_EXPRESSION_ARG("arg6");
-		ADD_EXPRESSION_ARG("arg7");
-		ADD_EXPRESSION_ARG("arg8");
-		ADD_EXPRESSION_ARG("arg9");
-		ADD_EXPRESSION_ARG("arg10");
-		ADD_EXPRESSION_ARG("arg11");
-		ADD_EXPRESSION_ARG("arg12");
-		RETURN_INSTRUCTION("Unk1031_20");
-		break;
-	case 21:
-		ADD_EXPRESSION_ARG("arg1");
-		ADD_EXPRESSION_ARG("arg2");
-		ADD_EXPRESSION_ARG("arg3");
-		RETURN_INSTRUCTION("Unk1031_21");
-		break;
-	case 22:
-		RETURN_INSTRUCTION("Unk1031_22");
-		break;
-	}
-	RETURN_INSTRUCTION("Unk1031");
+  DECODER_PROC_INIT();
+  uint8_t type = *data++;
+  switch (type) {
+    case 0:
+      ADD_LOCAL_LABEL_ARG("label1");
+      ADD_LOCAL_LABEL_ARG("label2");
+      RETURN_INSTRUCTION("Unk1031_00");
+      break;
+    case 1:
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_EXPRESSION_ARG("arg2");
+      RETURN_INSTRUCTION("Unk1031_01");
+      break;
+    case 2:
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_EXPRESSION_ARG("arg2");
+      RETURN_INSTRUCTION("Unk1031_02");
+      break;
+    case 3:
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_LOCAL_LABEL_ARG("label1");
+      RETURN_INSTRUCTION("Unk1031_03");
+      break;
+    case 4:
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_LOCAL_LABEL_ARG("label1");
+      RETURN_INSTRUCTION("Unk1031_04");
+      break;
+    case 5:
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_LOCAL_LABEL_ARG("label1");
+      RETURN_INSTRUCTION("Unk1031_05");
+      break;
+    case 6:
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_LOCAL_LABEL_ARG("label1");
+      RETURN_INSTRUCTION("Unk1031_06");
+      break;
+    case 7:
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_EXPRESSION_ARG("arg2");
+      RETURN_INSTRUCTION("Unk1031_07");
+      break;
+    case 8:
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_EXPRESSION_ARG("arg2");
+      RETURN_INSTRUCTION("Unk1031_08");
+      break;
+    case 9:
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_EXPRESSION_ARG("arg2");
+      RETURN_INSTRUCTION("Unk1031_09");
+      break;
+    case 10:
+      RETURN_INSTRUCTION("Unk1031_10");
+      break;
+    case 11:
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_EXPRESSION_ARG("arg2");
+      ADD_EXPRESSION_ARG("arg3");
+      ADD_EXPRESSION_ARG("arg4");
+      ADD_EXPRESSION_ARG("arg5");
+      RETURN_INSTRUCTION("Unk1031_11");
+      break;
+    case 12:
+      RETURN_INSTRUCTION("Unk1031_12");
+      break;
+    case 13:
+      ADD_EXPRESSION_ARG("arg1");
+      RETURN_INSTRUCTION("Unk1031_13");
+      break;
+    case 14:
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_EXPRESSION_ARG("arg2");
+      RETURN_INSTRUCTION("Unk1031_14");
+      break;
+    case 15:
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_EXPRESSION_ARG("arg2");
+      ADD_EXPRESSION_ARG("arg3");
+      ADD_EXPRESSION_ARG("arg4");
+      RETURN_INSTRUCTION("Unk1031_15");
+      break;
+    case 20:
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_EXPRESSION_ARG("arg2");
+      ADD_EXPRESSION_ARG("arg3");
+      ADD_EXPRESSION_ARG("arg4");
+      ADD_EXPRESSION_ARG("arg5");
+      ADD_EXPRESSION_ARG("arg6");
+      ADD_EXPRESSION_ARG("arg7");
+      ADD_EXPRESSION_ARG("arg8");
+      ADD_EXPRESSION_ARG("arg9");
+      ADD_EXPRESSION_ARG("arg10");
+      ADD_EXPRESSION_ARG("arg11");
+      ADD_EXPRESSION_ARG("arg12");
+      RETURN_INSTRUCTION("Unk1031_20");
+      break;
+    case 21:
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_EXPRESSION_ARG("arg2");
+      ADD_EXPRESSION_ARG("arg3");
+      RETURN_INSTRUCTION("Unk1031_21");
+      break;
+    case 22:
+      RETURN_INSTRUCTION("Unk1031_22");
+      break;
+  }
+  RETURN_INSTRUCTION("Unk1031");
 }
 
 DECODER_PROC(NameID) {
   DECODER_PROC_INIT();
   uint8_t type = *data++;
-  switch(type) {
+  switch (type) {
     case 0:
       RETURN_INSTRUCTION("NameID_00");
       break;
@@ -1624,9 +1623,9 @@ DECODER_PROC(Tips) {
     case 4:
       RETURN_INSTRUCTION("TipsSet");
       break;
-	case 10:
-	  RETURN_INSTRUCTION("Tips_ProfSetXboxEvent");
-	  break;
+    case 10:
+      RETURN_INSTRUCTION("Tips_ProfSetXboxEvent");
+      break;
   }
   RETURN_UNRECOGNIZED();
 }
@@ -1655,421 +1654,420 @@ DECODER_PROC(BGeffect) {
 }
 
 DECODER_PROC(Unk1037) {
-	DECODER_PROC_INIT();
-	ADD_EXPRESSION_ARG("arg1");
-	ADD_EXPRESSION_ARG("arg2");
-	ADD_EXPRESSION_ARG("arg3");
-	RETURN_INSTRUCTION("Unk1037");
+  DECODER_PROC_INIT();
+  ADD_EXPRESSION_ARG("arg1");
+  ADD_EXPRESSION_ARG("arg2");
+  ADD_EXPRESSION_ARG("arg3");
+  RETURN_INSTRUCTION("Unk1037");
 }
 
 DECODER_PROC(Unk1038) {
-	DECODER_PROC_INIT();
-	uint8_t type = *data++;
-	switch (type) {
-	case 0:
-		RETURN_INSTRUCTION("Unk1038_00");
-		break;
-	case 1:
-		RETURN_INSTRUCTION("Unk1038_01");
-		break;
-	case 2:
-		RETURN_INSTRUCTION("Unk1038_02");
-		break;
-	case 3:
-		ADD_LOCAL_LABEL_ARG("label1");
-		ADD_LOCAL_LABEL_ARG("label2");
-		ADD_LOCAL_LABEL_ARG("label3");
-		ADD_LOCAL_LABEL_ARG("label4");
-		ADD_LOCAL_LABEL_ARG("label5");
-		RETURN_INSTRUCTION("Unk1038_03");
-		break;
-	case 20:
-		RETURN_INSTRUCTION("Unk1038_20");
-		break;
-	case 21:
-		ADD_EXPRESSION_ARG("arg1");
-		ADD_EXPRESSION_ARG("arg2");
-		ADD_EXPRESSION_ARG("arg3");
-		ADD_EXPRESSION_ARG("arg4");
-		RETURN_INSTRUCTION("Unk1038_21");
-		break;
-	case 22:
-		ADD_EXPRESSION_ARG("arg1");
-		ADD_EXPRESSION_ARG("arg2");
-		ADD_EXPRESSION_ARG("arg3");
-		ADD_EXPRESSION_ARG("arg4");
-		RETURN_INSTRUCTION("Unk1038_22");
-		break;
-	case 40:
-		RETURN_INSTRUCTION("Unk1038_40");
-		break;
-	case 50:
-		RETURN_INSTRUCTION("Unk1038_50");
-		break;
-	case 51:
-		RETURN_INSTRUCTION("Unk1038_51");
-		break;
-	case 60:
-		RETURN_INSTRUCTION("Unk1038_60");
-		break;
-	case 61:
-		ADD_EXPRESSION_ARG("arg1");
-		RETURN_INSTRUCTION("Unk1038_61");
-		break;
-	case 70:
-		RETURN_INSTRUCTION("Unk1038_70");
-		break;
-	case 71:
-		ADD_BYTE_ARG("arg1");
-		RETURN_INSTRUCTION("Unk1038_71");
-		break;
-	case 72:
-		ADD_BYTE_ARG("arg1");
-		RETURN_INSTRUCTION("Unk1038_72");
-		break;
-	case 73:
-		RETURN_INSTRUCTION("Unk1038_73");
-		break;
-	case 74:
-		RETURN_INSTRUCTION("Unk1038_74");
-		break;
-	}
-	RETURN_UNRECOGNIZED();
+  DECODER_PROC_INIT();
+  uint8_t type = *data++;
+  switch (type) {
+    case 0:
+      RETURN_INSTRUCTION("Unk1038_00");
+      break;
+    case 1:
+      RETURN_INSTRUCTION("Unk1038_01");
+      break;
+    case 2:
+      RETURN_INSTRUCTION("Unk1038_02");
+      break;
+    case 3:
+      ADD_LOCAL_LABEL_ARG("label1");
+      ADD_LOCAL_LABEL_ARG("label2");
+      ADD_LOCAL_LABEL_ARG("label3");
+      ADD_LOCAL_LABEL_ARG("label4");
+      ADD_LOCAL_LABEL_ARG("label5");
+      RETURN_INSTRUCTION("Unk1038_03");
+      break;
+    case 20:
+      RETURN_INSTRUCTION("Unk1038_20");
+      break;
+    case 21:
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_EXPRESSION_ARG("arg2");
+      ADD_EXPRESSION_ARG("arg3");
+      ADD_EXPRESSION_ARG("arg4");
+      RETURN_INSTRUCTION("Unk1038_21");
+      break;
+    case 22:
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_EXPRESSION_ARG("arg2");
+      ADD_EXPRESSION_ARG("arg3");
+      ADD_EXPRESSION_ARG("arg4");
+      RETURN_INSTRUCTION("Unk1038_22");
+      break;
+    case 40:
+      RETURN_INSTRUCTION("Unk1038_40");
+      break;
+    case 50:
+      RETURN_INSTRUCTION("Unk1038_50");
+      break;
+    case 51:
+      RETURN_INSTRUCTION("Unk1038_51");
+      break;
+    case 60:
+      RETURN_INSTRUCTION("Unk1038_60");
+      break;
+    case 61:
+      ADD_EXPRESSION_ARG("arg1");
+      RETURN_INSTRUCTION("Unk1038_61");
+      break;
+    case 70:
+      RETURN_INSTRUCTION("Unk1038_70");
+      break;
+    case 71:
+      ADD_BYTE_ARG("arg1");
+      RETURN_INSTRUCTION("Unk1038_71");
+      break;
+    case 72:
+      ADD_BYTE_ARG("arg1");
+      RETURN_INSTRUCTION("Unk1038_72");
+      break;
+    case 73:
+      RETURN_INSTRUCTION("Unk1038_73");
+      break;
+    case 74:
+      RETURN_INSTRUCTION("Unk1038_74");
+      break;
+  }
+  RETURN_UNRECOGNIZED();
 }
 
 DECODER_PROC(Unk1039) {
-	DECODER_PROC_INIT();
-	uint8_t type = *data++;
-	switch (type) {
-	case 0:
-		ADD_LOCAL_LABEL_ARG("label1");
-		ADD_LOCAL_LABEL_ARG("label2");
-		RETURN_INSTRUCTION("Unk1039_00");
-		break;
-	case 1:
-		RETURN_INSTRUCTION("Unk1039_01");
-		break;
-	case 2:
-		ADD_EXPRESSION_ARG("arg1");
-		ADD_LOCAL_LABEL_ARG("label1");
-		RETURN_INSTRUCTION("Unk1039_02");
-		break;
-	case 3:
-		ADD_EXPRESSION_ARG("arg1");
-		ADD_LOCAL_LABEL_ARG("label1");
-		RETURN_INSTRUCTION("Unk1039_03");
-		break;
-	case 4:
-		ADD_EXPRESSION_ARG("arg1");
-		RETURN_INSTRUCTION("Unk1039_04");
-		break;
-	case 5:
-		ADD_EXPRESSION_ARG("arg1");
-		RETURN_INSTRUCTION("Unk1039_05");
-		break;
-	case 6:
-		ADD_EXPRESSION_ARG("arg1");
-		RETURN_INSTRUCTION("Unk1039_06");
-		break;
-	case 7:
-		ADD_EXPRESSION_ARG("arg1");
-		RETURN_INSTRUCTION("Unk1039_07");
-		break;
-	case 10:
-		ADD_EXPRESSION_ARG("arg1");
-		RETURN_INSTRUCTION("Unk1039_10");
-		break;
-	case 11:
-		ADD_EXPRESSION_ARG("arg1");
-		RETURN_INSTRUCTION("Unk1039_11");
-		break;
-	}
-	RETURN_INSTRUCTION("Unk1039");
+  DECODER_PROC_INIT();
+  uint8_t type = *data++;
+  switch (type) {
+    case 0:
+      ADD_LOCAL_LABEL_ARG("label1");
+      ADD_LOCAL_LABEL_ARG("label2");
+      RETURN_INSTRUCTION("Unk1039_00");
+      break;
+    case 1:
+      RETURN_INSTRUCTION("Unk1039_01");
+      break;
+    case 2:
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_LOCAL_LABEL_ARG("label1");
+      RETURN_INSTRUCTION("Unk1039_02");
+      break;
+    case 3:
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_LOCAL_LABEL_ARG("label1");
+      RETURN_INSTRUCTION("Unk1039_03");
+      break;
+    case 4:
+      ADD_EXPRESSION_ARG("arg1");
+      RETURN_INSTRUCTION("Unk1039_04");
+      break;
+    case 5:
+      ADD_EXPRESSION_ARG("arg1");
+      RETURN_INSTRUCTION("Unk1039_05");
+      break;
+    case 6:
+      ADD_EXPRESSION_ARG("arg1");
+      RETURN_INSTRUCTION("Unk1039_06");
+      break;
+    case 7:
+      ADD_EXPRESSION_ARG("arg1");
+      RETURN_INSTRUCTION("Unk1039_07");
+      break;
+    case 10:
+      ADD_EXPRESSION_ARG("arg1");
+      RETURN_INSTRUCTION("Unk1039_10");
+      break;
+    case 11:
+      ADD_EXPRESSION_ARG("arg1");
+      RETURN_INSTRUCTION("Unk1039_11");
+      break;
+  }
+  RETURN_INSTRUCTION("Unk1039");
 }
 
 DECODER_PROC(Unk103A) {
-	DECODER_PROC_INIT();
-	uint8_t type = *data++;
-	switch (type) {
-	case 0:
-		ADD_EXPRESSION_ARG("arg1");
-		ADD_EXPRESSION_ARG("arg2");
-		RETURN_INSTRUCTION("Unk103A_00");
-		break;
-	case 1:
-		RETURN_INSTRUCTION("Unk103A_01");
-		break;
-	case 2:
-		RETURN_INSTRUCTION("Unk103A_02");
-		break;
-	}
-	RETURN_INSTRUCTION("Unk103A");
+  DECODER_PROC_INIT();
+  uint8_t type = *data++;
+  switch (type) {
+    case 0:
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_EXPRESSION_ARG("arg2");
+      RETURN_INSTRUCTION("Unk103A_00");
+      break;
+    case 1:
+      RETURN_INSTRUCTION("Unk103A_01");
+      break;
+    case 2:
+      RETURN_INSTRUCTION("Unk103A_02");
+      break;
+  }
+  RETURN_INSTRUCTION("Unk103A");
 }
 
-
 DECODER_PROC(CHAload3D) {
-	DECODER_PROC_INIT();
-	ADD_EXPRESSION_ARG("bufferId");
-	ADD_EXPRESSION_ARG("unk01");
-	ADD_EXPRESSION_ARG("modelId");
-	RETURN_INSTRUCTION("CHAload3D");
+  DECODER_PROC_INIT();
+  ADD_EXPRESSION_ARG("bufferId");
+  ADD_EXPRESSION_ARG("unk01");
+  ADD_EXPRESSION_ARG("modelId");
+  RETURN_INSTRUCTION("CHAload3D");
 }
 
 DECODER_PROC(CHArelease3D) {
-	DECODER_PROC_INIT();
-	ADD_EXPRESSION_ARG("bufferId");
-	RETURN_INSTRUCTION("CHArelease3D");
+  DECODER_PROC_INIT();
+  ADD_EXPRESSION_ARG("bufferId");
+  RETURN_INSTRUCTION("CHArelease3D");
 }
 
 DECODER_PROC(Unk0204) {
-	DECODER_PROC_INIT();
-	ADD_EXPRESSION_ARG("arg1");
-	ADD_EXPRESSION_ARG("arg2");
-	RETURN_INSTRUCTION("Unk0204");
+  DECODER_PROC_INIT();
+  ADD_EXPRESSION_ARG("arg1");
+  ADD_EXPRESSION_ARG("arg2");
+  RETURN_INSTRUCTION("Unk0204");
 }
 
 DECODER_PROC(CHAswap3DMaybe) {
-	DECODER_PROC_INIT();
-	ADD_EXPRESSION_ARG("dstBufferId");
-	ADD_EXPRESSION_ARG("srcBufferId");
-	RETURN_INSTRUCTION("CHAswap3DMaybe");
+  DECODER_PROC_INIT();
+  ADD_EXPRESSION_ARG("dstBufferId");
+  ADD_EXPRESSION_ARG("srcBufferId");
+  RETURN_INSTRUCTION("CHAswap3DMaybe");
 }
 
 DECODER_PROC(CHAplayAnim3DMaybe) {
-	DECODER_PROC_INIT();
-    ADD_EXPRESSION_ARG("bufferId");
-    ADD_EXPRESSION_ARG("animationId");
-    ADD_BYTE_ARG("skipAnimation");
-	RETURN_INSTRUCTION("CHAplayAnim3DMaybe");
+  DECODER_PROC_INIT();
+  ADD_EXPRESSION_ARG("bufferId");
+  ADD_EXPRESSION_ARG("animationId");
+  ADD_BYTE_ARG("skipAnimation");
+  RETURN_INSTRUCTION("CHAplayAnim3DMaybe");
 }
 
 DECODER_PROC(CHAUnk02073D) {
-	DECODER_PROC_INIT();
-    ADD_EXPRESSION_ARG("bufferId");
-	ADD_BYTE_ARG("arg2");
-    RETURN_INSTRUCTION("CHAUnk02073D");
+  DECODER_PROC_INIT();
+  ADD_EXPRESSION_ARG("bufferId");
+  ADD_BYTE_ARG("arg2");
+  RETURN_INSTRUCTION("CHAUnk02073D");
 }
 
 DECODER_PROC(Unk0208) {
-	DECODER_PROC_INIT();
-	ADD_EXPRESSION_ARG("arg1");
-	ADD_EXPRESSION_ARG("arg2");
-	ADD_EXPRESSION_ARG("arg3");
-	ADD_EXPRESSION_ARG("arg4");
-	ADD_EXPRESSION_ARG("arg5");
-	RETURN_INSTRUCTION("Unk0208");
+  DECODER_PROC_INIT();
+  ADD_EXPRESSION_ARG("arg1");
+  ADD_EXPRESSION_ARG("arg2");
+  ADD_EXPRESSION_ARG("arg3");
+  ADD_EXPRESSION_ARG("arg4");
+  ADD_EXPRESSION_ARG("arg5");
+  RETURN_INSTRUCTION("Unk0208");
 }
 
 DECODER_PROC(CHAsetAnim3D) {
-	DECODER_PROC_INIT();
-    ADD_EXPRESSION_ARG("bufferId");
-    ADD_EXPRESSION_ARG("animationId");
-	RETURN_INSTRUCTION("CHAsetAnim3D");
+  DECODER_PROC_INIT();
+  ADD_EXPRESSION_ARG("bufferId");
+  ADD_EXPRESSION_ARG("animationId");
+  RETURN_INSTRUCTION("CHAsetAnim3D");
 }
 
 DECODER_PROC(Unk0210) {
-    DECODER_PROC_INIT();
-    uint8_t arg1 = *data++;
-    { args.push_back(SC3ArgumentFromByte("arg1", arg1)); }
-    ADD_EXPRESSION_ARG("arg2");
-    if(arg1 & 0x10) {
-        ADD_EXPRESSION_ARG("arg3");
-        ADD_EXPRESSION_ARG("arg4");
-    }
-    RETURN_INSTRUCTION("Unk0210");
+  DECODER_PROC_INIT();
+  uint8_t arg1 = *data++;
+  { args.push_back(SC3ArgumentFromByte("arg1", arg1)); }
+  ADD_EXPRESSION_ARG("arg2");
+  if (arg1 & 0x10) {
+    ADD_EXPRESSION_ARG("arg3");
+    ADD_EXPRESSION_ARG("arg4");
+  }
+  RETURN_INSTRUCTION("Unk0210");
 }
 
 DECODER_PROC(Unk0211) {
-    DECODER_PROC_INIT();
-    ADD_EXPRESSION_ARG("arg1");
-    ADD_EXPRESSION_ARG("arg2");
-    ADD_EXPRESSION_ARG("arg3");
-    ADD_EXPRESSION_ARG("arg4");
-    ADD_EXPRESSION_ARG("arg5");
-    RETURN_INSTRUCTION("Unk0211");
+  DECODER_PROC_INIT();
+  ADD_EXPRESSION_ARG("arg1");
+  ADD_EXPRESSION_ARG("arg2");
+  ADD_EXPRESSION_ARG("arg3");
+  ADD_EXPRESSION_ARG("arg4");
+  ADD_EXPRESSION_ARG("arg5");
+  RETURN_INSTRUCTION("Unk0211");
 }
 
 DECODER_PROC(Unk0212) {
-    DECODER_PROC_INIT();
-    ADD_EXPRESSION_ARG("arg1");
-    RETURN_INSTRUCTION("Unk0212");
+  DECODER_PROC_INIT();
+  ADD_EXPRESSION_ARG("arg1");
+  RETURN_INSTRUCTION("Unk0212");
 }
 
 DECODER_PROC(Unk0213) {
-    DECODER_PROC_INIT();
-    uint8_t type = *data++;
-    switch (type) {
+  DECODER_PROC_INIT();
+  uint8_t type = *data++;
+  switch (type) {
     case 0:
-        ADD_EXPRESSION_ARG("arg1");
-        ADD_EXPRESSION_ARG("arg2");
-        ADD_EXPRESSION_ARG("arg3");
-        RETURN_INSTRUCTION("Unk0213_00");
-        break;
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_EXPRESSION_ARG("arg2");
+      ADD_EXPRESSION_ARG("arg3");
+      RETURN_INSTRUCTION("Unk0213_00");
+      break;
     case 1:
-        ADD_EXPRESSION_ARG("arg1");
-        ADD_EXPRESSION_ARG("arg2");
-        ADD_EXPRESSION_ARG("arg3");
-        ADD_EXPRESSION_ARG("arg4");
-        RETURN_INSTRUCTION("Unk0213_01");
-        break;
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_EXPRESSION_ARG("arg2");
+      ADD_EXPRESSION_ARG("arg3");
+      ADD_EXPRESSION_ARG("arg4");
+      RETURN_INSTRUCTION("Unk0213_01");
+      break;
     case 2:
-        ADD_EXPRESSION_ARG("arg1");
-        ADD_EXPRESSION_ARG("arg2");
-        ADD_EXPRESSION_ARG("arg3");
-        ADD_EXPRESSION_ARG("arg4");
-        RETURN_INSTRUCTION("Unk0213_02");
-        break;
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_EXPRESSION_ARG("arg2");
+      ADD_EXPRESSION_ARG("arg3");
+      ADD_EXPRESSION_ARG("arg4");
+      RETURN_INSTRUCTION("Unk0213_02");
+      break;
     case 3:
-        ADD_EXPRESSION_ARG("arg1");
-        ADD_EXPRESSION_ARG("arg2");
-        ADD_EXPRESSION_ARG("arg3");
-        RETURN_INSTRUCTION("Unk0213_03");
-        break;
-    }
-    RETURN_UNRECOGNIZED();
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_EXPRESSION_ARG("arg2");
+      ADD_EXPRESSION_ARG("arg3");
+      RETURN_INSTRUCTION("Unk0213_03");
+      break;
+  }
+  RETURN_UNRECOGNIZED();
 }
 
 DECODER_PROC(Unk0214) {
-    DECODER_PROC_INIT();
-    ADD_BYTE_ARG("arg1");
-    ADD_EXPRESSION_ARG("arg2");
-    ADD_EXPRESSION_ARG("arg3");
-    RETURN_INSTRUCTION("Unk0214");
+  DECODER_PROC_INIT();
+  ADD_BYTE_ARG("arg1");
+  ADD_EXPRESSION_ARG("arg2");
+  ADD_EXPRESSION_ARG("arg3");
+  RETURN_INSTRUCTION("Unk0214");
 }
 
 DECODER_PROC(Unk0215) {
-    DECODER_PROC_INIT();
-    ADD_EXPRESSION_ARG("arg1");
-    ADD_EXPRESSION_ARG("arg2");
-    ADD_EXPRESSION_ARG("arg3");
-    ADD_EXPRESSION_ARG("arg4");
-    ADD_EXPRESSION_ARG("arg5");
-    ADD_EXPRESSION_ARG("arg6");
-    ADD_EXPRESSION_ARG("arg7");
-    ADD_EXPRESSION_ARG("arg8");
-    ADD_EXPRESSION_ARG("arg9");
-    ADD_EXPRESSION_ARG("arg10");
-    ADD_EXPRESSION_ARG("arg11");
-    ADD_EXPRESSION_ARG("arg12");
-    ADD_EXPRESSION_ARG("arg13");
-    ADD_EXPRESSION_ARG("arg14");
-    ADD_EXPRESSION_ARG("arg15");
-    ADD_EXPRESSION_ARG("arg16");
-    ADD_EXPRESSION_ARG("arg17");
-    RETURN_INSTRUCTION("Unk0215");
+  DECODER_PROC_INIT();
+  ADD_EXPRESSION_ARG("arg1");
+  ADD_EXPRESSION_ARG("arg2");
+  ADD_EXPRESSION_ARG("arg3");
+  ADD_EXPRESSION_ARG("arg4");
+  ADD_EXPRESSION_ARG("arg5");
+  ADD_EXPRESSION_ARG("arg6");
+  ADD_EXPRESSION_ARG("arg7");
+  ADD_EXPRESSION_ARG("arg8");
+  ADD_EXPRESSION_ARG("arg9");
+  ADD_EXPRESSION_ARG("arg10");
+  ADD_EXPRESSION_ARG("arg11");
+  ADD_EXPRESSION_ARG("arg12");
+  ADD_EXPRESSION_ARG("arg13");
+  ADD_EXPRESSION_ARG("arg14");
+  ADD_EXPRESSION_ARG("arg15");
+  ADD_EXPRESSION_ARG("arg16");
+  ADD_EXPRESSION_ARG("arg17");
+  RETURN_INSTRUCTION("Unk0215");
 }
 
 DECODER_PROC(Unk0216) {
-    DECODER_PROC_INIT();
-    uint8_t type = *data++;
-    switch (type) {
+  DECODER_PROC_INIT();
+  uint8_t type = *data++;
+  switch (type) {
     case 0:
-        ADD_EXPRESSION_ARG("arg1");
-        ADD_EXPRESSION_ARG("arg2");
-        ADD_EXPRESSION_ARG("arg3");
-        ADD_EXPRESSION_ARG("arg4");
-        ADD_EXPRESSION_ARG("arg5");
-        ADD_EXPRESSION_ARG("arg6");
-        ADD_EXPRESSION_ARG("arg7");
-        ADD_EXPRESSION_ARG("arg8");
-        RETURN_INSTRUCTION("Unk0216_00");
-        break;
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_EXPRESSION_ARG("arg2");
+      ADD_EXPRESSION_ARG("arg3");
+      ADD_EXPRESSION_ARG("arg4");
+      ADD_EXPRESSION_ARG("arg5");
+      ADD_EXPRESSION_ARG("arg6");
+      ADD_EXPRESSION_ARG("arg7");
+      ADD_EXPRESSION_ARG("arg8");
+      RETURN_INSTRUCTION("Unk0216_00");
+      break;
     case 1:
-        ADD_EXPRESSION_ARG("arg1");
-        ADD_EXPRESSION_ARG("arg2");
-        RETURN_INSTRUCTION("Unk0216_01");
-        break;
-    }
-    RETURN_UNRECOGNIZED();
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_EXPRESSION_ARG("arg2");
+      RETURN_INSTRUCTION("Unk0216_01");
+      break;
+  }
+  RETURN_UNRECOGNIZED();
 }
 
 DECODER_PROC(Unk0217) {
-	DECODER_PROC_INIT();
-	ADD_BYTE_ARG("arg1");
-	RETURN_INSTRUCTION("Unk0217");
+  DECODER_PROC_INIT();
+  ADD_BYTE_ARG("arg1");
+  RETURN_INSTRUCTION("Unk0217");
 }
 
 DECODER_PROC(Unk0218) {
-    DECODER_PROC_INIT();
-    uint8_t type = *data++;
-    switch (type) {
+  DECODER_PROC_INIT();
+  uint8_t type = *data++;
+  switch (type) {
     case 0:
     case 1:
-        ADD_EXPRESSION_ARG("arg1");
-        ADD_EXPRESSION_ARG("arg2");
-        ADD_EXPRESSION_ARG("arg3");
-        RETURN_INSTRUCTION("Unk0218_00");
-        break;
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_EXPRESSION_ARG("arg2");
+      ADD_EXPRESSION_ARG("arg3");
+      RETURN_INSTRUCTION("Unk0218_00");
+      break;
     case 2:
-        ADD_EXPRESSION_ARG("arg1");
-        ADD_EXPRESSION_ARG("arg2");
-        ADD_EXPRESSION_ARG("arg3");
-        ADD_EXPRESSION_ARG("arg4");
-        ADD_EXPRESSION_ARG("arg5");
-        ADD_EXPRESSION_ARG("arg6");
-        RETURN_INSTRUCTION("Unk0218_01");
-        break;
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_EXPRESSION_ARG("arg2");
+      ADD_EXPRESSION_ARG("arg3");
+      ADD_EXPRESSION_ARG("arg4");
+      ADD_EXPRESSION_ARG("arg5");
+      ADD_EXPRESSION_ARG("arg6");
+      RETURN_INSTRUCTION("Unk0218_01");
+      break;
     case 3:
-        ADD_EXPRESSION_ARG("arg1");
-        ADD_EXPRESSION_ARG("arg2");
-        ADD_EXPRESSION_ARG("arg3");
-        ADD_EXPRESSION_ARG("arg4");
-        ADD_EXPRESSION_ARG("arg5");
-        ADD_EXPRESSION_ARG("arg6");
-        RETURN_INSTRUCTION("Unk0218_01");
-        break;
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_EXPRESSION_ARG("arg2");
+      ADD_EXPRESSION_ARG("arg3");
+      ADD_EXPRESSION_ARG("arg4");
+      ADD_EXPRESSION_ARG("arg5");
+      ADD_EXPRESSION_ARG("arg6");
+      RETURN_INSTRUCTION("Unk0218_01");
+      break;
     case 4:
-        ADD_EXPRESSION_ARG("arg1");
-        ADD_EXPRESSION_ARG("arg2");
-        ADD_EXPRESSION_ARG("arg3");
-        ADD_EXPRESSION_ARG("arg4");
-        ADD_EXPRESSION_ARG("arg5");
-        ADD_EXPRESSION_ARG("arg6");
-        ADD_EXPRESSION_ARG("arg7");
-        RETURN_INSTRUCTION("Unk0218_01");
-        break;
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_EXPRESSION_ARG("arg2");
+      ADD_EXPRESSION_ARG("arg3");
+      ADD_EXPRESSION_ARG("arg4");
+      ADD_EXPRESSION_ARG("arg5");
+      ADD_EXPRESSION_ARG("arg6");
+      ADD_EXPRESSION_ARG("arg7");
+      RETURN_INSTRUCTION("Unk0218_01");
+      break;
     default:
-        ADD_EXPRESSION_ARG("arg1");
-        ADD_EXPRESSION_ARG("arg2");
-        RETURN_INSTRUCTION("Unk0218_Default");
-        break;
-    }
-    RETURN_UNRECOGNIZED();
+      ADD_EXPRESSION_ARG("arg1");
+      ADD_EXPRESSION_ARG("arg2");
+      RETURN_INSTRUCTION("Unk0218_Default");
+      break;
+  }
+  RETURN_UNRECOGNIZED();
 }
 
 DECODER_PROC(Unk0219) {
-	DECODER_PROC_INIT();
-	ADD_EXPRESSION_ARG("arg1");
-	RETURN_INSTRUCTION("Unk0219");
+  DECODER_PROC_INIT();
+  ADD_EXPRESSION_ARG("arg1");
+  RETURN_INSTRUCTION("Unk0219");
 }
 
 DECODER_PROC(Unk0240) {
-    DECODER_PROC_INIT();
-    uint8_t type = *data++;
-    switch (type) {
+  DECODER_PROC_INIT();
+  uint8_t type = *data++;
+  switch (type) {
     case 0:
-        RETURN_INSTRUCTION("Unk0240_00");
-        break;
+      RETURN_INSTRUCTION("Unk0240_00");
+      break;
     case 1:
-        RETURN_INSTRUCTION("Unk0240_01");
-        break;
+      RETURN_INSTRUCTION("Unk0240_01");
+      break;
     case 2:
-        RETURN_INSTRUCTION("Unk0240_02");
-        break;
+      RETURN_INSTRUCTION("Unk0240_02");
+      break;
     case 3:
-        RETURN_INSTRUCTION("Unk0240_03");
-        break;
+      RETURN_INSTRUCTION("Unk0240_03");
+      break;
     case 4:
-        RETURN_INSTRUCTION("Unk0240_04");
-        break;
+      RETURN_INSTRUCTION("Unk0240_04");
+      break;
     case 5:
-        RETURN_INSTRUCTION("Unk0240_05");
-        break;
+      RETURN_INSTRUCTION("Unk0240_05");
+      break;
     case 6:
-        RETURN_INSTRUCTION("Unk0240_06");
-        break;
-    }
-    RETURN_UNRECOGNIZED();
+      RETURN_INSTRUCTION("Unk0240_06");
+      break;
+  }
+  RETURN_UNRECOGNIZED();
 }
 
 NO_ARGS_DECODER_PROC(ScreenChange);
@@ -2085,7 +2083,7 @@ static DecoderProc DecoderTableSystem[256] = {
     InstHalt,                 // 00 06
     InstJump,                 // 00 07
     InstJumpTable,            // 00 08
-    InstGetLabelAdr,		  // 00 09
+    InstGetLabelAdr,          // 00 09
     InstIf,                   // 00 0A
     InstCall,                 // 00 0B
     InstJumpFar,              // 00 0C
@@ -2141,7 +2139,7 @@ static DecoderProc DecoderTableSystem[256] = {
     InstResetSoundAll,        // 00 3E
     InstSNDloadStop,          // 00 3F
     InstBGMstopWait,          // 00 40
-    InstUnk0041,	          // 00 41
+    InstUnk0041,              // 00 41
     InstSetX360SysMesPos,     // 00 42
     InstSystemMes,            // 00 43
     InstSystemMenu,           // 00 44
@@ -2151,7 +2149,7 @@ static DecoderProc DecoderTableSystem[256] = {
     InstReloadScript,         // 00 48
     InstReloadScriptMenu,     // 00 49
     InstDebugEditer,          // 00 4A
-	Inst__Unrecognized__,     // 00 4B
+    Inst__Unrecognized__,     // 00 4B
     Inst__Unrecognized__,     // 00 4C
     InstSysVoicePlay,         // 00 4D
     InstPadActEx,             // 00 4E
@@ -2162,7 +2160,7 @@ static DecoderProc DecoderTableSystem[256] = {
     InstUnk0053,              // 00 53
     InstUnk0054,              // 00 54
     InstUnk0055,              // 00 55
-	Inst__Unrecognized__,     // 00 56
+    Inst__Unrecognized__,     // 00 56
     Inst__Unrecognized__,     // 00 57
     Inst__Unrecognized__,     // 00 58
     Inst__Unrecognized__,     // 00 59
@@ -2171,7 +2169,7 @@ static DecoderProc DecoderTableSystem[256] = {
     Inst__Unrecognized__,     // 00 5C
     Inst__Unrecognized__,     // 00 5D
     Inst__Unrecognized__,     // 00 5E
-	Inst__Unrecognized__,     // 00 5F
+    Inst__Unrecognized__,     // 00 5F
     Inst__Unrecognized__,     // 00 60
     Inst__Unrecognized__,     // 00 61
     Inst__Unrecognized__,     // 00 62
@@ -2379,7 +2377,7 @@ static DecoderProc DecoderTableGraph[256] = {
     InstLoadMovie,         // 01 29
     InstPlayMovieMemory,   // 01 2A
     InstSFDpause,          // 01 2B
-	InstPlayMovie,         // 01 2C
+    InstPlayMovie,         // 01 2C
     InstUnk012D,           // 01 2D
     Inst__Unrecognized__,  // 01 2E
     Inst__Unrecognized__,  // 01 2F
@@ -2600,18 +2598,18 @@ static DecoderProc DecoderTableUser1[256] = {
     InstBGsetColor,        // 10 03
     InstBGsetLink,         // 10 04
     InstBGrelease,         // 10 05
-	Inst__Unrecognized__,  // 10 06
+    Inst__Unrecognized__,  // 10 06
     InstBGcopy,            // 10 07
-	Inst__Unrecognized__,  // 10 08
+    Inst__Unrecognized__,  // 10 08
     InstSaveSlot,          // 10 09
     InstSystemMain,        // 10 0A
-	Inst__Unrecognized__,  // 10 0B
+    Inst__Unrecognized__,  // 10 0B
     InstGameInfoInit,      // 10 0C
-	Inst__Unrecognized__,  // 10 0D
+    Inst__Unrecognized__,  // 10 0D
     InstBGloadEx,          // 10 0E
     Inst__Unrecognized__,  // 10 0F
-	Inst__Unrecognized__,  // 10 10
-	Inst__Unrecognized__,  // 10 11
+    Inst__Unrecognized__,  // 10 10
+    Inst__Unrecognized__,  // 10 11
     InstClearFlagChk,      // 10 12
     InstOption,            // 10 13
     InstSystemDataReset,   // 10 14
@@ -2620,9 +2618,9 @@ static DecoderProc DecoderTableUser1[256] = {
     InstBGfadeExpInit,     // 10 17
     Inst__Unrecognized__,  // 10 18
     Inst__Unrecognized__,  // 10 19
-	Inst__Unrecognized__,  // 10 1A
-	InstHelp,              // 10 1B
-	InstAchievementMenu,   // 10 1C
+    Inst__Unrecognized__,  // 10 1A
+    InstHelp,              // 10 1B
+    InstAchievementMenu,   // 10 1C
     InstSoundMenu,         // 10 1D
     InstAllClear,          // 10 1E
     InstAlbum,             // 10 1F
@@ -2643,23 +2641,23 @@ static DecoderProc DecoderTableUser1[256] = {
     InstSetSceneViewFlag,  // 10 2E
     InstChkClearFlag,      // 10 2F
     InstBGeffectWave,      // 10 30
-	InstUnk1031,           // 10 31
+    InstUnk1031,           // 10 31
     InstNameID,            // 10 32
     InstTips,              // 10 33
     InstTitleMenu,         // 10 34
-	Inst__Unrecognized__,  // 10 35
+    Inst__Unrecognized__,  // 10 35
     InstBGeffect,          // 10 36
-	InstUnk1037,           // 10 37
-	InstUnk1038,           // 10 38
-	InstUnk1039,           // 10 39
-	InstUnk103A,           // 10 3A
+    InstUnk1037,           // 10 37
+    InstUnk1038,           // 10 38
+    InstUnk1039,           // 10 39
+    InstUnk103A,           // 10 3A
     Inst__Unrecognized__,  // 10 3B
     Inst__Unrecognized__,  // 10 3C
     Inst__Unrecognized__,  // 10 3D
     Inst__Unrecognized__,  // 10 3E
     Inst__Unrecognized__,  // 10 3F
-	Inst__Unrecognized__,  // 10 40
-	Inst__Unrecognized__,  // 10 41
+    Inst__Unrecognized__,  // 10 40
+    Inst__Unrecognized__,  // 10 41
     Inst__Unrecognized__,  // 10 42
     Inst__Unrecognized__,  // 10 43
     Inst__Unrecognized__,  // 10 44
@@ -2853,266 +2851,266 @@ static DecoderProc DecoderTableUser1[256] = {
 };
 
 static DecoderProc DecoderTableGraph3D[256] = {
-	Inst__Unrecognized__,  // 02 00
-	InstCHAload3D,         // 02 01
-	InstCHArelease3D,      // 02 02
-	Inst__Unrecognized__,  // 02 03
-	InstUnk0204,           // 02 04
-	InstCHAswap3DMaybe,    // 02 05
-	InstCHAplayAnim3DMaybe,// 02 06
-    InstCHAUnk02073D,      // 02 07
-	InstUnk0208,           // 02 08
-	InstCHAsetAnim3D,      // 02 09
-	Inst__Unrecognized__,  // 02 0A
-	Inst__Unrecognized__,  // 02 0B
-	Inst__Unrecognized__,  // 02 0C
-	Inst__Unrecognized__,  // 02 0D
-	Inst__Unrecognized__,  // 02 0E
-	Inst__Unrecognized__,  // 02 0F
-    InstUnk0210,           // 02 10
-    InstUnk0211,           // 02 11
-    InstUnk0212,           // 02 12
-    InstUnk0213,           // 02 13
-    InstUnk0214,           // 02 14
-    InstUnk0215,           // 02 15
-    InstUnk0216,           // 02 16
-	InstUnk0217,           // 02 17
-    InstUnk0218,           // 02 18
-	InstUnk0219,           // 02 19
-	Inst__Unrecognized__,  // 02 1A
-	Inst__Unrecognized__,  // 02 1B
-	Inst__Unrecognized__,  // 02 1C
-	Inst__Unrecognized__,  // 02 1D
-	Inst__Unrecognized__,  // 02 1E
-	Inst__Unrecognized__,  // 02 1F
-	Inst__Unrecognized__,  // 02 20
-	Inst__Unrecognized__,  // 02 21
-	Inst__Unrecognized__,  // 02 22
-	Inst__Unrecognized__,  // 02 23
-	Inst__Unrecognized__,  // 02 24
-	Inst__Unrecognized__,  // 02 25
-	Inst__Unrecognized__,  // 02 26
-	Inst__Unrecognized__,  // 02 27
-	Inst__Unrecognized__,  // 02 28
-	Inst__Unrecognized__,  // 02 29
-	Inst__Unrecognized__,  // 02 2A
-	Inst__Unrecognized__,  // 02 2B
-	Inst__Unrecognized__,  // 02 2C
-	Inst__Unrecognized__,  // 02 2D
-	Inst__Unrecognized__,  // 02 2E
-	Inst__Unrecognized__,  // 02 2F
-	Inst__Unrecognized__,  // 02 30
-	Inst__Unrecognized__,  // 02 31
-	Inst__Unrecognized__,  // 02 32
-	Inst__Unrecognized__,  // 02 33
-	Inst__Unrecognized__,  // 02 34
-	Inst__Unrecognized__,  // 02 35
-	Inst__Unrecognized__,  // 02 36
-	Inst__Unrecognized__,  // 02 37
-	Inst__Unrecognized__,  // 02 38
-	Inst__Unrecognized__,  // 02 39
-	Inst__Unrecognized__,  // 02 3A
-	Inst__Unrecognized__,  // 02 3B
-	Inst__Unrecognized__,  // 02 3C
-	Inst__Unrecognized__,  // 02 3D
-	Inst__Unrecognized__,  // 02 3E
-	Inst__Unrecognized__,  // 02 3F
-    InstUnk0240,           // 02 40
-	Inst__Unrecognized__,  // 02 41
-	Inst__Unrecognized__,  // 02 42
-	Inst__Unrecognized__,  // 02 43
-	Inst__Unrecognized__,  // 02 44
-	Inst__Unrecognized__,  // 02 45
-	Inst__Unrecognized__,  // 02 46
-	Inst__Unrecognized__,  // 02 47
-	Inst__Unrecognized__,  // 02 48
-	Inst__Unrecognized__,  // 02 49
-	Inst__Unrecognized__,  // 02 4A
-	Inst__Unrecognized__,  // 02 4B
-	Inst__Unrecognized__,  // 02 4C
-	Inst__Unrecognized__,  // 02 4D
-	Inst__Unrecognized__,  // 02 4E
-	Inst__Unrecognized__,  // 02 4F
-	Inst__Unrecognized__,  // 02 50
-	Inst__Unrecognized__,  // 02 51
-	Inst__Unrecognized__,  // 02 52
-	Inst__Unrecognized__,  // 02 53
-	Inst__Unrecognized__,  // 02 54
-	Inst__Unrecognized__,  // 02 55
-	Inst__Unrecognized__,  // 02 56
-	Inst__Unrecognized__,  // 02 57
-	Inst__Unrecognized__,  // 02 58
-	Inst__Unrecognized__,  // 02 59
-	Inst__Unrecognized__,  // 02 5A
-	Inst__Unrecognized__,  // 02 5B
-	Inst__Unrecognized__,  // 02 5C
-	Inst__Unrecognized__,  // 02 5D
-	Inst__Unrecognized__,  // 02 5E
-	Inst__Unrecognized__,  // 02 5F
-	Inst__Unrecognized__,  // 02 60
-	Inst__Unrecognized__,  // 02 61
-	Inst__Unrecognized__,  // 02 62
-	Inst__Unrecognized__,  // 02 63
-	Inst__Unrecognized__,  // 02 64
-	Inst__Unrecognized__,  // 02 65
-	Inst__Unrecognized__,  // 02 66
-	Inst__Unrecognized__,  // 02 67
-	Inst__Unrecognized__,  // 02 68
-	Inst__Unrecognized__,  // 02 69
-	Inst__Unrecognized__,  // 02 6A
-	Inst__Unrecognized__,  // 02 6B
-	Inst__Unrecognized__,  // 02 6C
-	Inst__Unrecognized__,  // 02 6D
-	Inst__Unrecognized__,  // 02 6E
-	Inst__Unrecognized__,  // 02 6F
-	Inst__Unrecognized__,  // 02 70
-	Inst__Unrecognized__,  // 02 71
-	Inst__Unrecognized__,  // 02 72
-	Inst__Unrecognized__,  // 02 73
-	Inst__Unrecognized__,  // 02 74
-	Inst__Unrecognized__,  // 02 75
-	Inst__Unrecognized__,  // 02 76
-	Inst__Unrecognized__,  // 02 77
-	Inst__Unrecognized__,  // 02 78
-	Inst__Unrecognized__,  // 02 79
-	Inst__Unrecognized__,  // 02 7A
-	Inst__Unrecognized__,  // 02 7B
-	Inst__Unrecognized__,  // 02 7C
-	Inst__Unrecognized__,  // 02 7D
-	Inst__Unrecognized__,  // 02 7E
-	Inst__Unrecognized__,  // 02 7F
-	Inst__Unrecognized__,  // 02 80
-	Inst__Unrecognized__,  // 02 81
-	Inst__Unrecognized__,  // 02 82
-	Inst__Unrecognized__,  // 02 83
-	Inst__Unrecognized__,  // 02 84
-	Inst__Unrecognized__,  // 02 85
-	Inst__Unrecognized__,  // 02 86
-	Inst__Unrecognized__,  // 02 87
-	Inst__Unrecognized__,  // 02 88
-	Inst__Unrecognized__,  // 02 89
-	Inst__Unrecognized__,  // 02 8A
-	Inst__Unrecognized__,  // 02 8B
-	Inst__Unrecognized__,  // 02 8C
-	Inst__Unrecognized__,  // 02 8D
-	Inst__Unrecognized__,  // 02 8E
-	Inst__Unrecognized__,  // 02 8F
-	Inst__Unrecognized__,  // 02 90
-	Inst__Unrecognized__,  // 02 91
-	Inst__Unrecognized__,  // 02 92
-	Inst__Unrecognized__,  // 02 93
-	Inst__Unrecognized__,  // 02 94
-	Inst__Unrecognized__,  // 02 95
-	Inst__Unrecognized__,  // 02 96
-	Inst__Unrecognized__,  // 02 97
-	Inst__Unrecognized__,  // 02 98
-	Inst__Unrecognized__,  // 02 99
-	Inst__Unrecognized__,  // 02 9A
-	Inst__Unrecognized__,  // 02 9B
-	Inst__Unrecognized__,  // 02 9C
-	Inst__Unrecognized__,  // 02 9D
-	Inst__Unrecognized__,  // 02 9E
-	Inst__Unrecognized__,  // 02 9F
-	Inst__Unrecognized__,  // 02 A0
-	Inst__Unrecognized__,  // 02 A1
-	Inst__Unrecognized__,  // 02 A2
-	Inst__Unrecognized__,  // 02 A3
-	Inst__Unrecognized__,  // 02 A4
-	Inst__Unrecognized__,  // 02 A5
-	Inst__Unrecognized__,  // 02 A6
-	Inst__Unrecognized__,  // 02 A7
-	Inst__Unrecognized__,  // 02 A8
-	Inst__Unrecognized__,  // 02 A9
-	Inst__Unrecognized__,  // 02 AA
-	Inst__Unrecognized__,  // 02 AB
-	Inst__Unrecognized__,  // 02 AC
-	Inst__Unrecognized__,  // 02 AD
-	Inst__Unrecognized__,  // 02 AE
-	Inst__Unrecognized__,  // 02 AF
-	Inst__Unrecognized__,  // 02 B0
-	Inst__Unrecognized__,  // 02 B1
-	Inst__Unrecognized__,  // 02 B2
-	Inst__Unrecognized__,  // 02 B3
-	Inst__Unrecognized__,  // 02 B4
-	Inst__Unrecognized__,  // 02 B5
-	Inst__Unrecognized__,  // 02 B6
-	Inst__Unrecognized__,  // 02 B7
-	Inst__Unrecognized__,  // 02 B8
-	Inst__Unrecognized__,  // 02 B9
-	Inst__Unrecognized__,  // 02 BA
-	Inst__Unrecognized__,  // 02 BB
-	Inst__Unrecognized__,  // 02 BC
-	Inst__Unrecognized__,  // 02 BD
-	Inst__Unrecognized__,  // 02 BE
-	Inst__Unrecognized__,  // 02 BF
-	Inst__Unrecognized__,  // 02 C0
-	Inst__Unrecognized__,  // 02 C1
-	Inst__Unrecognized__,  // 02 C2
-	Inst__Unrecognized__,  // 02 C3
-	Inst__Unrecognized__,  // 02 C4
-	Inst__Unrecognized__,  // 02 C5
-	Inst__Unrecognized__,  // 02 C6
-	Inst__Unrecognized__,  // 02 C7
-	Inst__Unrecognized__,  // 02 C8
-	Inst__Unrecognized__,  // 02 C9
-	Inst__Unrecognized__,  // 02 CA
-	Inst__Unrecognized__,  // 02 CB
-	Inst__Unrecognized__,  // 02 CC
-	Inst__Unrecognized__,  // 02 CD
-	Inst__Unrecognized__,  // 02 CE
-	Inst__Unrecognized__,  // 02 CF
-	Inst__Unrecognized__,  // 02 D0
-	Inst__Unrecognized__,  // 02 D1
-	Inst__Unrecognized__,  // 02 D2
-	Inst__Unrecognized__,  // 02 D3
-	Inst__Unrecognized__,  // 02 D4
-	Inst__Unrecognized__,  // 02 D5
-	Inst__Unrecognized__,  // 02 D6
-	Inst__Unrecognized__,  // 02 D7
-	Inst__Unrecognized__,  // 02 D8
-	Inst__Unrecognized__,  // 02 D9
-	Inst__Unrecognized__,  // 02 DA
-	Inst__Unrecognized__,  // 02 DB
-	Inst__Unrecognized__,  // 02 DC
-	Inst__Unrecognized__,  // 02 DD
-	Inst__Unrecognized__,  // 02 DE
-	Inst__Unrecognized__,  // 02 DF
-	Inst__Unrecognized__,  // 02 E0
-	Inst__Unrecognized__,  // 02 E1
-	Inst__Unrecognized__,  // 02 E2
-	Inst__Unrecognized__,  // 02 E3
-	Inst__Unrecognized__,  // 02 E4
-	Inst__Unrecognized__,  // 02 E5
-	Inst__Unrecognized__,  // 02 E6
-	Inst__Unrecognized__,  // 02 E7
-	Inst__Unrecognized__,  // 02 E8
-	Inst__Unrecognized__,  // 02 E9
-	Inst__Unrecognized__,  // 02 EA
-	Inst__Unrecognized__,  // 02 EB
-	Inst__Unrecognized__,  // 02 EC
-	Inst__Unrecognized__,  // 02 ED
-	Inst__Unrecognized__,  // 02 EE
-	Inst__Unrecognized__,  // 02 EF
-	Inst__Unrecognized__,  // 02 F0
-	Inst__Unrecognized__,  // 02 F1
-	Inst__Unrecognized__,  // 02 F2
-	Inst__Unrecognized__,  // 02 F3
-	Inst__Unrecognized__,  // 02 F4
-	Inst__Unrecognized__,  // 02 F5
-	Inst__Unrecognized__,  // 02 F6
-	Inst__Unrecognized__,  // 02 F7
-	Inst__Unrecognized__,  // 02 F8
-	Inst__Unrecognized__,  // 02 F9
-	Inst__Unrecognized__,  // 02 FA
-	Inst__Unrecognized__,  // 02 FB
-	Inst__Unrecognized__,  // 02 FC
-	Inst__Unrecognized__,  // 02 FD
-	Inst__Unrecognized__,  // 02 FE
-	Inst__Unrecognized__   // 02 FF
+    Inst__Unrecognized__,    // 02 00
+    InstCHAload3D,           // 02 01
+    InstCHArelease3D,        // 02 02
+    Inst__Unrecognized__,    // 02 03
+    InstUnk0204,             // 02 04
+    InstCHAswap3DMaybe,      // 02 05
+    InstCHAplayAnim3DMaybe,  // 02 06
+    InstCHAUnk02073D,        // 02 07
+    InstUnk0208,             // 02 08
+    InstCHAsetAnim3D,        // 02 09
+    Inst__Unrecognized__,    // 02 0A
+    Inst__Unrecognized__,    // 02 0B
+    Inst__Unrecognized__,    // 02 0C
+    Inst__Unrecognized__,    // 02 0D
+    Inst__Unrecognized__,    // 02 0E
+    Inst__Unrecognized__,    // 02 0F
+    InstUnk0210,             // 02 10
+    InstUnk0211,             // 02 11
+    InstUnk0212,             // 02 12
+    InstUnk0213,             // 02 13
+    InstUnk0214,             // 02 14
+    InstUnk0215,             // 02 15
+    InstUnk0216,             // 02 16
+    InstUnk0217,             // 02 17
+    InstUnk0218,             // 02 18
+    InstUnk0219,             // 02 19
+    Inst__Unrecognized__,    // 02 1A
+    Inst__Unrecognized__,    // 02 1B
+    Inst__Unrecognized__,    // 02 1C
+    Inst__Unrecognized__,    // 02 1D
+    Inst__Unrecognized__,    // 02 1E
+    Inst__Unrecognized__,    // 02 1F
+    Inst__Unrecognized__,    // 02 20
+    Inst__Unrecognized__,    // 02 21
+    Inst__Unrecognized__,    // 02 22
+    Inst__Unrecognized__,    // 02 23
+    Inst__Unrecognized__,    // 02 24
+    Inst__Unrecognized__,    // 02 25
+    Inst__Unrecognized__,    // 02 26
+    Inst__Unrecognized__,    // 02 27
+    Inst__Unrecognized__,    // 02 28
+    Inst__Unrecognized__,    // 02 29
+    Inst__Unrecognized__,    // 02 2A
+    Inst__Unrecognized__,    // 02 2B
+    Inst__Unrecognized__,    // 02 2C
+    Inst__Unrecognized__,    // 02 2D
+    Inst__Unrecognized__,    // 02 2E
+    Inst__Unrecognized__,    // 02 2F
+    Inst__Unrecognized__,    // 02 30
+    Inst__Unrecognized__,    // 02 31
+    Inst__Unrecognized__,    // 02 32
+    Inst__Unrecognized__,    // 02 33
+    Inst__Unrecognized__,    // 02 34
+    Inst__Unrecognized__,    // 02 35
+    Inst__Unrecognized__,    // 02 36
+    Inst__Unrecognized__,    // 02 37
+    Inst__Unrecognized__,    // 02 38
+    Inst__Unrecognized__,    // 02 39
+    Inst__Unrecognized__,    // 02 3A
+    Inst__Unrecognized__,    // 02 3B
+    Inst__Unrecognized__,    // 02 3C
+    Inst__Unrecognized__,    // 02 3D
+    Inst__Unrecognized__,    // 02 3E
+    Inst__Unrecognized__,    // 02 3F
+    InstUnk0240,             // 02 40
+    Inst__Unrecognized__,    // 02 41
+    Inst__Unrecognized__,    // 02 42
+    Inst__Unrecognized__,    // 02 43
+    Inst__Unrecognized__,    // 02 44
+    Inst__Unrecognized__,    // 02 45
+    Inst__Unrecognized__,    // 02 46
+    Inst__Unrecognized__,    // 02 47
+    Inst__Unrecognized__,    // 02 48
+    Inst__Unrecognized__,    // 02 49
+    Inst__Unrecognized__,    // 02 4A
+    Inst__Unrecognized__,    // 02 4B
+    Inst__Unrecognized__,    // 02 4C
+    Inst__Unrecognized__,    // 02 4D
+    Inst__Unrecognized__,    // 02 4E
+    Inst__Unrecognized__,    // 02 4F
+    Inst__Unrecognized__,    // 02 50
+    Inst__Unrecognized__,    // 02 51
+    Inst__Unrecognized__,    // 02 52
+    Inst__Unrecognized__,    // 02 53
+    Inst__Unrecognized__,    // 02 54
+    Inst__Unrecognized__,    // 02 55
+    Inst__Unrecognized__,    // 02 56
+    Inst__Unrecognized__,    // 02 57
+    Inst__Unrecognized__,    // 02 58
+    Inst__Unrecognized__,    // 02 59
+    Inst__Unrecognized__,    // 02 5A
+    Inst__Unrecognized__,    // 02 5B
+    Inst__Unrecognized__,    // 02 5C
+    Inst__Unrecognized__,    // 02 5D
+    Inst__Unrecognized__,    // 02 5E
+    Inst__Unrecognized__,    // 02 5F
+    Inst__Unrecognized__,    // 02 60
+    Inst__Unrecognized__,    // 02 61
+    Inst__Unrecognized__,    // 02 62
+    Inst__Unrecognized__,    // 02 63
+    Inst__Unrecognized__,    // 02 64
+    Inst__Unrecognized__,    // 02 65
+    Inst__Unrecognized__,    // 02 66
+    Inst__Unrecognized__,    // 02 67
+    Inst__Unrecognized__,    // 02 68
+    Inst__Unrecognized__,    // 02 69
+    Inst__Unrecognized__,    // 02 6A
+    Inst__Unrecognized__,    // 02 6B
+    Inst__Unrecognized__,    // 02 6C
+    Inst__Unrecognized__,    // 02 6D
+    Inst__Unrecognized__,    // 02 6E
+    Inst__Unrecognized__,    // 02 6F
+    Inst__Unrecognized__,    // 02 70
+    Inst__Unrecognized__,    // 02 71
+    Inst__Unrecognized__,    // 02 72
+    Inst__Unrecognized__,    // 02 73
+    Inst__Unrecognized__,    // 02 74
+    Inst__Unrecognized__,    // 02 75
+    Inst__Unrecognized__,    // 02 76
+    Inst__Unrecognized__,    // 02 77
+    Inst__Unrecognized__,    // 02 78
+    Inst__Unrecognized__,    // 02 79
+    Inst__Unrecognized__,    // 02 7A
+    Inst__Unrecognized__,    // 02 7B
+    Inst__Unrecognized__,    // 02 7C
+    Inst__Unrecognized__,    // 02 7D
+    Inst__Unrecognized__,    // 02 7E
+    Inst__Unrecognized__,    // 02 7F
+    Inst__Unrecognized__,    // 02 80
+    Inst__Unrecognized__,    // 02 81
+    Inst__Unrecognized__,    // 02 82
+    Inst__Unrecognized__,    // 02 83
+    Inst__Unrecognized__,    // 02 84
+    Inst__Unrecognized__,    // 02 85
+    Inst__Unrecognized__,    // 02 86
+    Inst__Unrecognized__,    // 02 87
+    Inst__Unrecognized__,    // 02 88
+    Inst__Unrecognized__,    // 02 89
+    Inst__Unrecognized__,    // 02 8A
+    Inst__Unrecognized__,    // 02 8B
+    Inst__Unrecognized__,    // 02 8C
+    Inst__Unrecognized__,    // 02 8D
+    Inst__Unrecognized__,    // 02 8E
+    Inst__Unrecognized__,    // 02 8F
+    Inst__Unrecognized__,    // 02 90
+    Inst__Unrecognized__,    // 02 91
+    Inst__Unrecognized__,    // 02 92
+    Inst__Unrecognized__,    // 02 93
+    Inst__Unrecognized__,    // 02 94
+    Inst__Unrecognized__,    // 02 95
+    Inst__Unrecognized__,    // 02 96
+    Inst__Unrecognized__,    // 02 97
+    Inst__Unrecognized__,    // 02 98
+    Inst__Unrecognized__,    // 02 99
+    Inst__Unrecognized__,    // 02 9A
+    Inst__Unrecognized__,    // 02 9B
+    Inst__Unrecognized__,    // 02 9C
+    Inst__Unrecognized__,    // 02 9D
+    Inst__Unrecognized__,    // 02 9E
+    Inst__Unrecognized__,    // 02 9F
+    Inst__Unrecognized__,    // 02 A0
+    Inst__Unrecognized__,    // 02 A1
+    Inst__Unrecognized__,    // 02 A2
+    Inst__Unrecognized__,    // 02 A3
+    Inst__Unrecognized__,    // 02 A4
+    Inst__Unrecognized__,    // 02 A5
+    Inst__Unrecognized__,    // 02 A6
+    Inst__Unrecognized__,    // 02 A7
+    Inst__Unrecognized__,    // 02 A8
+    Inst__Unrecognized__,    // 02 A9
+    Inst__Unrecognized__,    // 02 AA
+    Inst__Unrecognized__,    // 02 AB
+    Inst__Unrecognized__,    // 02 AC
+    Inst__Unrecognized__,    // 02 AD
+    Inst__Unrecognized__,    // 02 AE
+    Inst__Unrecognized__,    // 02 AF
+    Inst__Unrecognized__,    // 02 B0
+    Inst__Unrecognized__,    // 02 B1
+    Inst__Unrecognized__,    // 02 B2
+    Inst__Unrecognized__,    // 02 B3
+    Inst__Unrecognized__,    // 02 B4
+    Inst__Unrecognized__,    // 02 B5
+    Inst__Unrecognized__,    // 02 B6
+    Inst__Unrecognized__,    // 02 B7
+    Inst__Unrecognized__,    // 02 B8
+    Inst__Unrecognized__,    // 02 B9
+    Inst__Unrecognized__,    // 02 BA
+    Inst__Unrecognized__,    // 02 BB
+    Inst__Unrecognized__,    // 02 BC
+    Inst__Unrecognized__,    // 02 BD
+    Inst__Unrecognized__,    // 02 BE
+    Inst__Unrecognized__,    // 02 BF
+    Inst__Unrecognized__,    // 02 C0
+    Inst__Unrecognized__,    // 02 C1
+    Inst__Unrecognized__,    // 02 C2
+    Inst__Unrecognized__,    // 02 C3
+    Inst__Unrecognized__,    // 02 C4
+    Inst__Unrecognized__,    // 02 C5
+    Inst__Unrecognized__,    // 02 C6
+    Inst__Unrecognized__,    // 02 C7
+    Inst__Unrecognized__,    // 02 C8
+    Inst__Unrecognized__,    // 02 C9
+    Inst__Unrecognized__,    // 02 CA
+    Inst__Unrecognized__,    // 02 CB
+    Inst__Unrecognized__,    // 02 CC
+    Inst__Unrecognized__,    // 02 CD
+    Inst__Unrecognized__,    // 02 CE
+    Inst__Unrecognized__,    // 02 CF
+    Inst__Unrecognized__,    // 02 D0
+    Inst__Unrecognized__,    // 02 D1
+    Inst__Unrecognized__,    // 02 D2
+    Inst__Unrecognized__,    // 02 D3
+    Inst__Unrecognized__,    // 02 D4
+    Inst__Unrecognized__,    // 02 D5
+    Inst__Unrecognized__,    // 02 D6
+    Inst__Unrecognized__,    // 02 D7
+    Inst__Unrecognized__,    // 02 D8
+    Inst__Unrecognized__,    // 02 D9
+    Inst__Unrecognized__,    // 02 DA
+    Inst__Unrecognized__,    // 02 DB
+    Inst__Unrecognized__,    // 02 DC
+    Inst__Unrecognized__,    // 02 DD
+    Inst__Unrecognized__,    // 02 DE
+    Inst__Unrecognized__,    // 02 DF
+    Inst__Unrecognized__,    // 02 E0
+    Inst__Unrecognized__,    // 02 E1
+    Inst__Unrecognized__,    // 02 E2
+    Inst__Unrecognized__,    // 02 E3
+    Inst__Unrecognized__,    // 02 E4
+    Inst__Unrecognized__,    // 02 E5
+    Inst__Unrecognized__,    // 02 E6
+    Inst__Unrecognized__,    // 02 E7
+    Inst__Unrecognized__,    // 02 E8
+    Inst__Unrecognized__,    // 02 E9
+    Inst__Unrecognized__,    // 02 EA
+    Inst__Unrecognized__,    // 02 EB
+    Inst__Unrecognized__,    // 02 EC
+    Inst__Unrecognized__,    // 02 ED
+    Inst__Unrecognized__,    // 02 EE
+    Inst__Unrecognized__,    // 02 EF
+    Inst__Unrecognized__,    // 02 F0
+    Inst__Unrecognized__,    // 02 F1
+    Inst__Unrecognized__,    // 02 F2
+    Inst__Unrecognized__,    // 02 F3
+    Inst__Unrecognized__,    // 02 F4
+    Inst__Unrecognized__,    // 02 F5
+    Inst__Unrecognized__,    // 02 F6
+    Inst__Unrecognized__,    // 02 F7
+    Inst__Unrecognized__,    // 02 F8
+    Inst__Unrecognized__,    // 02 F9
+    Inst__Unrecognized__,    // 02 FA
+    Inst__Unrecognized__,    // 02 FB
+    Inst__Unrecognized__,    // 02 FC
+    Inst__Unrecognized__,    // 02 FD
+    Inst__Unrecognized__,    // 02 FE
+    Inst__Unrecognized__     // 02 FF
 };
 
 SC3Instruction* RNEDisassembler::DisassembleAt(SCXOffset address,
-                                              SCXOffset maxLength) {
+                                               SCXOffset maxLength) {
   uint8_t* inst = _file.getPData() + address;
   uint8_t opcodeMSB = inst[0];
   switch (opcodeMSB) {
@@ -3122,9 +3120,9 @@ SC3Instruction* RNEDisassembler::DisassembleAt(SCXOffset address,
     case 1:
       return DecoderTableGraph[inst[1]](inst, address, maxLength);
       break;
-	case 2:
-	  return DecoderTableGraph3D[inst[1]](inst, address, maxLength);
-	  break;
+    case 2:
+      return DecoderTableGraph3D[inst[1]](inst, address, maxLength);
+      break;
     case 0x10:
       return DecoderTableUser1[inst[1]](inst, address, maxLength);
       break;
