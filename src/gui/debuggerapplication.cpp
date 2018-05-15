@@ -32,11 +32,12 @@ bool DebuggerApplication::tryOpenProject(const QString& dbPath) {
 }
 
 bool DebuggerApplication::tryCreateProject(const QString& dbPath,
-                                           const QString& loadPath) {
+                                           const QString& loadPath,
+                                           const SupportedGame* game) {
   if (_project != nullptr) closeProject();
 
   try {
-    _project = new Project(dbPath, loadPath, this);
+    _project = new Project(dbPath, loadPath, game, this);
   } catch (std::runtime_error e) {
     return false;
   }

@@ -9,8 +9,11 @@
 #include "disassemblyview.h"
 #include <QDockWidget>
 #include <QInputDialog>
+#include <QFileDialog>
+#include <QMessageBox>
 #include "memoryview.h"
 #include "worklistdialog.h"
+#include "newprojectdialog.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow) {
@@ -132,12 +135,10 @@ void MainWindow::onLabelNameChanged(int fileId, int labelId,
 }
 
 void MainWindow::on_actionOpen_triggered() {
-  if (QFile("C:/Users/drdax/Documents/sc3ntist.sqlite").exists()) {
-    dApp->tryOpenProject("C:/Users/drdax/Documents/sc3ntist.sqlite");
-  } else {
-    dApp->tryCreateProject(
-        "C:/Users/drdax/Documents/sc3ntist.sqlite",
-        "G:/Games/SGTL/CHAOSCHILD/languagebarrier/enscript.mpk");
+  QString fileName = QFileDialog::getOpenFileName(
+      this, "Open project", QString(), "Project files (*.sqlite)");
+  if (!dApp->tryOpenProject(fileName)) {
+    QMessageBox::critical(this, "Error", "Could not open project");
   }
 }
 
@@ -165,4 +166,8 @@ void MainWindow::on_actionEdit_stylesheet_triggered() {
 void MainWindow::on_actionImport_worklist_triggered() {
   if (dApp->project() == nullptr) return;
   WorklistDialog(this).exec();
+}
+
+void MainWindow::on_actionNew_project_triggered() {
+  NewProjectDialog(this).exec();
 }

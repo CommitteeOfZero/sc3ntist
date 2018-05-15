@@ -4,6 +4,7 @@
 #include <map>
 #include <QObject>
 #include "parser/SCXFile.h"
+#include "parser/SupportedGame.h"
 #include <QtSql>
 #include "enums.h"
 #include "projectcontextprovider.h"
@@ -14,7 +15,7 @@ class Project : public QObject {
  public:
   // create new project
   explicit Project(const QString& dbPath, const QString& loadPath,
-                   QObject* parent);
+                   const SupportedGame* game, QObject* parent);
   // open old project
   explicit Project(const QString& dbPath, QObject* parent);
   ~Project();
@@ -62,6 +63,8 @@ class Project : public QObject {
   void allVarsChanged();
 
  private:
+  const SupportedGame* _game;
+
   QSqlDatabase _db;
   std::map<int, std::unique_ptr<SCXFile>> _files;
   int _currentFileId = -1;
@@ -92,6 +95,9 @@ class Project : public QObject {
   void insertLocalLabelRef(int fileId, SCXOffset address, int labelId);
   void insertString(int fileId, int stringId, const std::string& string);
 
+  int getGameId();
+  void setGameId(int gameId);
+
   QSqlQuery _getCommentQuery;
   QSqlQuery _setCommentQuery;
   QSqlQuery _getLabelNameQuery;
@@ -110,4 +116,6 @@ class Project : public QObject {
   QSqlQuery _insertLocalLabelRefQuery;
   QSqlQuery _getStringQuery;
   QSqlQuery _insertStringQuery;
+  QSqlQuery _getGameIdQuery;
+  QSqlQuery _setGameIdQuery;
 };

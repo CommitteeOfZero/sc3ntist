@@ -1,9 +1,8 @@
 #include "project.h"
-#include <parser/CCDisassembler.h>
+#include <parser/SC3BaseDisassembler.h>
 #include <parser/SC3CodeBlock.h>
 #include <parser/SC3Instruction.h>
 #include <parser/SC3StringDecoder.h>
-#include <parser/CCCharset.h>
 #include <QFile>
 #include <QDirIterator>
 #include <QStringList>
@@ -13,8 +12,8 @@
 
 // create new database
 Project::Project(const QString& dbPath, const QString& loadPath,
-                 QObject* parent = 0)
-    : QObject(parent), _contextProvider(this) {
+                 const SupportedGame* game, QObject* parent = 0)
+    : _game(game), QObject(parent), _contextProvider(this) {
   createDatabase(dbPath);
 
   std::vector<TmpFileData> files;
@@ -32,6 +31,9 @@ Project::Project(const QString& dbPath, const QString& loadPath,
   }
 
   _db.transaction();
+
+  setGameId(game->id());
+
   for (const auto& file : files) {
     insertFile(file.name, file.data, file.size, file.id);
   }
@@ -54,6 +56,9 @@ Project::Project(const QString& dbPath, QObject* parent = 0)
     : QObject(parent), _contextProvider(this) {
   openDatabase(dbPath);
   prepareStmts();
+
+  _game = SupportedGames[getGameId()];
+
   loadFilesFromDb();
 
   _inInitialLoad = false;
@@ -327,7 +332,7 @@ void Project::analyzeFile(const SCXFile* file) {
     }
   }
 
-  SC3StringDecoder strdec(*file, CCCharset);
+  SC3StringDecoder strdec(*file, _game->charset());
   const std::vector<std::string> stringTable = strdec.decodeStringTableToUtf8();
 
   int stringId = 0;
@@ -349,10 +354,12 @@ void Project::loadFilesFromDb() {
 
     std::unique_ptr<SCXFile> scxFile =
         std::unique_ptr<SCXFile>(new SCXFile(data, bdata.size(), name, id));
-    CCDisassembler dis(*scxFile);
-    dis.DisassembleFile();
+    SC3BaseDisassembler* dis = _game->createDisassembler(*scxFile);
+    dis->DisassembleFile();
 
     _files[id] = std::move(scxFile);
+
+    delete dis;
   }
 }
 
@@ -361,8 +368,8 @@ void Project::insertFile(const QString& name, uint8_t* data, int size, int id) {
 
   std::unique_ptr<SCXFile> scxFile =
       std::unique_ptr<SCXFile>(new SCXFile(data, size, name.toStdString(), id));
-  CCDisassembler dis(*scxFile);
-  dis.DisassembleFile();
+  SC3BaseDisassembler* dis = _game->createDisassembler(*scxFile);
+  dis->DisassembleFile();
 
   analyzeFile(scxFile.get());
 
@@ -372,6 +379,8 @@ void Project::insertFile(const QString& name, uint8_t* data, int size, int id) {
   _insertFileQuery.addBindValue(name.toUtf8());
   _insertFileQuery.addBindValue(vdata);
   _insertFileQuery.exec();
+
+  delete dis;
 }
 
 void Project::insertVariable(VariableRefType type, int var,
@@ -442,6 +451,20 @@ void Project::insertString(int fileId, int stringId,
   QVariant v(ba);
   _insertStringQuery.addBindValue(v);
   _insertStringQuery.exec();
+}
+
+int Project::getGameId() {
+  _getGameIdQuery.exec();
+  _getGameIdQuery.next();
+  int result;
+  if (_getGameIdQuery.isValid()) {
+    result = _getGameIdQuery.value(0).toInt();
+  }
+  return result;
+}
+void Project::setGameId(int gameId) {
+  _setGameIdQuery.addBindValue(gameId);
+  _setGameIdQuery.exec();
 }
 
 void Project::importWorklist(const QString& path, const char* encoding) {
@@ -556,6 +579,11 @@ void Project::createDatabase(const QString& path) {
       "text TEXT NOT NULL,"
       "PRIMARY KEY (fileId, stringId)"
       ")");
+  q.exec(
+      "CREATE TABLE keyValue("
+      "key TEXT PRIMARY KEY,"
+      "value BLOB NOT NULL"
+      ")");
   prepareStmts();
 }
 
@@ -621,4 +649,9 @@ void Project::prepareStmts() {
   _insertStringQuery = QSqlQuery(_db);
   _insertStringQuery.prepare(
       "INSERT INTO strings (fileId, stringId, text) VALUES (?, ?, ?)");
+  _getGameIdQuery = QSqlQuery(_db);
+  _getGameIdQuery.prepare("SELECT value FROM keyValue WHERE key = 'gameId'");
+  _setGameIdQuery = QSqlQuery(_db);
+  _setGameIdQuery.prepare(
+      "REPLACE INTO keyValue (key, value) VALUES ('gameId', ?)");
 }

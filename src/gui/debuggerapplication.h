@@ -4,6 +4,7 @@
 
 class MainWindow;
 class Project;
+class SupportedGame;
 
 #define dApp static_cast<::DebuggerApplication*>(QCoreApplication::instance())
 
@@ -20,7 +21,8 @@ class DebuggerApplication : public QApplication {
   Project* project() { return _project; }
 
   bool tryOpenProject(const QString& dbPath);
-  bool tryCreateProject(const QString& dbPath, const QString& loadPath);
+  bool tryCreateProject(const QString& dbPath, const QString& loadPath,
+                        const SupportedGame* game);
   void closeProject();
 
  signals:
