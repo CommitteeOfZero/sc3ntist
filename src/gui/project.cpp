@@ -1,5 +1,5 @@
 #include "project.h"
-#include <parser/CCDisassembler.h>
+#include <parser/RNEDisassembler.h>
 #include <parser/SC3CodeBlock.h>
 #include <parser/SC3Instruction.h>
 #include <QFile>
@@ -321,7 +321,7 @@ void Project::loadFilesFromDb() {
 
     std::unique_ptr<SCXFile> scxFile =
         std::unique_ptr<SCXFile>(new SCXFile(data, bdata.size(), name, id));
-    CCDisassembler dis(*scxFile);
+    RNEDisassembler dis(*scxFile);
     dis.DisassembleFile();
 
     _files[id] = std::move(scxFile);
@@ -333,7 +333,7 @@ void Project::insertFile(const QString& name, uint8_t* data, int size, int id) {
 
   std::unique_ptr<SCXFile> scxFile =
       std::unique_ptr<SCXFile>(new SCXFile(data, size, name.toStdString(), id));
-  CCDisassembler dis(*scxFile);
+  RNEDisassembler dis(*scxFile);
   dis.DisassembleFile();
 
   analyzeFile(scxFile.get());
