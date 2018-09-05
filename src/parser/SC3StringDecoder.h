@@ -31,8 +31,9 @@ enum SC3StringTokenType {
 
 class SC3StringDecoder {
  public:
-  SC3StringDecoder(const SCXFile& file, const std::vector<std::string>& charset)
-      : _file(file), _charset(charset){};
+  SC3StringDecoder(const SCXFile& file, const std::vector<std::string>& charset,
+                   bool sc3toolsCompat = false)
+      : _file(file), _charset(charset), _sc3toolsCompat(sc3toolsCompat){};
 
   std::vector<std::string> decodeStringTableToUtf8();
 
@@ -40,8 +41,10 @@ class SC3StringDecoder {
   const SCXFile& _file;
   const std::vector<std::string> _charset;
   uint8_t *_cursor, *_end;
+  bool _sc3toolsCompat;
 
   bool decodeToken(std::ostream& stream);
   void print(std::ostream& stream, uint16_t value);
   uint16_t readUint16BE();
+  std::string exprToString(uintptr_t* remaining);
 };

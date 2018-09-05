@@ -6,6 +6,9 @@
 // TODO token list instead of fully decoded string vector
 // (expression context?)
 
+// TODO clean up this mess of string handling methods
+// TODO don't hardcode ellipsis
+
 std::vector<std::string> SC3StringDecoder::decodeStringTableToUtf8() {
   std::vector<std::string> result;
 
@@ -44,7 +47,11 @@ bool SC3StringDecoder::decodeToken(std::ostream& stream) {
       error << "Character not in charset: " << id;
       throw std::runtime_error(error.str());
     }
-    stream << _charset[id];
+    if (_sc3toolsCompat && _charset[id] == u8"\ue100") {
+      stream << "[...]";
+    } else {
+      stream << _charset[id];
+    }
     return true;
   }
 
@@ -73,14 +80,8 @@ bool SC3StringDecoder::decodeToken(std::ostream& stream) {
       break;
     }
     case SetColor: {
-      SC3Expression expr(_cursor);
-      if (expr.rawLength() > remaining) {
-        throw std::runtime_error("Not enough data when parsing string");
-      }
-      remaining -= expr.rawLength();
-      _cursor += expr.rawLength();
       stream << "[color index=\"";
-      stream << expr.toString(true);
+      stream << exprToString(&remaining);
       stream << "\"]";
       break;
     }
@@ -149,14 +150,8 @@ bool SC3StringDecoder::decodeToken(std::ostream& stream) {
       break;
     }
     case EvaluateExpression: {
-      SC3Expression expr(_cursor);
-      if (expr.rawLength() > remaining) {
-        throw std::runtime_error("Not enough data when parsing string");
-      }
-      remaining -= expr.rawLength();
-      _cursor += expr.rawLength();
       stream << "[evaluate expr=\"";
-      stream << expr.toString(true);
+      stream << exprToString(&remaining);
       stream << "\"]";
       break;
     }
@@ -193,8 +188,37 @@ uint16_t SC3StringDecoder::readUint16BE() {
 }
 
 void SC3StringDecoder::print(std::ostream& stream, uint16_t value) {
-  std::ios oldState(nullptr);
-  oldState.copyfmt(stream);
-  stream << std::hex << std::setw(4) << std::setfill('0') << value;
-  stream.copyfmt(oldState);
+  if (_sc3toolsCompat) {
+    stream << value;
+  } else {
+    std::ios oldState(nullptr);
+    oldState.copyfmt(stream);
+    stream << std::hex << std::setw(4) << std::setfill('0') << value;
+    stream.copyfmt(oldState);
+  }
+}
+
+std::string uint8_array_to_hex_string(const uint8_t* bytes, size_t length) {
+  std::string result;
+  result.resize(length * 2);
+  char* out = &result[0];
+  for (size_t i = 0; i < length; i++) {
+    snprintf(out + 2 * i, 3, "%02X", bytes[i]);
+  }
+  return result;
+}
+
+std::string SC3StringDecoder::exprToString(uintptr_t* remaining) {
+  uint8_t* start = _cursor;
+  SC3Expression expr(_cursor);
+  if (expr.rawLength() > *remaining) {
+    throw std::runtime_error("Not enough data when parsing string");
+  }
+  *remaining -= expr.rawLength();
+  _cursor += expr.rawLength();
+  if (_sc3toolsCompat) {
+    return uint8_array_to_hex_string(start, expr.rawLength());
+  } else {
+    return expr.toString(true);
+  }
 }
