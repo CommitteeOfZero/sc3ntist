@@ -22,7 +22,7 @@ DECODER_PROC(EndOfScript) {
 }
 */
 
-NO_ARGS_DECODER_PROC(EndOfScript);
+I0(EndOfScript);
 
 DECODER_PROC(CreateThread) {
   DECODER_PROC_INIT();
@@ -86,9 +86,9 @@ DECODER_PROC(JumpIfFlag) {
   RETURN_INSTRUCTION("JumpIfFlag");
 }
 
-NO_ARGS_DECODER_PROC(ExitThread);
-NO_ARGS_DECODER_PROC(Halt);
-NO_ARGS_DECODER_PROC(Return);
+I0(ExitThread);
+I0(Halt);
+I0(Return);
 
 DECODER_PROC(Call) {
   DECODER_PROC_INIT();
@@ -208,7 +208,7 @@ DECODER_PROC(Unk0019) {
   RETURN_INSTRUCTION("Unk0019");
 }
 
-NO_ARGS_DECODER_PROC(Thread001A);
+I0(Thread001A);
 
 DECODER_PROC(Unk001B) {
   DECODER_PROC_INIT();
@@ -291,7 +291,7 @@ DECODER_PROC(Unk0031) {
   RETURN_INSTRUCTION("Unk0031");
 }
 
-NO_ARGS_DECODER_PROC(ResetSomething0032);
+I0(ResetSomething0032);
 
 DECODER_PROC(Wait) {
   DECODER_PROC_INIT();
@@ -307,7 +307,7 @@ DECODER_PROC(SetRichPresence) {
   RETURN_INSTRUCTION("SetRichPresence");
 }
 
-NO_ARGS_DECODER_PROC(Unk0034);
+I0(Unk0034);
 
 DECODER_PROC(Unk0035) {
   DECODER_PROC_INIT();
@@ -368,9 +368,9 @@ DECODER_PROC(EvalTwo) {
   RETURN_INSTRUCTION("EvalTwo")
 }
 
-NO_ARGS_DECODER_PROC(ResetAudioState);
-NO_ARGS_DECODER_PROC(Unk003F);
-NO_ARGS_DECODER_PROC(Nop);
+I0(ResetAudioState);
+I0(Unk003F);
+I0(Nop);
 
 DECODER_PROC(Unk0042) {
   DECODER_PROC_INIT();
@@ -440,7 +440,7 @@ DECODER_PROC(DebugCtrl) {
   RETURN_INSTRUCTION("DebugCtrl");
 }
 
-NO_ARGS_DECODER_PROC(WaitForSomething004B);
+I0(WaitForSomething004B);
 
 DECODER_PROC(Unk004C) {
   DECODER_PROC_INIT();
@@ -695,7 +695,7 @@ DECODER_PROC(Unk010A) {
   RETURN_INSTRUCTION("Unk010A");
 }
 
-NO_ARGS_DECODER_PROC(ClearDialogueBox);
+I0(ClearDialogueBox);
 
 DECODER_PROC(GroupLoadDialogue) {
   DECODER_PROC_INIT();
@@ -1024,7 +1024,7 @@ DECODER_PROC(Unk101D) {
   RETURN_INSTRUCTION("Unk101D");
 }
 
-NO_ARGS_DECODER_PROC(Unk101E);
+I0(Unk101E);
 
 DECODER_PROC(Unk101F) {
   DECODER_PROC_INIT();
@@ -1366,8 +1366,8 @@ DECODER_PROC(Unk103F) {
   RETURN_INSTRUCTION("Unk103F");
 }
 
-NO_ARGS_DECODER_PROC(Win32_SetResolution);
-NO_ARGS_DECODER_PROC(Win32_DestroyWindow);
+I0(Win32_SetResolution);
+I0(Win32_DestroyWindow);
 
 static DecoderProc DecoderTable00[256] = {
     InstEndOfScript,           // 00 00

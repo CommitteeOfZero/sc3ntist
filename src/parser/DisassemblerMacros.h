@@ -128,11 +128,94 @@ DECODER_PROC(__Unrecognized__);
     }                                                        \
   }
 
-#define NO_ARGS_DECODER_PROC(name)                                           \
+#define ADD_ARG(type, aname) ADD_##type##_ARG(aname)
+
+#define I0(name)                                                             \
   DECODER_PROC(name) {                                                       \
     DECODER_PROC_INIT();                                                     \
     return new SC3Instruction(address, (SCXOffset)(data - dataStart), #name, \
                               args);                                         \
+  }
+
+#define I1(name, type1, arg1)  \
+  DECODER_PROC(name) {         \
+    DECODER_PROC_INIT();       \
+    ADD_ARG(type1, arg1);      \
+    RETURN_INSTRUCTION(#name); \
+  }
+#define I2(name, type1, arg1, type2, arg2) \
+  DECODER_PROC(name) {                     \
+    DECODER_PROC_INIT();                   \
+    ADD_ARG(type1, arg1);                  \
+    ADD_ARG(type2, arg2);                  \
+    RETURN_INSTRUCTION(#name);             \
+  }
+#define I3(name, type1, arg1, type2, arg2, type3, arg3) \
+  DECODER_PROC(name) {                                  \
+    DECODER_PROC_INIT();                                \
+    ADD_ARG(type1, arg1);                               \
+    ADD_ARG(type2, arg2);                               \
+    ADD_ARG(type3, arg3);                               \
+    RETURN_INSTRUCTION(#name);                          \
+  }
+#define I4(name, type1, arg1, type2, arg2, type3, arg3, type4, arg4) \
+  DECODER_PROC(name) {                                               \
+    DECODER_PROC_INIT();                                             \
+    ADD_ARG(type1, arg1);                                            \
+    ADD_ARG(type2, arg2);                                            \
+    ADD_ARG(type3, arg3);                                            \
+    ADD_ARG(type4, arg4);                                            \
+    RETURN_INSTRUCTION(#name);                                       \
+  }
+#define I5(name, type1, arg1, type2, arg2, type3, arg3, type4, arg4, type5, \
+           arg5)                                                            \
+  DECODER_PROC(name) {                                                      \
+    DECODER_PROC_INIT();                                                    \
+    ADD_ARG(type1, arg1);                                                   \
+    ADD_ARG(type2, arg2);                                                   \
+    ADD_ARG(type3, arg3);                                                   \
+    ADD_ARG(type4, arg4);                                                   \
+    ADD_ARG(type5, arg5);                                                   \
+    RETURN_INSTRUCTION(#name);                                              \
+  }
+#define I6(name, type1, arg1, type2, arg2, type3, arg3, type4, arg4, type5, \
+           arg5, type6, arg6)                                               \
+  DECODER_PROC(name) {                                                      \
+    DECODER_PROC_INIT();                                                    \
+    ADD_ARG(type1, arg1);                                                   \
+    ADD_ARG(type2, arg2);                                                   \
+    ADD_ARG(type3, arg3);                                                   \
+    ADD_ARG(type4, arg4);                                                   \
+    ADD_ARG(type5, arg5);                                                   \
+    ADD_ARG(type6, arg6);                                                   \
+    RETURN_INSTRUCTION(#name);                                              \
+  }
+#define I7(name, type1, arg1, type2, arg2, type3, arg3, type4, arg4, type5, \
+           arg5, type6, arg6, type7, arg7)                                  \
+  DECODER_PROC(name) {                                                      \
+    DECODER_PROC_INIT();                                                    \
+    ADD_ARG(type1, arg1);                                                   \
+    ADD_ARG(type2, arg2);                                                   \
+    ADD_ARG(type3, arg3);                                                   \
+    ADD_ARG(type4, arg4);                                                   \
+    ADD_ARG(type5, arg5);                                                   \
+    ADD_ARG(type6, arg6);                                                   \
+    ADD_ARG(type7, arg7);                                                   \
+    RETURN_INSTRUCTION(#name);                                              \
+  }
+#define I8(name, type1, arg1, type2, arg2, type3, arg3, type4, arg4, type5, \
+           arg5, type6, arg6, type7, arg7, type8, arg8)                     \
+  DECODER_PROC(name) {                                                      \
+    DECODER_PROC_INIT();                                                    \
+    ADD_ARG(type1, arg1);                                                   \
+    ADD_ARG(type2, arg2);                                                   \
+    ADD_ARG(type3, arg3);                                                   \
+    ADD_ARG(type4, arg4);                                                   \
+    ADD_ARG(type5, arg5);                                                   \
+    ADD_ARG(type6, arg6);                                                   \
+    ADD_ARG(type7, arg7);                                                   \
+    ADD_ARG(type8, arg8);                                                   \
+    RETURN_INSTRUCTION(#name);                                              \
   }
 
 DECODER_PROC(__Unrecognized__) {
