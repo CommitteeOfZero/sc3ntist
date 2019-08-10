@@ -30,6 +30,6 @@ QMAKE_MOD_RCC = qrc${QMAKE_FUNC_fnPath}
 
 INCLUDEPATH += src
 
-SOURCES += $$files(src/parser/*.cpp, true)
-SOURCES += $$files(src/parser/*.c, true)
+#SOURCES += $$files(src/parser/*.cpp, true)
+#SOURCES += $$files(src/parser/*.c, true)
 HEADERS += $$files(src/parser/*.h, true)
