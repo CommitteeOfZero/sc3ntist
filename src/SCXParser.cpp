@@ -14,6 +14,7 @@
 #include "parser/ZeroDisassembler.h"
 #include "parser/RNEDisassembler.h"
 #include "parser/SC3StringDecoder.h"
+#include "parser/SGHDCharset.h"
 #include "parser/CCCharset.h"
 #include "parser/RNECharset.h"
 #include "parser/SCXFile.h"
@@ -140,7 +141,7 @@ SC3StringDecoder* chooseStringDec(std::string game, SCXFile& file)
     }
     else if (game == "SGHD")
     {
-        return new SC3StringDecoder(file,CCCharset);
+        return new SC3StringDecoder(file,SGHDCharset);
     }
     else if (game == "RNE")
     {
