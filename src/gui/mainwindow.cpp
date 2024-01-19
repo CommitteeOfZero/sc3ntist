@@ -10,6 +10,7 @@
 #include <QDockWidget>
 #include <QInputDialog>
 #include <QFileDialog>
+#include <QProgressDialog>
 #include <QMessageBox>
 #include "memoryview.h"
 #include "worklistdialog.h"
@@ -137,6 +138,9 @@ void MainWindow::onLabelNameChanged(int fileId, int labelId,
 void MainWindow::on_actionOpen_triggered() {
   QString fileName = QFileDialog::getOpenFileName(
       this, "Open project", QString(), "Project files (*.sqlite)");
+  if(fileName == NULL) {
+    return;
+  }
   if (!dApp->tryOpenProject(fileName)) {
     QMessageBox::critical(this, "Error", "Could not open project");
   }
@@ -171,3 +175,40 @@ void MainWindow::on_actionImport_worklist_triggered() {
 void MainWindow::on_actionNew_project_triggered() {
   NewProjectDialog(this).exec();
 }
+
+void MainWindow::on_actionExport_Files_triggered() {
+  if(dApp->project() == NULL) {
+    QMessageBox::warning(this, "No Project Active", "Please create or open a project first!");
+    return;
+  }
+
+  QString dir = QFileDialog::getExistingDirectory(this, tr("Directory to export to..."),
+                                                  QString(),
+                                                  QFileDialog::ShowDirsOnly);
+
+  if(dir == NULL) {
+    return;
+  }
+
+
+  QProgressDialog progress("Dumping files...", "Cancel", 0, dApp->project()->files().size(), this);
+  progress.setWindowModality(Qt::WindowModal);
+  progress.setMinimumDuration(0);
+  progress.setValue(0);
+
+  int fileCount = 0;
+  
+  for(const auto &fileMapPair : dApp->project()->files()) {
+    QString newFilePath = dir + QDir::separator() + QString::fromStdString(fileMapPair.second->getName()) + ".txt";
+    QFile exportedFile(newFilePath);
+    if (exportedFile.open(QIODevice::ReadWrite)) {
+      QTextStream stream(&exportedFile);
+      stream.setCodec("UTF-8");
+      stream << DumpSCXFileToText(false, dApp->project()->contextProvider(), fileMapPair.second.get());
+      progress.setValue(fileCount++);
+    }
+  }
+
+}
+
+

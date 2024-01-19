@@ -34,4 +34,5 @@ class MainWindow : public QMainWindow {
   void on_actionEdit_stylesheet_triggered();
   void on_actionImport_worklist_triggered();
   void on_actionNew_project_triggered();
+  void on_actionExport_Files_triggered();
 };
