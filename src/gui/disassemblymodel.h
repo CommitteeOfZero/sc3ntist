@@ -52,8 +52,6 @@ class DisassemblyModel : public QAbstractItemModel {
   std::vector<DisassemblyRow> _labelRows;
 
   void reload();
-
-  QString firstStringInInstruction(const SC3Instruction* inst) const;
 };
 
 struct DisassemblyRow {

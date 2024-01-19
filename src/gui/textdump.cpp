@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <sstream>
 #include <string>
+#include <QString>
 
 #include "parser/SC3Argument.h"
 #include "parser/SCXFile.h"
@@ -11,6 +12,8 @@
 #include "parser/IContextProvider.h"
 
 #include "guiutil.h"
+#include "project.h"
+#include "debuggerapplication.h"
 
 // TODO this could go into a per-file textifier class, held by DisassemblyModel,
 // really
@@ -364,7 +367,7 @@ std::string DumpSC3InstructionToText(bool richText, IContextProvider *ctx,
   if (inst->name() == "Assign") {
     if (richText) out << "<span class='InstAssign'>";
     out << SC3ArgumentToString(richText, ctx, fileId, inst->args().at(0));
-    out << "</span>";
+    if (richText) out << "</span>";
   } else {
     if (richText)
       out << "<span class='Inst" << inst->name()
@@ -390,12 +393,13 @@ std::string DumpSC3InstructionToText(bool richText, IContextProvider *ctx,
   return out.str();
 }
 
-std::string DumpSCXFileToText(bool richText, IContextProvider *ctx,
+QString DumpSCXFileToText(bool richText, IContextProvider *ctx,
                               const SCXFile *file) {
-  std::stringstream out;
+  QString output;
+  QTextStream out(&output);
 
   if (richText)
-    out << "<html><head><title>" << file->getName()
+    out << "<html><head><title>" << QString::fromStdString(file->getName())
         << "</title><link rel='stylesheet' type='text/css' "
            "href='sc3syntaxhighlight.css'></head><body>";
 
@@ -406,7 +410,7 @@ std::string DumpSCXFileToText(bool richText, IContextProvider *ctx,
       out << "\n\n";
 
     if (ctx != nullptr)
-      out << "#" << ctx->labelName(file->getId(), label->id()) << ":";
+      out << QString("#") + QString::fromStdString(ctx->labelName(file->getId(), label->id())) + ":";
     else
       out << "#label" << label->id() << "_" << label->address() << ":";
 
@@ -416,21 +420,48 @@ std::string DumpSCXFileToText(bool richText, IContextProvider *ctx,
       out << "\n";
 
     for (const auto &inst : label->instructions()) {
+      SCXOffset instAddr = inst->position();
       if (richText)
         out << "<div class='instruction'>";
       else
         out << "\t";
-
-      out << DumpSC3InstructionToText(richText, ctx, file->getId(), inst.get());
-
+      out << QString::fromStdString(DumpSC3InstructionToText(richText, ctx, file->getId(), inst.get()));
+      out << FirstStringInInstruction(inst.get(), file);
       if (richText)
         out << "</div><br>";
       else
         out << "\n";
+
+      QString comment =
+                dApp->project()->getComment(file->getId(), instAddr);
+      if (!comment.isEmpty()) {
+        if (richText)
+          out << "<div class='comment'>";
+        else
+          out << "\t";
+        out << QString("; ") + comment;
+        if (richText)
+          out << "</div><br>";
+        else
+          out << "\n";
+      }
     }
   }
 
   if (richText) out << "</body></html>";
 
-  return out.str();
+  return output;
+}
+
+QString FirstStringInInstruction(
+    const SC3Instruction *inst, const SCXFile* file) {
+  for (const auto &arg : inst->args()) {
+    if (arg.type == StringRef) {
+      if (arg.uint16_value < file->getStringCount())
+        return QString("; ") +
+               dApp->project()->getString(file->getId(), arg.uint16_value);
+      return "";
+    }
+  }
+  return "";
 }
