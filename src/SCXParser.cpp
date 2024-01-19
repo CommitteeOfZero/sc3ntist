@@ -1,16 +1,22 @@
 // SCXParser.cpp : Defines the entry point for the console application.
 //
 
-#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <sstream>
 #include <string>
-
+#include <iostream>
+//#include <experimental>
+#include <filesystem>
 #include "parser/SC3Argument.h"
 #include "parser/CCDisassembler.h"
+#include "parser/SGHDDisassembler.h"
+#include "parser/ZeroDisassembler.h"
+#include "parser/RNEDisassembler.h"
 #include "parser/SC3StringDecoder.h"
+#include "parser/SGHDCharset.h"
 #include "parser/CCCharset.h"
+#include "parser/RNECharset.h"
 #include "parser/SCXFile.h"
 #include "parser/SC3CodeBlock.h"
 
@@ -98,14 +104,75 @@ std::string GetFirstSC3String(const std::vector<std::string> &stringTable,
   return "";
 }
 
+void* chooseDisassembler(std::string game, SCXFile& file)
+{
+    if (game == "CC")
+    {
+        return new CCDisassembler(file);
+    }
+    else if (game == "SG0")
+    {
+        return new ZeroDisassembler(file);
+    }
+    else if (game == "SGHD")
+    {
+        return new SGHDDisassembler(file);
+    }
+    else if (game == "RNE")
+    {
+        return new RNEDisassembler(file);
+    }
+    else
+    {
+        std::cout<<"Game not supported or spelling mistake. Remember capslock";
+        return nullptr;
+    }
+}
+
+SC3StringDecoder* chooseStringDec(std::string game, SCXFile& file)
+{
+    if (game == "CC")
+    {
+        return new SC3StringDecoder(file,CCCharset);
+    }
+    else if (game == "SG0")
+    {
+        return new SC3StringDecoder(file,CCCharset);
+    }
+    else if (game == "SGHD")
+    {
+        return new SC3StringDecoder(file,SGHDCharset);
+    }
+    else if (game == "RNE")
+    {
+        return new SC3StringDecoder(file,RNECharset);
+    }
+    else
+    {
+        std::cout<<"Game not supported or spelling mistake. Remember capslock";
+        return nullptr;
+    }
+}
+
 int main() {
   std::vector<std::pair<uint8_t *, std::streamsize>> files;
 
-  std::string path = "G:\\Games\\SGTL\\CCEnVitaPatch101\\script_dis";
+  std::string path = "/path/to/gamescript";
+  std::string game = "CC";
+  std::cout<<"Please specify the path of the game scripts (folder with all .scx files)" << std::endl;
+  std::cin>>path;
+  std::cout<<"Please specify the game!\n CC, RNE, SG0 or SGHD"<<std::endl;
+  std::cin>>game;
+  if (game != "CC" && game != "SGHD" && game != "RNE" && game != "SG0") {
+      std::cout << "Game not supported or spelling mistake. Remember capslock";
+      return 0;
+  }
 
   int fileId = 0;
-  for (auto &p : std::experimental::filesystem::directory_iterator(path)) {
-    if (p.path().extension().string() != ".scx") continue;
+  for (auto &p : std::filesystem::directory_iterator(path)) {
+    //std::cout << p.path().string()<< std::endl;
+    std::string filext = p.path().extension().string();
+    if ((filext != ".scx") && (filext != ".SCX")) continue;
 
     std::ifstream file(p.path(), std::ios::binary | std::ios::ate);
     std::streamsize size = file.tellg();
@@ -116,11 +183,23 @@ int main() {
 
     std::string outPath = p.path().string() + ".txt";
     SCXFile scx(buf, size, p.path().filename().string(), fileId++);
-    CCDisassembler dis(scx);
-    dis.DisassembleFile();
-    SC3StringDecoder strdec(scx, CCCharset);
+    //SGHDDisassembler dis(scx);
+    void* dis = chooseDisassembler(game,scx);
+    if (dis != nullptr) {
+        if (game == "SGHD")
+            static_cast<SGHDDisassembler*>(dis)->DisassembleFile();
+        if (game == "SG0")
+            static_cast<ZeroDisassembler*>(dis)->DisassembleFile();
+        if (game == "CC")
+            static_cast<CCDisassembler*>(dis)->DisassembleFile();
+        if (game == "RNE")
+            static_cast<RNEDisassembler*>(dis)->DisassembleFile();
+    }
+    else
+        return 0;
+    SC3StringDecoder* strdec = chooseStringDec(game,scx);
     const std::vector<std::string> stringTable =
-        strdec.decodeStringTableToUtf8();
+        strdec->decodeStringTableToUtf8();
 
     std::ofstream outFile(outPath,
                           std::ios::out | std::ios::trunc | std::ios::binary);
@@ -151,6 +230,8 @@ int main() {
       }
     }
     outFile.close();
+    free(dis);
+    free(strdec);
   }
 
 #if 0
